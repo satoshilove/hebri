@@ -1,0 +1,7 @@
+
+> hermes-agent@1.0.0 postinstall
+> echo '✅ Node dependencies installed. Run: python run_agent.py --help'
+
+'? Node dependencies installed. Run: python run_agent.py --help'
+
+added 451 packages in 30s
