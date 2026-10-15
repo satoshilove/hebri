@@ -201,23 +201,28 @@ function bootstrapCacheDir(hermesHome) {
 }
 
 // The install.sh / install.ps1 that ships inside the already-installed agent
-// checkout under ~/.hermes/hermes-agent. Used as a last-resort fallback when
-// the pinned commit can't be fetched from GitHub (e.g. a locally-built desktop
-// app stamped to an unpushed HEAD).
+// checkout under the home dir. Used as a last-resort fallback when the pinned
+// commit can't be fetched from GitHub (e.g. a locally-built desktop app stamped
+// to an unpushed HEAD). The canonical install leaf is 'hebri-agent'; the
+// pre-rebrand 'hermes-agent' leaf is kept as a fallback for legacy checkouts.
 function installedAgentInstallScript(hermesHome) {
   if (!hermesHome) {
     return null
   }
 
-  const candidate = path.join(hermesHome, 'hermes-agent', 'scripts', installScriptName())
+  for (const leaf of ['hebri-agent', 'hermes-agent']) {
+    const candidate = path.join(hermesHome, leaf, 'scripts', installScriptName())
 
-  try {
-    fs.accessSync(candidate, fs.constants.R_OK)
+    try {
+      fs.accessSync(candidate, fs.constants.R_OK)
 
-    return candidate
-  } catch {
-    return null
+      return candidate
+    } catch {
+      // try the next leaf
+    }
   }
+
+  return null
 }
 
 function hasExistingGitCheckout(activeRoot) {

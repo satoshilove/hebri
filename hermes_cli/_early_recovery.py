@@ -623,10 +623,10 @@ def _find_uv_binary() -> str | None:
 
     uv-managed base interpreters carry an ``EXTERNALLY-MANAGED`` marker, so the stdlib ``pip``
     fallback refuses to touch them; the only sanctioned installer is then uv itself, which Hermes
-    vendors (``~/.hermes/bin/uv.exe``) or the user has on PATH.
+    vendors (``~/.hebri/bin/uv.exe``) or the user has on PATH.
     """
     exe = "uv.exe" if sys.platform == "win32" else "uv"
-    for sub in ((".hermes", "bin"), (".local", "bin"), (".cargo", "bin")):
+    for sub in ((".hebri", "bin"), (".hermes", "bin"), (".local", "bin"), (".cargo", "bin")):
         path = Path.home().joinpath(*sub, exe)
         if path.is_file():
             return str(path)

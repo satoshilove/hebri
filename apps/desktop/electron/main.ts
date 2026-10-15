@@ -852,8 +852,8 @@ if (INSTALL_STAMP) {
 // scripts/install.ps1's $HermesHome and scripts/install.sh's $HERMES_HOME.
 //
 // Defaults:
-//   Windows: %LOCALAPPDATA%\hermes (matches install.ps1)
-//   macOS / Linux: ~/.hermes (matches install.sh)
+//   Windows: %LOCALAPPDATA%\hebri (matches install.ps1)
+//   macOS / Linux: ~/.hebri (matches install.sh)
 //
 // Special case for Windows: if the user has a legacy ~/.hermes directory
 // (e.g., from a prior pip install or a manual setup) AND no
@@ -887,8 +887,8 @@ function resolveHermesHome() {
   }
 
   if (IS_WINDOWS && process.env.LOCALAPPDATA) {
-    const localappdata = path.join(process.env.LOCALAPPDATA, 'hermes')
-    const legacy = path.join(app.getPath('home'), '.hermes')
+    const localappdata = path.join(process.env.LOCALAPPDATA, 'hebri')
+    const legacy = path.join(app.getPath('home'), '.hebri')
 
     // Migrate transparently to LOCALAPPDATA, but honour an existing legacy
     // ~/.hermes setup (no LOCALAPPDATA install yet) so users don't lose state.
@@ -899,7 +899,7 @@ function resolveHermesHome() {
     return localappdata
   }
 
-  return path.join(app.getPath('home'), '.hermes')
+  return path.join(app.getPath('home'), '.hebri')
 }
 
 const HERMES_HOME = resolveHermesHome()
@@ -938,10 +938,10 @@ function pathWithHermesManagedNode(...entries) {
   return [...managed, ...entries, process.env.PATH].filter(Boolean).join(path.delimiter)
 }
 
-// ACTIVE_HERMES_ROOT — the canonical mutable Hermes install. Same path
+// ACTIVE_HEBRI_ROOT — the canonical mutable Hebri install. Same path
 // install.ps1 / install.sh use, so a desktop-only user and a CLI-only user end
 // up with identical layouts and can share one install.
-const ACTIVE_HERMES_ROOT = path.join(HERMES_HOME, 'hermes-agent')
+const ACTIVE_HERMES_ROOT = path.join(HERMES_HOME, 'hebri-agent')
 // VENV_ROOT — venv lives inside the repo, exactly like install.ps1 does it.
 const VENV_ROOT = path.join(ACTIVE_HERMES_ROOT, 'venv')
 // BOOTSTRAP_COMPLETE_MARKER — written by the first-launch bootstrap runner
@@ -1442,12 +1442,12 @@ Menu.setApplicationMenu(null)
 // Windows toast notifications silently no-op unless an AppUserModelID is set:
 // `new Notification().show()` returns without error and nothing appears. The
 // AUMID must match the installed Start Menu shortcut's AUMID, which
-// electron-builder derives from the build `appId` (com.nousresearch.hermes) —
+// electron-builder derives from the build `appId` (com.synapsek.hebri) —
 // keep this string in sync with package.json `build.appId`. macOS/Linux don't
 // need this, so gate it on Windows. (Fixes: desktop approval/turn notifications
 // never firing on Windows.)
 if (IS_WINDOWS) {
-  app.setAppUserModelId('com.nousresearch.hermes')
+  app.setAppUserModelId('com.synapsek.hebri')
 }
 
 // Seed the native About panel with the live Hermes version. This is refreshed
@@ -5308,7 +5308,7 @@ async function resolveHermesBackend(backendArgs) {
   }
 
   // 3. ACTIVE_HERMES_ROOT — the canonical install at
-  //    %LOCALAPPDATA%\\hermes\\hermes-agent (Windows) or ~/.hermes/hermes-agent.
+  //    %LOCALAPPDATA%\\hebri\\hebri-agent (Windows) or ~/.hebri/hebri-agent.
   //    A valid bootstrap marker proves Desktop finished the first-run install
   //    flow, but marker provenance is NOT the same thing as runtime usability:
   //    the CLI can create the exact same repo+venv layout, and older desktop
@@ -13520,9 +13520,9 @@ async function runHermesStart({ supervisorRecovery = false }: { supervisorRecove
             ...profileBackendParentEnv({ hermesHome: HERMES_HOME, profile: activeProfile }),
             // Explicitly pin HERMES_HOME for the child so Python's get_hermes_home()
             // resolves to the SAME location our resolveHermesHome() picked. Without
-            // this pin, Python falls back to ~/.hermes on every platform — fine on
+            // this pin, Python falls back to ~/.hebri on every platform — fine on
             // mac/linux (where our default matches), but on Windows our default is
-            // %LOCALAPPDATA%\hermes, which differs from C:\Users\<u>\.hermes.
+            // %LOCALAPPDATA%\hebri, which differs from C:\Users\<u>\.hebri.
             // Mismatch would split config / sessions / .env / logs across two
             // directories. install.ps1 sets HERMES_HOME via setx; the desktop
             // can't reliably do that, so we set it inline for every spawn.

@@ -1,9 +1,9 @@
 //! Filesystem paths + logging setup.
 //!
 //! Mirrors `hermes_constants.get_hermes_home()` from the Python CLI:
-//!   Windows: %LOCALAPPDATA%\hermes
-//!   macOS:   ~/.hermes
-//!   Linux:   ~/.hermes  (override via $HERMES_HOME)
+//!   Windows: %LOCALAPPDATA%\hebri
+//!   macOS:   ~/.hebri
+//!   Linux:   ~/.hebri  (override via $HERMES_HOME)
 //!
 //! NOTE (macOS): Python's get_hermes_home(), scripts/install.sh, and the
 //! Electron desktop's resolveHermesHome() ALL use ~/.hermes on macOS — there
@@ -31,21 +31,21 @@ pub fn hermes_home() -> PathBuf {
 
     #[cfg(target_os = "windows")]
     {
-        // %LOCALAPPDATA%\hermes — matches scripts/install.ps1's $HermesHome.
+        // %LOCALAPPDATA%\hebri — matches scripts/install.ps1's $HermesHome.
         if let Some(local_app_data) = dirs::data_local_dir() {
-            return local_app_data.join("hermes");
+            return local_app_data.join("hebri");
         }
     }
 
-    // macOS + Linux + fallback: ~/.hermes (matches Python get_hermes_home(),
+    // macOS + Linux + fallback: ~/.hebri (matches Python get_hermes_home(),
     // install.sh, and the Electron desktop's resolveHermesHome()).
     if let Some(home) = dirs::home_dir() {
-        return home.join(".hermes");
+        return home.join(".hebri");
     }
 
     // Last resort — current dir, almost certainly wrong but at least
     // doesn't panic.
-    PathBuf::from(".hermes")
+    PathBuf::from(".hebri")
 }
 
 pub fn log_dir() -> PathBuf {

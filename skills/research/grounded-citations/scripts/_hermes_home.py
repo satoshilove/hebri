@@ -18,6 +18,6 @@ try:
 except (ModuleNotFoundError, ImportError):
 
     def get_hermes_home() -> Path:
-        """Return the Hermes home directory (default: ``~/.hermes``)."""
+        """Return the Hebri home directory (default: ``~/.hebri``)."""
         val = os.environ.get("HERMES_HOME", "").strip()
-        return Path(val) if val else Path.home() / ".hermes"
+        return Path(val) if val else Path.home() / ".hebri"

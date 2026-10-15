@@ -50,16 +50,16 @@ const APP = (() => {
 })()
 
 // Default HERMES_HOME for non-sandboxed runs -- matches main.ts's
-// resolveHermesHome(). On Windows it's %LOCALAPPDATA%\hermes; elsewhere
-// it's ~/.hermes. The fresh-install sandbox launchFresh() sets its own
+// resolveHermesHome(). On Windows it's %LOCALAPPDATA%\hebri; elsewhere
+// it's ~/.hebri. The fresh-install sandbox launchFresh() sets its own
 // HERMES_HOME and never touches this.
 const DEFAULT_HERMES_HOME = (() => {
   if (PLATFORM === 'win32' && process.env.LOCALAPPDATA) {
-    return path.join(process.env.LOCALAPPDATA, 'hermes')
+    return path.join(process.env.LOCALAPPDATA, 'hebri')
   }
-  return path.join(os.homedir(), '.hermes')
+  return path.join(os.homedir(), '.hebri')
 })()
-const VENV_ROOT = path.join(DEFAULT_HERMES_HOME, 'hermes-agent', 'venv')
+const VENV_ROOT = path.join(DEFAULT_HERMES_HOME, 'hebri-agent', 'venv')
 const FRESH_SANDBOX_ROOT = path.join(os.tmpdir(), 'hermes-desktop-fresh-install')
 
 function die(message) {

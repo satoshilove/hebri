@@ -203,7 +203,7 @@ function defaultControlDir() {
     return path.join(os.tmpdir(), 'hermes-desktop-ssh')
   }
 
-  return path.join(os.homedir(), '.hermes', 'desktop-ssh')
+  return path.join(os.homedir(), '.hebri', 'desktop-ssh')
 }
 
 // Command construction (pure — the unit tests exercise these directly)

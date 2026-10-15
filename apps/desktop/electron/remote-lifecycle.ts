@@ -282,9 +282,9 @@ async function probeRemotePlatform(ssh) {
 // state store; best-effort.
 async function probeRemoteHermesHome(ssh) {
   try {
-    const out = (await ssh.exec('echo "${HERMES_HOME:-$HOME/.hermes}"')).trim().split('\n').pop()
+    const out = (await ssh.exec('echo "${HERMES_HOME:-$HOME/.hebri}"')).trim().split('\n').pop()
 
-    return out || '~/.hermes'
+    return out || '~/.hebri'
   } catch (cause) {
     const error: any = new Error('Could not resolve the remote Hermes home.')
     error.kind = 'transient-transport-error'
@@ -1114,10 +1114,10 @@ function buildSpawnCommand(hermesPath, profile, opts: any = {}) {
   const tokenArg = tokenFilePath ? ` --ssh-session-token-file ${expandRemotePath(tokenFilePath)}` : ''
   const ownerArg = opts.spawnNonce ? ` --ssh-owner-nonce ${validateSpawnNonce(opts.spawnNonce)}` : ''
   const subCmd = `serve --isolated --host 127.0.0.1 --port 0${tokenArg}${ownerArg}`
-  const marker = expandRemotePath(`${remoteInstallRoot(opts.hermesHome || '~/.hermes')}/.hermes-update-in-progress`)
+  const marker = expandRemotePath(`${remoteInstallRoot(opts.hermesHome || '~/.hebri')}/.hermes-update-in-progress`)
 
   const updateMutex = expandRemotePath(
-    `${remoteInstallRoot(opts.hermesHome || '~/.hermes')}/.hermes-update-in-progress.mutex`
+    `${remoteInstallRoot(opts.hermesHome || '~/.hebri')}/.hermes-update-in-progress.mutex`
   )
 
   // The marker probe, ownership reservation, process creation, and initial
@@ -1247,7 +1247,7 @@ async function spawnRemoteDashboard(
     profile,
     token,
     ownershipId,
-    hermesHome = '~/.hermes',
+    hermesHome = '~/.hebri',
     guestOnboarding = false,
     assertInstallClear = async () => {}
   }

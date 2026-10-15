@@ -14,13 +14,13 @@ from typing import Optional
 
 
 def _constants_path(getter_name: str) -> Path:
-    """Call ``hermes_constants.<getter_name>()`` (local import avoids cycles); ``~/.hermes`` on any failure."""
+    """Call ``hermes_constants.<getter_name>()`` (local import avoids cycles); ``~/.hebri`` on any failure."""
     try:
         import hermes_constants
 
         return getattr(hermes_constants, getter_name)()
     except Exception:
-        return Path(os.path.expanduser("~/.hermes"))
+        return Path(os.path.expanduser("~/.hebri"))
 
 
 def _hermes_home_path() -> Path:

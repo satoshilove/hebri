@@ -476,14 +476,14 @@ def _nonempty_str(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-# ── Auth Store — persistence layer for ~/.hermes/auth.json ──────────────────────────────────────────
+# ── Auth Store — persistence layer for ~/.hebri/auth.json ──────────────────────────────────────────
 
 def _auth_file_path() -> Path:
     path = get_hermes_home() / "auth.json"
     # Seat belt: under pytest, refuse to touch the real user's auth store (tests that forgot to
     # monkeypatch HERMES_HOME or escaped the hermetic conftest). In production: one dict lookup.
     if (os.environ.get("PYTEST_CURRENT_TEST")
-            and _same_path(path, Path.home() / ".hermes" / "auth.json")):
+            and _same_path(path, Path.home() / ".hebri" / "auth.json")):
         raise RuntimeError(
             f"Refusing to touch real user auth store during test run: {path}. "
             "Set HERMES_HOME to a tmp_path in your test fixture, or run "
@@ -520,7 +520,7 @@ def _load_global_auth_store() -> Dict[str, Any]:
     if cache_key is not None and cached is not None and cached[:2] == cache_key:
         return cached[2]
     if os.environ.get("PYTEST_CURRENT_TEST") and os.environ.get("HOME"):
-        real_root = Path(os.environ["HOME"]) / ".hermes" / "auth.json"
+        real_root = Path(os.environ["HOME"]) / ".hebri" / "auth.json"
         try:
             if global_path.resolve(strict=False) == real_root.resolve(strict=False):
                 _global_auth_store_cache = None

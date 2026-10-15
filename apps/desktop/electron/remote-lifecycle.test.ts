@@ -74,7 +74,7 @@ function ownedLock(over: any = {}) {
     port: 40000,
     profile: '',
     hermesPath: '~/.local/bin/hermes',
-    hermesHome: '~/.hermes',
+    hermesHome: '~/.hebri',
     logPath: spawnLogPath(OWNERSHIP_ID, SPAWN_NONCE),
     tokenFingerprint: fingerprintToken('stored-token'),
     startedAt: '2026-07-14T00:00:00.000Z',

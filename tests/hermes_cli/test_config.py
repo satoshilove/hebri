@@ -39,7 +39,7 @@ class TestGetHermesHome:
             os.environ.pop("HERMES_HOME", None)
             home = get_hermes_home()
             if sys.platform == "win32":
-                # Windows default is %LOCALAPPDATA%\hermes — see
+                # Windows default is %LOCALAPPDATA%\hebri — see
                 # hermes_constants._get_platform_default_hermes_home.
                 local_appdata = os.environ.get("LOCALAPPDATA", "").strip()
                 base = (
@@ -47,9 +47,9 @@ class TestGetHermesHome:
                     if local_appdata
                     else Path.home() / "AppData" / "Local"
                 )
-                assert home == base / "hermes"
+                assert home == base / "hebri"
             else:
-                assert home == Path.home() / ".hermes"
+                assert home == Path.home() / ".hebri"
 
 
 class TestEnsureHermesHome:

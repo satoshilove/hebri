@@ -55,8 +55,8 @@ def _get_platform_default_hermes_home() -> Path:
     if sys.platform == "win32":
         local_appdata = os.environ.get("LOCALAPPDATA", "").strip()
         base = Path(local_appdata) if local_appdata else Path.home() / "AppData" / "Local"
-        return base / "hermes"
-    return Path.home() / ".hermes"
+        return base / "hebri"
+    return Path.home() / ".hebri"
 
 
 def sudo_invoker_default_home() -> Path | None:
@@ -73,7 +73,7 @@ def sudo_invoker_default_home() -> Path | None:
     import pwd
 
     try:
-        return Path(pwd.getpwnam(sudo_user).pw_dir) / ".hermes"
+        return Path(pwd.getpwnam(sudo_user).pw_dir) / ".hebri"
     except KeyError:  # SUDO_USER not in passwd (chroot/container)
         return None
 
@@ -247,7 +247,7 @@ def _is_hermes_profiles_root(profiles_dir: Path) -> bool:
     ``profiles/.deleted`` tombstone dir (only ``profile delete`` creates it), or the default root.
     """
     root = profiles_dir.parent
-    if root.name == ".hermes":
+    if root.name in (".hermes", ".hebri"):
         return True
     try:
         if (profiles_dir / _DELETED_PROFILES_DIR).is_dir() or any(
@@ -273,7 +273,7 @@ def named_profile_home(path: str | Path) -> Path | None:
         if (candidate.parent.name == "profiles" and not candidate.name.startswith(".")
                 and _is_hermes_profiles_root(candidate.parent)):
             return candidate
-        if candidate.name == ".hermes":  # default home: a coincidental profiles/ ancestor is not a root
+        if candidate.name in (".hermes", ".hebri"):  # default home: a coincidental profiles/ ancestor is not a root
             return None
     return None
 
