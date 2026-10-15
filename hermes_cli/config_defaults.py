@@ -1244,7 +1244,7 @@ DEFAULT_CONFIG = {
         "provider": "openwakeword",
         # sherpa: this IS the detected phrase; other engines: cosmetic label (detection is keyed by
         # the model/keyword below)
-        "phrase": "hey hermes",
+        "phrase": "hey hebri",
         "sensitivity": 0.6,  # 0.0-1.0 threshold, consistent across engines (higher = stricter)
         # openWakeWord only: consecutive over-threshold frames to fire (higher = fewer false
         # triggers, more latency; 1 = single-frame)
@@ -1794,7 +1794,7 @@ DEFAULT_CONFIG = {
         "chronos": {
             # NAS/portal base URL that arms/cancels one-shots and mints the inbound fire JWT (used
             # as the expected issuer).
-            "portal_url": "https://portal.nousresearch.com",
+            "portal_url": __import__("os").environ.get("HEBRI_PORTAL_URL", "https://portal.nousresearch.com"),
             # This agent's publicly reachable base URL; NAS POSTs {callback_url}/api/cron/fire. ""
             # -> Chronos unavailable, resolver falls back to the built-in ticker.
             "callback_url": "",

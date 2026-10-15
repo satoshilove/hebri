@@ -31,7 +31,7 @@ const buildUiState = (): UiState => ({
   sessionTitle: '',
   showReasoning: false,
   sid: null,
-  status: 'summoning hermes…',
+  status: 'summoning Hebri…',
   statusBar: 'top',
   storedSid: null,
   statusBarFields: null,

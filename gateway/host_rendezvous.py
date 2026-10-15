@@ -20,7 +20,7 @@ PID is dead, or whose PID is alive with a different process creation time (PID r
 STALE and is ignored — an attaching client must never dial a recycled PID's port.
 
 **Relationship to ``spawn-ledger.json``** (``hermes_cli/process_identity.py``): the ledger stays
-the append-only machine roster of every long-lived Hermes process (Desktop's attach ladder reads
+the append-only machine roster of every long-lived Hebri process (Desktop's attach ladder reads
 it) and is still written unchanged. It cannot be the host record: it has no lock, no
 single-writer semantics, no removal on exit, and no place to publish a protocol version or
 an authentication handle. The record here is authoritative for "who owns this host role"; the

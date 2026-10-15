@@ -1630,7 +1630,7 @@ class SlackAdapter(BasePlatformAdapter):
             self._app.event(event_type)(_listener_for(handler))
         # Catch-all ack: unacked envelopes count as failures and past 95%/60-min Slack disables
         # Event Subscriptions (ALL inbound). Registered AFTER all named handlers (first match wins).
-        # Catch-all no-op ack for any other subscribed event type that Hermes has no listener for (e.g.
+        # Catch-all no-op ack for any other subscribed event type that Hebri has no listener for (e.g.
         # user_change, user_huddle_changed, member_joined_channel, channel_archive, pin_added, etc.). Two
         # reasons this must exist (issues #6572 and the Event Subscriptions auto-disable failure mode): 1.
         # Correctness at scale: without a matching listener, slack-bolt returns HTTP 404 for every unhandled
@@ -1648,7 +1648,7 @@ class SlackAdapter(BasePlatformAdapter):
         async def handle_unhandled_event(event, body, logger):
             logger.debug(
                 "[Slack] Ignoring unhandled event type=%s (no listener registered; subscribed "
-                "events not handled by Hermes can be removed from the Slack app manifest via "
+                "events not handled by Hebri can be removed from the Slack app manifest via "
                 "`hermes slack manifest`)",
                 (event or {}).get("type", (body or {}).get("event", {}).get("type", "unknown")))
 
@@ -1881,7 +1881,7 @@ class SlackAdapter(BasePlatformAdapter):
             client = self._get_client(parent_chat_id)
             if client is None:
                 return None
-            seed_text = f":thread: Hermes handoff — *{(name or 'session').strip()[:80]}*"
+            seed_text = f":thread: Hebri handoff — *{(name or 'session').strip()[:80]}*"
             result = await client.chat_postMessage(channel=parent_chat_id, text=seed_text)
             ts = _slack_response_payload(result).get("ts")
             return str(ts) if ts else None
@@ -2064,7 +2064,7 @@ class SlackAdapter(BasePlatformAdapter):
         return self._native_task_card_key(chat_id, reply_to, metadata) is not None
 
     async def send_native_task_card_progress(
-        self, chat_id: str, tasks: List[Dict[str, str]], *, title: str = "Hermes is working",
+        self, chat_id: str, tasks: List[Dict[str, str]], *, title: str = "Hebri is working",
         reply_to: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None,
         fallback_text: Optional[str] = None) -> SendResult:
         """Start or update a Slack-native plan/task progress stream."""
@@ -6619,7 +6619,7 @@ _SETUP_STEPS = (
     "   3. Install to Workspace: Settings → Install App",
     "   4. After installing, invite the bot to channels: /invite @YourBot",)
 _SETUP_HOME_CHANNEL_HELP = (
-    "📬 Home Channel: where Hermes delivers cron job results,",
+    "📬 Home Channel: where Hebri delivers cron job results,",
     "   cross-platform messages, and notifications.",
     "   To get a channel ID: open the channel in Slack, then right-click",
     "   the channel name → Copy link — the ID starts with C (e.g. C01ABC2DE3F).",
@@ -6633,7 +6633,7 @@ def _write_slack_manifest_and_instruct() -> None:
         from hermes_cli.slack_cli import _build_full_manifest
         from hermes_constants import get_hermes_home
         manifest = _build_full_manifest(
-            bot_name="Hermes", bot_description="Your Hermes agent on Slack")
+            bot_name="Hebri", bot_description="Your Hebri agent on Slack")
         target = _Path(get_hermes_home()) / "slack-manifest.json"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
@@ -6645,7 +6645,7 @@ def _write_slack_manifest_and_instruct() -> None:
             "reinstall if scopes or slash commands changed.")
         print_info(
             "   Re-run `hermes slack manifest --write` anytime to refresh after "
-            "Hermes adds new commands.")
+            "Hebri adds new commands.")
     except Exception as e:
         print_warning(f"Could not write Slack manifest: {e}")
 
@@ -6731,7 +6731,7 @@ _is_connected = _env_is_connected("SLACK_BOT_TOKEN")
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Hebri plugin system."""
     ctx.register_platform(
         name="slack",
         label="Slack",

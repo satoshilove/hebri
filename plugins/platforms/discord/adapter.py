@@ -95,7 +95,7 @@ _DISCORD_MAX_APP_COMMANDS = 100
 _REQUIRED = object()
 _NATIVE_SLASH_COMMANDS: tuple = (
     ("new", "Start a new conversation", (), "/reset", "New conversation started~"),
-    ("reset", "Reset your Hermes session", (), "/reset", "Session reset~"),
+    ("reset", "Reset your Hebri session", (), "/reset", "Session reset~"),
     ("model", "Show or change the model",
      (("name", str, "", "Model name (e.g. anthropic/claude-sonnet-4). Leave empty to see current.", None),),
      "/model {name}", None),
@@ -112,9 +112,9 @@ _NATIVE_SLASH_COMMANDS: tuple = (
      "/personality {name}", None),
     ("retry", "Retry your last message", (), "/retry", "Retrying~"),
     ("undo", "Remove the last exchange", (), "/undo", None),
-    ("status", "Show Hermes session status", (), "/status", "Status sent~"),
+    ("status", "Show Hebri session status", (), "/status", "Status sent~"),
     ("sethome", "Set this chat as the home channel", (), "/sethome", None),
-    ("stop", "Stop the running Hermes agent", (), "/stop", "Stop requested~"),
+    ("stop", "Stop the running Hebri agent", (), "/stop", "Stop requested~"),
     ("steer", "Inject a message after the next tool call (no interrupt)",
      (("prompt", str, _REQUIRED, "Text to inject into the agent's next tool result", None),),
      "/steer {prompt}", None),
@@ -143,8 +143,8 @@ _NATIVE_SLASH_COMMANDS: tuple = (
         ("tts — voice reply to all messages", "tts"), ("off — text only", "off"),
         ("status — show current mode", "status"))),),
      "/voice {mode}", None),
-    ("update", "Update Hermes Agent to the latest version", (), "/update", "Update initiated~"),
-    ("restart", "Gracefully restart the Hermes gateway", (), "/restart", "Restart requested~"),
+    ("update", "Update Hebri to the latest version", (), "/update", "Update initiated~"),
+    ("restart", "Gracefully restart the Hebri gateway", (), "/restart", "Restart requested~"),
     ("approve", "Approve a pending dangerous command",
      (("scope", str, "", "Optional: 'all', 'session', 'always', 'all session', 'all always'", None),),
      "/approve {scope}", None),
@@ -152,7 +152,7 @@ _NATIVE_SLASH_COMMANDS: tuple = (
      (("scope", str, "", "Optional: 'all' to deny all pending commands", None),),
      "/deny {scope}", None),
     # /thread: template None -> registered by _register_thread_slash (auth-gated defer).
-    ("thread", "Create a new thread and start a Hermes session in it", (), None, None),
+    ("thread", "Create a new thread and start a Hebri session in it", (), None, None),
     ("queue", "Queue a prompt for the next turn (doesn't interrupt)",
      (("prompt", str, _REQUIRED, "The prompt to queue", None),),
      "/queue {prompt}", "Queued for the next turn."),
@@ -192,7 +192,7 @@ _DISCORD_NONCONVERSATIONAL_HISTORY_MESSAGE_PATTERNS = (
         re.IGNORECASE,
     ),
     re.compile(
-        r"^\s*(?:✅|❌)\s+Hermes update\s+"
+        r"^\s*(?:✅|❌)\s+(?:Hebri|Hebri) update\s+"
         r"(?:finished|failed|timed out)[\s\S]*$",
         re.IGNORECASE,
     ),
@@ -371,7 +371,7 @@ def _format_privileged_intents_guidance(*, needs_members: bool) -> str:
     lines = [
         "Discord rejected the connection because privileged Gateway Intents "
         "are not enabled for this bot in the Developer Portal.",
-        "Hermes is requesting:",
+        "Hebri is requesting:",
         "  - Message Content Intent (required to read message text)",
     ]
     if needs_members:
@@ -2460,7 +2460,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
         self._with_discord_recovery_db(_op)
 
     async def _should_backfill_discord_message(self, message: Any) -> bool:
-        """Return True when a recent Discord message still needs Hermes work."""
+        """Return True when a recent Discord message still needs Hebri work."""
         if not self._client or not getattr(self._client, "user", None):
             return False
         if getattr(getattr(message, "author", None), "id", None) == getattr(self._client.user, "id", None):
@@ -2475,7 +2475,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
         return not await self._message_has_non_down_bot_response(message)
 
     def _is_down_notice_content(self, content: str) -> bool:
-        """Recognize only explicit Hermes/gateway outage notices."""
+        """Recognize only explicit Hebri/gateway outage notices."""
         text = (content or "").lower()
         subject = r"(?:hermes|the agent|agent|the gateway|gateway|bmo)"
         state = r"(?:is|was|appears to be|is currently|was currently)"
@@ -2766,7 +2766,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
         return "safe"
 
     def _canonicalize_app_command_payload(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Reduce command payloads to the semantic fields Hermes manages."""
+        """Reduce command payloads to the semantic fields Hebri manages."""
         contexts = payload.get("contexts")
         integration_types = payload.get("integration_types")
         return {
@@ -3883,7 +3883,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
         return bool(channel_ids & allowed)
 
     def _is_pairing_approved_user(self, user_id: str) -> bool:
-        """True when the Discord user has an explicit Hermes pairing grant."""
+        """True when the Discord user has an explicit Hebri pairing grant."""
         user_id = str(user_id or "").strip()
         if not user_id:
             return False
@@ -4412,7 +4412,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
     def _register_thread_slash(self, tree, name: str, description: str) -> None:
         @tree.command(name=name, description=description)
         @discord.app_commands.describe(
-            name="Thread name", message="Optional first message to send to Hermes in the thread",
+            name="Thread name", message="Optional first message to send to Hebri in the thread",
             auto_archive_duration="Auto-archive in minutes (60, 1440, 4320, 10080)",
         )
         async def slash_thread(
@@ -4592,7 +4592,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
                 _desc, cmd_key = entry
                 await self._run_simple_slash(interaction, f"{cmd_key} {args}".strip())
             cmd = discord.app_commands.Command(
-                name="skill", description="Run a Hermes skill", callback=_skill_handler,
+                name="skill", description="Run a Hebri skill", callback=_skill_handler,
             )
             tree.add_command(cmd)
             logger.info(
@@ -5264,7 +5264,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
             return self._thread_created(thread, name)
         except Exception as direct_error:
             try:
-                seed_content = starter_message or f"\U0001f9f5 Thread created by Hermes: **{name}**"
+                seed_content = starter_message or f"\U0001f9f5 Thread created by Hebri: **{name}**"
                 seed_msg = await parent_channel.send(seed_content)
                 thread = await seed_msg.create_thread(
                     name=name, auto_archive_duration=auto_archive_duration, reason=reason,
@@ -5292,7 +5292,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
 
         Strip Discord mention syntax (users / roles / channels) so thread titles don't show raw <@id>,
         <@&id>, or <#id> markers — the ID isn't meaningful to humans glancing at the thread list (#6336).
-        Real semantic naming is done after the first agent turn, when Hermes has an LLM-generated session
+        Real semantic naming is done after the first agent turn, when Hebri has an LLM-generated session
         title and can safely rename only this newly-created thread.
         """
         content = (content or "").strip()
@@ -5300,7 +5300,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
         content = re.sub(r"<@[!&]?\d+>", "", content)
         content = re.sub(r"<#\d+>", "", content)
         content = re.sub(r"\s+", " ", content).strip()
-        thread_name = content[:80] if content else "Hermes"
+        thread_name = content[:80] if content else "Hebri"
         if len(content) > 80:
             thread_name = thread_name[:77] + "..."
         return thread_name
@@ -5334,7 +5334,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
                 last_direct_error = direct_error
                 try:
                     seed_msg = await message.channel.send(
-                        f"\U0001f9f5 Thread created by Hermes: **{thread_name}**"
+                        f"\U0001f9f5 Thread created by Hebri: **{thread_name}**"
                     )
                     thread = await seed_msg.create_thread(name=thread_name, auto_archive_duration=1440, reason=reason)
                     return self._stamp_auto_thread_name(thread, thread_name)
@@ -5387,7 +5387,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
         if edit is None:
             return False
         try:
-            await edit(name=cleaned, reason="Hermes semantic session title")
+            await edit(name=cleaned, reason="Hebri semantic session title")
             logger.info(
                 "[%s] Renamed Discord thread %s from %r to %r",
                 self.name, thread_id, current_name, cleaned,
@@ -5423,7 +5423,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
             )
             return None
         thread_name = (name or "handoff").strip()[:80] or "handoff"
-        reason = "Hermes session handoff"
+        reason = "Hebri session handoff"
         try:
             create = getattr(parent, "create_thread", None)
             if create is not None:
@@ -5438,7 +5438,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
             send = getattr(parent, "send", None)
             if send is None:
                 return None
-            seed_msg = await send(f"\U0001f9f5 Hermes handoff: **{thread_name}**")
+            seed_msg = await send(f"\U0001f9f5 Hebri handoff: **{thread_name}**")
             thread = await seed_msg.create_thread(
                 name=thread_name, auto_archive_duration=1440, reason=reason,
             )
@@ -5499,7 +5499,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
 
     # Payload lives in plain content: embeds can be invisible/detached on web/mobile.
     _EA_HEADER = (f"⚠️ **{EA_HEADER_TEXT}**\n\n"
-                  "Do you want Hermes to run this command?\n\n"
+                  "Do you want Hebri to run this command?\n\n"
                   "**Requested command:**\n")
     _EA_CODE_OPEN = "```bash\n"
     _EA_CODE_CLOSE = "\n```\n"
@@ -5589,7 +5589,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
         def _build(_channel):
             # Header-only card (same rule as the exec approval prompt): the question and hint live
             # in content only, so embed-rendering clients don't see them twice (#114693).
-            embed = discord.Embed(title="❓ Hermes needs your input", color=discord.Color.orange())
+            embed = discord.Embed(title="❓ Hebri needs your input", color=discord.Color.orange())
             # 5 buttons × 5 rows = 25; one slot is reserved for "Other".
             clean_choices = [s for s in (_flatten_choice(c) for c in (choices or [])) if s][:24]
             if clean_choices:
@@ -5603,7 +5603,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
                 hint = "Reply in this channel with your answer."
                 view = None
             content = self._self_contained_prompt_content(
-                "❓ **Hermes needs your input**", str(question or "").strip(), tail=f"\n\n{hint}",
+                "❓ **Hebri needs your input**", str(question or "").strip(), tail=f"\n\n{hint}",
             )
             send_kwargs = {"content": content, "embed": embed}
             if view:
@@ -6022,7 +6022,7 @@ class DiscordAdapter(DiscordMediaMixin, BasePlatformAdapter):
                         # recovers, and skip agent invocation for this message. See #20243.
                         await message.channel.send(
                             self.warning_text(
-                                "⚠️ Hermes could not create a Discord thread for "
+                                "⚠️ Hebri could not create a Discord thread for "
                                 "this message, so the request was not processed. Please retry.",
                                 "The request was not processed. Please retry.")
                         )
@@ -6243,7 +6243,7 @@ def _define_discord_view_classes() -> None:
     global ExecApprovalView, SlashConfirmView, UpdatePromptView, ModelPickerView, ClarifyChoiceView, ChoicePickerView
 
     class _HermesView(discord.ui.View):
-        """Shared plumbing for Hermes component views: allowlist auth, single-use
+        """Shared plumbing for Hebri component views: allowlist auth, single-use
         ``resolved`` flag, ``_message`` handle for timeout edits."""
 
         def __init__(self, allowed_user_ids: set, allowed_role_ids: Optional[set], *, timeout):
@@ -7201,7 +7201,7 @@ def interactive_setup() -> None:
         )
     print()
     _info_lines(
-        "📬 Home Channel: where Hermes delivers cron job results,",
+        "📬 Home Channel: where Hebri delivers cron job results,",
         "   cross-platform messages, and notifications.",
         "   To get a channel ID: right-click a channel → Copy Channel ID",
         "   (requires Developer Mode in Discord settings)",
@@ -7332,7 +7332,7 @@ _is_connected = _env_is_connected("DISCORD_BOT_TOKEN")
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Hebri plugin system."""
     ctx.register_platform(
         name="discord",
         label="Discord",

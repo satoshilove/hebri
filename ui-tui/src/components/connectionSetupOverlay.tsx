@@ -427,7 +427,7 @@ export function ConnectionSetupOverlay({ cols, t }: ConnectionSetupOverlayProps)
           owner: { session_id: sid, type: 'session' },
           result
         }),
-      'That answer did not reach Hermes. Try again.'
+      'That answer did not reach Hebri. Try again.'
     )
   }
 
@@ -474,7 +474,7 @@ export function ConnectionSetupOverlay({ cols, t }: ConnectionSetupOverlayProps)
           owner: { session_id: sid, type: 'session' },
           reconnect: true
         }),
-      'Hermes could not start that again. Try again.'
+      'Hebri could not start that again. Try again.'
     )
   }
 

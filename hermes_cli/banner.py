@@ -486,7 +486,7 @@ def get_latest_release_tag(repo_dir: Optional[Path] = None) -> Optional[tuple]:
 
 def format_banner_version_label() -> str:
     """Return the version label shown in the startup banner title."""
-    base = f"Hermes Agent v{VERSION} ({RELEASE_DATE})"
+    base = f"Hebri v{VERSION} ({RELEASE_DATE})"
     state = get_git_banner_state()
     if not state:
         return base
@@ -578,8 +578,10 @@ def _format_update_notice(behind: int) -> str:
     """Render the update warning line for a non-zero ``behind`` result."""
     from hermes_cli.config import get_managed_update_command, recommended_update_command
     if behind > 0:
+        # Hebri distribution: don't expose the upstream commit count — end users don't track
+        # the upstream project, only that an update exists and how to install it.
         return (
-            f"[bold yellow]⚠ {behind} {_plural(behind, 'commit')} behind[/]"
+            f"[bold yellow]⚠ update available[/]"
             f"[dim yellow] — run [bold]{recommended_update_command()}[/bold] to update[/]")
     # UPDATE_AVAILABLE_NO_COUNT (nix): an update exists but we don't know by how much, nor how
     # the user installed (nix run, profile, system flake, home-manager).
@@ -870,7 +872,7 @@ def _banner_left_lines(model: str, cwd: str, session_id, context_length, provide
     lines = []
     pin = " (pinned)" if context_pinned else ""
     ctx_str = _dim_sep(f"{_format_context_length(context_length)} context{pin}") if context_length else ""
-    nous_str = _dim_sep("Nous Research")
+    nous_str = _dim_sep("Synapsek")
     if not (model or "").strip():
         # Credentials resolve lazily on the first message; the banner prints first. Ask the route
         # the same question so a fresh free-tier install shows its model, not a red "unconfigured".

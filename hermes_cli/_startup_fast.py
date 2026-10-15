@@ -215,8 +215,9 @@ def print_fast_version_info(*, check_updates: bool = True) -> None:
         if behind == UPDATE_AVAILABLE_NO_COUNT:
             print(f"Update available — run '{recommended_update_command()}'")
         elif behind and behind > 0:
-            commits_word = "commit" if behind == 1 else "commits"
-            print(f"Update available: {behind} {commits_word} behind — run '{recommended_update_command()}'")
+            # Hebri distribution: don't expose the upstream commit count — end users don't track
+            # the upstream project, only that an update exists and how to install it.
+            print(f"Update available — run '{recommended_update_command()}'")
         elif behind == 0:
             print("Up to date")
     except Exception:
