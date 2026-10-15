@@ -523,8 +523,17 @@ def attachments_root(board: Optional[str] = None) -> Path:
 
 
 def task_attachments_dir(task_id: str, board: Optional[str] = None) -> Path:
-    """Return the per-task attachment directory ``<root>/<task_id>/``."""
-    return attachments_root(board=board) / task_id
+    """Return the per-task attachment directory ``<root>/<task_id>/``.
+
+    ``task_id`` reaches this helper from a URL path in the dashboard plugin,
+    so it must be a SINGLE plain path component — reject separators and
+    traversal (``..``) instead of letting ``mkdir(parents=True)`` +
+    ``write_bytes`` materialise a blob outside the attachments root.
+    """
+    name = Path(task_id or "").name
+    if not name or name in (".", "..") or "/" in task_id or "\\" in task_id:
+        raise ValueError(f"invalid task id {task_id!r}")
+    return attachments_root(board=board) / name
 
 
 def worker_logs_dir(board: Optional[str] = None) -> Path:
