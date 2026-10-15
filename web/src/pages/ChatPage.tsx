@@ -32,6 +32,7 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatSessionList } from "@/components/ChatSessionList";
+import { TeamPanel } from "@/components/TeamPanel";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
@@ -348,6 +349,16 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
       localStorage.setItem("hermes-chat-panel-collapsed", next ? "1" : "0");
       return next;
     });
+  }, []);
+
+  // Side-panel tab: "chat" = model + sessions (default), "team" = local team chat.
+  // Persisted so the choice survives reloads.
+  const [sideTab, setSideTab] = useState<"chat" | "team">(() =>
+    localStorage.getItem("hebri-chat-side-tab") === "team" ? "team" : "chat",
+  );
+  const switchSideTab = useCallback((tab: "chat" | "team") => {
+    setSideTab(tab);
+    localStorage.setItem("hebri-chat-side-tab", tab);
   }, []);
   const { setEnd, setTitle } = usePageHeader();
   const [sessionTitleState, setSessionTitleState] = useState<{
@@ -2083,9 +2094,42 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
             id="chat-side-panel"
             role="complementary"
             aria-label={modelToolsLabel}
-            className="flex min-h-0 shrink-0 flex-col gap-3 overflow-hidden lg:h-full lg:w-60"
+            className={cn(
+              "flex min-h-0 shrink-0 flex-col gap-3 overflow-hidden lg:h-full",
+              sideTab === "team" ? "lg:w-72" : "lg:w-60",
+            )}
           >
-            <div className="flex h-8 shrink-0 items-center justify-end pr-1">
+            <div className="flex h-8 shrink-0 items-center justify-between gap-2 pr-1">
+              <div className="flex items-center gap-1" role="tablist" aria-label="Side panel tabs">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={sideTab === "chat"}
+                  onClick={() => switchSideTab("chat")}
+                  className={cn(
+                    "rounded px-2 py-0.5 text-xs normal-case tracking-normal",
+                    sideTab === "chat"
+                      ? "bg-background-raised font-semibold text-midground"
+                      : "text-text-secondary hover:text-midground",
+                  )}
+                >
+                  Chat
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={sideTab === "team"}
+                  onClick={() => switchSideTab("team")}
+                  className={cn(
+                    "rounded px-2 py-0.5 text-xs normal-case tracking-normal",
+                    sideTab === "team"
+                      ? "bg-background-raised font-semibold text-midground"
+                      : "text-text-secondary hover:text-midground",
+                  )}
+                >
+                  Team
+                </button>
+              </div>
               <Button
                 ghost
                 size="icon"
@@ -2097,26 +2141,35 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
                 <X />
               </Button>
             </div>
-            {/* Model picker — keeps the rail thin. */}
-            <div className="shrink-0">
-              <ChatSidebar
-                channel={channel}
-                profile={scopedProfile}
-                onDashboardNewSessionRequest={startFreshDashboardChat}
-                onSessionTitleChange={handleSessionTitleChange}
-              />
-            </div>
 
-            {/* Session switcher fills the remaining height below the model box. */}
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <ChatSessionList
-                activeSessionId={resumeParam}
-                profile={scopedProfile}
-                onNewChat={startFreshDashboardChat}
-                workspaceCwd={workspaceCwd}
-                onWorkspaceChange={setWorkspaceCwd}
-              />
-            </div>
+            {sideTab === "chat" ? (
+              <>
+                {/* Model picker — keeps the rail thin. */}
+                <div className="shrink-0">
+                  <ChatSidebar
+                    channel={channel}
+                    profile={scopedProfile}
+                    onDashboardNewSessionRequest={startFreshDashboardChat}
+                    onSessionTitleChange={handleSessionTitleChange}
+                  />
+                </div>
+
+                {/* Session switcher fills the remaining height below the model box. */}
+                <div className="min-h-0 flex-1 overflow-hidden">
+                  <ChatSessionList
+                    activeSessionId={resumeParam}
+                    profile={scopedProfile}
+                    onNewChat={startFreshDashboardChat}
+                    workspaceCwd={workspaceCwd}
+                    onWorkspaceChange={setWorkspaceCwd}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <TeamPanel active={!chatPanelCollapsed} />
+              </div>
+            )}
           </div>
         )}
       </div>

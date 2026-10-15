@@ -111,6 +111,7 @@ import { $workspaceIsPage, WORKSPACE_PAGE_HEADER_AREA } from '../routes'
 import { BASIC_TREE, DEFAULT_TREE, registerLayoutPresets } from './layout-presets'
 import { bindLayoutSides } from './layout-sides'
 import { FilesPane, LogsPane, ReviewPaneContent } from './panes'
+import { TeamPane } from '@/app/right-sidebar/team'
 import { ContribWiring, WiredPane } from './wiring'
 
 /**
@@ -269,6 +270,24 @@ registry.registerMany([
       tabTitleText: () => translateNow('sidebar.review')
     },
     render: () => idle(<ReviewPaneContent />)
+  },
+  {
+    id: 'team',
+    area: 'panes',
+    // Hebri team chat: local rooms + presence, visible by default on the
+    // right like the file browser; collapsible, re-adopts beside main.
+    title: 'Team',
+    data: {
+      placement: 'right',
+      collapsible: true,
+      dock: { pane: 'workspace', pos: 'right' },
+      revealAliases: ['team-chat'],
+      width: FILE_BROWSER_DEFAULT_WIDTH,
+      minWidth: FILE_BROWSER_MIN_WIDTH,
+      maxWidth: FILE_BROWSER_MAX_WIDTH,
+      tabTitleText: () => 'Team'
+    },
+    render: () => idle(<TeamPane />)
   }
 ])
 
