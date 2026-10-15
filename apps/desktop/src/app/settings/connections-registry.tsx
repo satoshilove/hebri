@@ -70,7 +70,7 @@ interface EditorState {
 }
 
 /**
- * The auth mode the editor saves. A Hermes Cloud gateway signs in through its
+ * The auth mode the editor saves. A Hebri Cloud gateway signs in through its
  * OAuth session and never keeps a pasted token (the main process drops one),
  * so cloud is always oauth whatever the shared editor state last held for a
  * remote; token auth left a hand-registered cloud entry with no credential
@@ -245,7 +245,7 @@ function scrollableAncestor(element: HTMLElement): HTMLElement | null {
 
 /**
  * The connections registry section of Settings → Gateways: manage the named
- * agent sources (local runtime + any number of remote gateways / Hermes Cloud
+ * agent sources (local runtime + any number of remote gateways / Hebri Cloud
  * instances / SSH hosts). Storage-level management — the active/primary
  * switchover UX is the connection-mode controls above this section.
  */

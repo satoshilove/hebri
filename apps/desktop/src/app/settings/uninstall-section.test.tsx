@@ -23,7 +23,7 @@ it.each(['gui', 'lite', 'full'] as const)(
   async mode => {
     const run = vi.fn().mockResolvedValue({ ok: false })
     vi.stubGlobal('hermesDesktop', {
-      uninstall: { summary: async () => ({ agent_installed: true, running_app_path: '/fixture/Hermes.app' }), run }
+      uninstall: { summary: async () => ({ agent_installed: true, running_app_path: '/fixture/Hebri.app' }), run }
     })
     render(
       <I18nProvider configClient={null} initialLocale="zh">

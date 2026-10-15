@@ -341,7 +341,7 @@ describe('startWorkInRepo remote capability gate (#81724)', () => {
     desktopGit.mockReturnValue({
       worktreeAdd: vi.fn(async () => {
         throw new Error(
-          'Expected JSON from https://vps/api/git/worktree/add but got HTML (status 404). The endpoint is likely missing on the Hermes backend.'
+          'Expected JSON from https://vps/api/git/worktree/add but got HTML (status 404). The endpoint is likely missing on the Hebri backend.'
         )
       })
     } as never)
@@ -406,7 +406,7 @@ describe('createProject', () => {
   })
 
   it.each(['default', 'coder'])('creates in the active %s profile without leaving All profiles', async profile => {
-    const created = { folders: [], id: 'p_new', name: 'Hermes Agent', primary_path: '/srv/hermes' }
+    const created = { folders: [], id: 'p_new', name: 'Hebri Agent', primary_path: '/srv/hermes' }
     const tree = { id: created.id, label: created.name, path: created.primary_path, repos: [], sessionCount: 0 }
     const request = vi.fn().mockResolvedValue({ project: created })
     activeGateway.mockReturnValue({ connectionState: 'open', request } as never)
@@ -434,8 +434,8 @@ describe('createProject', () => {
     $activeGatewayProfile.set('coder')
     setShowAllProfiles(true)
 
-    const pending = createProject({ folders: ['/srv/hermes'], name: 'Hermes Agent' })
-    const rejection = expect(pending).rejects.toThrow('Active Hermes profile changed while connecting')
+    const pending = createProject({ folders: ['/srv/hermes'], name: 'Hebri Agent' })
+    const rejection = expect(pending).rejects.toThrow('Active Hebri profile changed while connecting')
     const otherGateway = { connectionState: 'open', request }
     $activeGatewayProfile.set('other')
     activeGateway.mockReturnValue(otherGateway as never)
@@ -732,7 +732,7 @@ describe('repository discovery policy', () => {
     expect(getHermesConfig).not.toHaveBeenCalled()
     // The desktop can't crawl the remote host's filesystem, so it asks the
     // host to scan its own discovery roots (`projects.discover_repos` with
-    // `scan: true`) — repos with zero Hermes sessions must still surface —
+    // `scan: true`) — repos with zero Hebri sessions must still surface —
     // then refreshes the tree to pick up the merged list. Regression for
     // #81723: the sidebar used to go silent in remote mode and never
     // refresh again.

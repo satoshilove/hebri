@@ -36,6 +36,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
+import { Tip } from '@/components/ui/tooltip'
+
 import { RightSidebarSectionHeader } from '../index'
 
 const POLL_MS = 3000
@@ -343,16 +345,17 @@ export function TeamPane() {
               via {relay.base.replace(/^https?:\/\//, '')}
             </span>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-6 shrink-0"
-            onClick={leaveRelay}
-            title="Leave cross-machine room (back to local)"
-            aria-label="Leave cross-machine room"
-          >
-            ×
-          </Button>
+          <Tip label="Leave cross-machine room (back to local)">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6 shrink-0"
+              onClick={leaveRelay}
+              aria-label="Leave cross-machine room"
+            >
+              ×
+            </Button>
+          </Tip>
         </div>
       ) : (
         /* Identity */
@@ -417,20 +420,21 @@ export function TeamPane() {
                 >
                   {r.name}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => void shareRoom(r)}
-                  title={`Share "${r.name}" across machines`}
-                  aria-label={`Share room ${r.name}`}
-                  className={cn(
-                    'rounded-r border border-l-0 px-1 py-0.5',
-                    shared?.roomId === r.id
-                      ? 'border-primary/60 bg-primary/10'
-                      : 'border-border text-muted-foreground hover:border-foreground/40'
-                  )}
-                >
-                  ⧉
-                </button>
+                <Tip label={`Share "${r.name}" across machines`}>
+                  <button
+                    type="button"
+                    onClick={() => void shareRoom(r)}
+                    aria-label={`Share room ${r.name}`}
+                    className={cn(
+                      'rounded-r border border-l-0 px-1 py-0.5',
+                      shared?.roomId === r.id
+                        ? 'border-primary/60 bg-primary/10'
+                        : 'border-border text-muted-foreground hover:border-foreground/40'
+                    )}
+                  >
+                    ⧉
+                  </button>
+                </Tip>
               </span>
             ))}
             <AddRoom
@@ -592,14 +596,16 @@ function AddRoom({ onCreated, onRename }: { onCreated: (id: string) => void; onR
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="rounded border border-dashed border-border px-1.5 py-0.5 text-muted-foreground hover:border-foreground/40"
-        title="New room"
-      >
-        +
-      </button>
+      <Tip label="New room">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="rounded border border-dashed border-border px-1.5 py-0.5 text-muted-foreground hover:border-foreground/40"
+          aria-label="New room"
+        >
+          +
+        </button>
+      </Tip>
     )
   }
 

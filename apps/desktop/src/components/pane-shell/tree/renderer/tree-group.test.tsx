@@ -307,7 +307,7 @@ describe('TreeGroup', () => {
         data: {},
         id: 'workspace',
         render: () => <div>Chat</div>,
-        title: 'Hermes'
+        title: 'Hebri'
       })
       vi.stubGlobal('CSS', { escape: (value: string) => value })
 
