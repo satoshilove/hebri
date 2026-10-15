@@ -39,7 +39,7 @@ from hermes_cli.config import load_config
 try:
     from fastapi import FastAPI, HTTPException, Request
     from fastapi.middleware.cors import CORSMiddleware
-    from fastapi.responses import JSONResponse
+    from fastapi.responses import JSONResponse, Response
 except ImportError:
     # First try lazy-installing the dashboard extras. Only the user actually
     # running `hermes dashboard` needs fastapi+uvicorn; lazy install keeps
@@ -49,7 +49,7 @@ except ImportError:
         _lazy_ensure("tool.dashboard", prompt=False)
         from fastapi import FastAPI, HTTPException, Request
         from fastapi.middleware.cors import CORSMiddleware
-        from fastapi.responses import JSONResponse
+        from fastapi.responses import JSONResponse, Response
     except Exception:
         raise SystemExit(
             "Web UI requires fastapi and uvicorn.\n"
@@ -661,6 +661,10 @@ async def auth_middleware(request: Request, call_next):
         and path.startswith("/api/")
         and path not in _PUBLIC_API_PATHS
         and not path.startswith("/api/mcp/oauth/callback/")
+        # Team-chat cross-machine relay: the HMAC peer grant (not the
+        # dashboard session token) is the security boundary — same pattern as
+        # /api/cron/fire's NAS-minted JWT.
+        and not path.startswith("/api/team/relay/")
         and not _has_valid_session_token(request)
         and not _has_valid_query_token(request, path)
     ):
@@ -678,6 +682,38 @@ async def _token_auth_seam(request: Request, call_next):
     """
     from hermes_cli.dashboard_auth.token_auth import token_auth_middleware
     return await token_auth_middleware(request, call_next)
+
+
+@app.middleware("http")
+async def _team_relay_cors(request: Request, call_next):
+    """CORS for the cross-machine team-chat relay (``/api/team/relay/*``).
+
+    Peers join from a browser on ANOTHER machine (cross-origin), so the relay
+    endpoints must answer preflights and carry CORS headers.  Scoped to the
+    relay prefix only — every other /api route keeps the same-origin posture.
+    Registered AFTER all auth middlewares (runs FIRST / outermost) so OPTIONS
+    preflights short-circuit before any gate.
+    """
+    path = request.url.path
+    if not path.startswith("/api/team/relay/"):
+        return await call_next(request)
+    origin = request.headers.get("origin", "")
+    if request.method == "OPTIONS":
+        return Response(
+            status_code=204,
+            headers={
+                "Access-Control-Allow-Origin": origin or "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Max-Age": "172800",
+                "Vary": "Origin",
+            },
+        )
+    response = await call_next(request)
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Vary"] = "Origin"
+    return response
 
 
 _DASHBOARD_HEALTH_WINDOW_SECONDS = 300.0

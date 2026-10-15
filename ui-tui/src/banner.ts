@@ -43,35 +43,34 @@ export function parseRichMarkup(markup: string): Line[] {
   return lines
 }
 
+// Pure-ASCII art (only #, *, . and spaces): box-drawing/block glyphs render
+// non-mono-spaced in the web terminal font (Mondwest) and shred in the TUI.
 const LOGO_ART = [
-  '██╗  ██╗ ███████╗ ██████╗  ██████╗  ███████╗',
-  '██║  ██║ ██╔════╝ ██╔════╝ ██╔══██╗ ██╔════╝',
-  '███████║ █████╗   █████╗   ██████╔╝ ███████║',
-  '██╔══██║ ██╔══╝   ██╔══╝   ██╔══██╗ ██╔══██║',
-  '██║  ██║ ███████╗ ███████╗ ██║  ██║ ██║  ██║',
-  '╚═╝  ╚═╝ ╚══════╝ ╚══════╝ ╚═╝  ╚═╝ ╚═╝  ╚═╝'
+  '#   # ##### ####  ####  ###',
+  '#   # #     #  #  #  #   # ',
+  '##### ##### ####  ####   # ',
+  '#   # #     #  #  #  #   # ',
+  '#   # ##### ####  #   # ###'
 ]
 
 const CADUCEUS_ART = [
-  '                 ███                 ',
-  '                 ███                 ',
-  '     ·        ▁▁▁███▁▁▁        ·     ',
-  '         ▁▁▁     ███     ▁▁▁         ',
-  '      ▁▁         ███         ▁▁      ',
-  ' ·   ▁▁         █████         ▁▁   · ',
-  '    ▁▁         ███████         ▁▁    ',
-  '·   ▁ █ █ █ █████████████ █ █ █ ▁   ·',
-  '    ▁▁         ███████         ▁▁    ',
-  '     ▁▁         █████         ▁▁     ',
-  '      ▁▁         ███         ▁▁      ',
-  ' ·       ▁▁▁     ███     ▁▁▁       · ',
-  '     ·        ▁▁▁███▁▁▁        ·     ',
-  '                 ███                 ',
-  '                 ███                 '
+  '       *',
+  '  .   ***   .',
+  '     *****',
+  '    *******',
+  '   ****#****',
+  '  ****###****',
+  ' ****#####****',
+  '  ****###****',
+  '   ****#****',
+  '    *******',
+  '     *****',
+  '  .   ***   .',
+  '       *'
 ]
 
-const LOGO_GRADIENT = [0, 0, 1, 1, 2, 2] as const
-const CADUC_GRADIENT = [3, 3, 2, 2, 1, 1, 0, 0, 0, 1, 1, 2, 2, 3, 3] as const
+const LOGO_GRADIENT = [0, 0, 1, 1, 2] as const
+const CADUC_GRADIENT = [3, 2, 2, 1, 1, 0, 0, 0, 1, 1, 2, 2, 3] as const
 
 const colorize = (art: string[], gradient: readonly number[], c: ThemeColors): Line[] => {
   const p = [c.primary, c.accent, c.border, c.muted]

@@ -1894,28 +1894,65 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
             </Button>
           </div>
 
+          <div className="flex shrink-0 items-center gap-1 border-b border-current/10 px-3 py-1.5">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={sideTab === "chat"}
+              onClick={() => switchSideTab("chat")}
+              className={cn(
+                "rounded px-2 py-0.5 text-xs normal-case tracking-normal",
+                sideTab === "chat"
+                  ? "bg-background-raised font-semibold text-midground"
+                  : "text-text-secondary hover:text-midground",
+              )}
+            >
+              Tools
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={sideTab === "team"}
+              onClick={() => switchSideTab("team")}
+              className={cn(
+                "rounded px-2 py-0.5 text-xs normal-case tracking-normal",
+                sideTab === "team"
+                  ? "bg-background-raised font-semibold text-midground"
+                  : "text-text-secondary hover:text-midground",
+              )}
+            >
+              Team
+            </button>
+          </div>
+
           <div
             className={cn(
               "min-h-0 flex-1 overflow-y-auto overflow-x-hidden",
               "border-t border-current/10",
             )}
           >
-            <div className="border-b border-current/10 px-1 py-2">
-              <ChatSidebar
-                channel={channel}
-                profile={scopedProfile}
-                onDashboardNewSessionRequest={startFreshDashboardChat}
-                onSessionTitleChange={handleSessionTitleChange}
-              />
-            </div>
-            <ChatSessionList
-              activeSessionId={resumeParam}
-              profile={scopedProfile}
-              onPicked={closeMobilePanel}
-              onNewChat={startFreshDashboardChat}
-              workspaceCwd={workspaceCwd}
-              onWorkspaceChange={setWorkspaceCwd}
-            />
+            {sideTab === "chat" ? (
+              <>
+                <div className="border-b border-current/10 px-1 py-2">
+                  <ChatSidebar
+                    channel={channel}
+                    profile={scopedProfile}
+                    onDashboardNewSessionRequest={startFreshDashboardChat}
+                    onSessionTitleChange={handleSessionTitleChange}
+                  />
+                </div>
+                <ChatSessionList
+                  activeSessionId={resumeParam}
+                  profile={scopedProfile}
+                  onPicked={closeMobilePanel}
+                  onNewChat={startFreshDashboardChat}
+                  workspaceCwd={workspaceCwd}
+                  onWorkspaceChange={setWorkspaceCwd}
+                />
+              </>
+            ) : (
+              <TeamPanel active={mobilePanelOpen} />
+            )}
           </div>
         </div>
       </>,
