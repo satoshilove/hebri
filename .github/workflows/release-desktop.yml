@@ -1,0 +1,136 @@
+# Release Desktop — package the Hebri desktop app for every OS.
+#
+#   * Windows: NSIS exe + MSI   (built on windows-latest)
+#   * macOS:   DMG + ZIP        (built on macos-latest; UNSIGNED unless the
+#     repo/workflow has APPLE_ID + APPLE_APP_PASSWORD + APPLE_TEAM_ID set —
+#     scripts/notarize.mjs picks those up automatically)
+#   * Linux:   AppImage + DEB + RPM (built on ubuntu-latest)
+#
+# Trigger:
+#   * "Run workflow" from the Actions tab (artifacts only), or
+#   * push a tag like `desktop-v0.18.0` (artifacts + a GitHub Release).
+#
+# SECURITY: no `secrets: inherit`; no GitHub App credentials. The release
+# job only needs `contents: write` to attach artifacts to the tag release.
+#
+# The desktop app bootstraps the agent runtime (Python venv + stages) at
+# first launch from the pinned source — the installers themselves are
+# self-contained Electron bundles, so no Python toolchain is needed in CI.
+
+name: Release Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "desktop-v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CI: 1
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea436ba5d5c88cb3b1f8 # v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 26
+          cache: npm
+      - name: Install workspace dependencies
+        run: npm ci
+      - name: Build Windows installers (NSIS + MSI)
+        working-directory: apps/desktop
+        run: npm run dist:win
+      - name: List artifacts
+        working-directory: apps/desktop
+        run: |
+          Get-ChildItem release -File | Where-Object { $_.Name -match '\.(exe|msi|blockmap)$' } | ForEach-Object { Write-Host "$($_.Name)  $([math]::Round($_.Length/1MB,1)) MB" }
+      - uses: actions/upload-artifact@b735583dc54e0f2c92bb457f8e3706b6807f16f8 # v4
+        with:
+          name: hebri-windows
+          path: |
+            apps/desktop/release/Hebri-*-win-*.exe
+            apps/desktop/release/Hebri-*-win-*.msi
+            apps/desktop/release/Hebri-*-win-*.exe.blockmap
+          if-no-files-found: error
+
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea436ba5d5c88cb3b1f8 # v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 26
+          cache: npm
+      - name: Install workspace dependencies
+        run: npm ci
+      - name: Build macOS installers (DMG + ZIP)
+        # Unsigned unless APPLE_ID / APPLE_APP_PASSWORD / APPLE_TEAM_ID are
+        # configured for the repo; notarize.mjs is a no-op without them.
+        working-directory: apps/desktop
+        run: npm run dist:mac
+      - name: List artifacts
+        working-directory: apps/desktop
+        run: ls -lh release/*.dmg release/*.zip 2>/dev/null || ls -lh release/
+      - uses: actions/upload-artifact@b735583dc54e0f2c92bb457f8e3706b6807f16f8 # v4
+        with:
+          name: hebri-macos
+          path: |
+            apps/desktop/release/Hebri-*-mac-*.dmg
+            apps/desktop/release/Hebri-*-mac-*.zip
+          if-no-files-found: error
+
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea436ba5d5c88cb3b1f8 # v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 26
+          cache: npm
+      - name: Install workspace dependencies
+        run: npm ci
+      - name: Build Linux packages (AppImage + DEB + RPM)
+        working-directory: apps/desktop
+        run: npm run dist:linux
+      - name: List artifacts
+        working-directory: apps/desktop
+        run: ls -lh release/Hebri-* || ls -lh release/
+      - uses: actions/upload-artifact@b735583dc54e0f2c92bb457f8e3706b6807f16f8 # v4
+        with:
+          name: hebri-linux
+          path: |
+            apps/desktop/release/Hebri-*-linux*.AppImage
+            apps/desktop/release/Hebri-*-linux*.deb
+            apps/desktop/release/Hebri-*-linux*.rpm
+          if-no-files-found: error
+
+  # Tag-triggered: bundle the three platform artifacts into one GitHub Release.
+  release:
+    needs: [windows, macos, linux]
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@634f935c9879cb72177639ff1a4cec03c4b16535 # v4
+        id: download
+        with:
+          merge-multiple: true
+          path: artifacts
+      - name: Show collected artifacts
+        run: ls -lh artifacts/
+      - uses: softprops/action-gh-release@278a202770e73151112f8a970e8ad7e0c6d4ca14 # v2
+        with:
+          files: artifacts/Hebri-*
+          generate_notes: true

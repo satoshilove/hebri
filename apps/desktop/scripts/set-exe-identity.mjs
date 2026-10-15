@@ -86,10 +86,10 @@ async function stampExeIdentity(
   const options = {
     icon,
     'version-string': {
-      ProductName: 'Hermes',
-      FileDescription: 'Hermes',
-      CompanyName: 'Nous Research',
-      LegalCopyright: 'Copyright (c) 2026 Nous Research'
+      ProductName: 'Hebri',
+      FileDescription: 'Hebri — the Synapsek agent desktop app',
+      CompanyName: 'Synapsek',
+      LegalCopyright: 'Copyright (c) 2026 Synapsek. Built on the open-source Hermes agent (Nous Research).'
     }
   }
 
