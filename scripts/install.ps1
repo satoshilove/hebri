@@ -1401,6 +1401,24 @@ function Test-Python {
             return $true
         }
 
+        # Windows 11 (24H2+, build 262xx) can reject uv's FIRST attempt to
+        # create the minor-version link directory ("untrusted mount point",
+        # os error 448) even though the interpreter itself extracted
+        # correctly. A second `uv python install` pass takes uv's repair
+        # path, recreates the link as a junction (no privilege needed), and
+        # succeeds. Verified empirically on an affected machine; retry once
+        # before falling through.
+        Write-Info "Retrying managed Python install (link repair pass)..."
+        $ErrorActionPreference = "Continue"
+        & $UvCmd python install $PythonVersion --no-bin --no-registry --no-config 2>&1 | Out-Null
+        $ErrorActionPreference = $prevEAP
+        $resolvedPython = Resolve-AvailablePythonVersion
+        if ($resolvedPython) {
+            $ver = & $resolvedPython.Path --version 2>$null
+            Write-Success "Python installed: $ver"
+            return $true
+        }
+
         # uv ran but Python still not findable -- show what happened
         if ($uvExitCode -ne 0) {
             Write-Warn "uv python install output:"
@@ -1427,6 +1445,18 @@ function Test-Python {
                 $ver = & $resolvedPython.Path --version 2>$null
                 Write-Success "Python fallback installed: $ver"
                 return $true
+            }
+            if (-not $resolvedPython) {
+                # Same first-link-creation quirk as the preferred version
+                # above: one more pass lets uv's repair path recreate the
+                # minor-version link (junction) for this fallback.
+                & $UvCmd python install $fallbackVer --no-bin --no-registry --no-config 2>&1 | Out-Null
+                $resolvedPython = Resolve-AvailablePythonVersion
+                if ($resolvedPython) {
+                    $ver = & $resolvedPython.Path --version 2>$null
+                    Write-Success "Python fallback installed: $ver"
+                    return $true
+                }
             }
         } catch {
             if ($previousFallbackEAP) { $ErrorActionPreference = $previousFallbackEAP }
@@ -2306,7 +2336,11 @@ function Install-Repository {
 
                     if ($sourceRoot -and (Test-Path (Join-Path $sourceRoot 'pyproject.toml'))) {
                         Write-Info "Existing bundle install found; refreshing from local source: $sourceRoot"
-                        & robocopy $sourceRoot $InstallDir /MIR /NFL /NDL /NJH /NJS /NP /XD .git node_modules .venv __pycache__ .pytest_cache
+                        # /XD also protects runtime state that lives inside the
+                        # checkout (managed Pythons, venv, staged launchers):
+                        # /MIR would delete it, forcing re-downloads and
+                        # re-hitting first-launch quirks on every Repair.
+                        & robocopy $sourceRoot $InstallDir /MIR /NFL /NDL /NJH /NJS /NP /XD .git node_modules .venv venv __pycache__ .pytest_cache .hermes-runtime bin .npm-cache
                         if ($LASTEXITCODE -ge 8) {
                             throw "robocopy refresh from local source failed (exit $LASTEXITCODE)"
                         }
@@ -2563,7 +2597,7 @@ function Install-Repository {
                 if (Test-Path $InstallDir) { Remove-Item -Recurse -Force $InstallDir -ErrorAction SilentlyContinue }
                 New-Item -ItemType Directory -Force -Path (Split-Path $InstallDir) -ErrorAction SilentlyContinue | Out-Null
                 Write-Info "Installing from local source directory: $sourceRoot"
-                & robocopy $sourceRoot $InstallDir /MIR /NFL /NDL /NJH /NJS /NP /XD .git node_modules .venv __pycache__ .pytest_cache
+                & robocopy $sourceRoot $InstallDir /MIR /NFL /NDL /NJH /NJS /NP /XD .git node_modules .venv venv __pycache__ .pytest_cache .hermes-runtime bin .npm-cache
                 if ($LASTEXITCODE -ge 8) {
                     throw "robocopy from local source failed (exit $LASTEXITCODE)"
                 }
@@ -2790,6 +2824,21 @@ function Install-Venv {
     # here made `uv venv venv --python 3.11` fail with exit 2 on machines without
     # 3.11 even though the `python` stage reported success (issue #50769).
     $resolvedPython = Resolve-AvailablePythonVersion
+    if (-not $resolvedPython) {
+        # Windows 11 (24H2+) can reject uv's first minor-version link creation
+        # ("untrusted mount point", os error 448) even though the interpreter
+        # extracted fine; a second `uv python install` pass repairs the link
+        # as a junction. Retry each candidate once before failing the stage.
+        foreach ($repairVer in (@($PythonVersion) + $PythonFallbackVersions)) {
+            if (-not $repairVer) { continue }
+            $prevEapRepair = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            & $UvCmd python install $repairVer --no-bin --no-registry --no-config 2>&1 | Out-Null
+            $ErrorActionPreference = $prevEapRepair
+            $resolvedPython = Resolve-AvailablePythonVersion
+            if ($resolvedPython) { break }
+        }
+    }
     if (-not $resolvedPython) {
         throw "Hermes-managed Python is unavailable. Run install.ps1 -Stage python first."
     }

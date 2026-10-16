@@ -1553,8 +1553,11 @@ clone_repo() {
             if [ -n "$SOURCE_DIR" ] && [ -f "$SOURCE_DIR/pyproject.toml" ] \
                && ! git -C "$INSTALL_DIR" remote 2>/dev/null | grep -q .; then
                 log_info "Existing bundle install found; refreshing from local source: $SOURCE_DIR"
+                # cp -R overlays the source onto the checkout; runtime state
+                # (managed Pythons in .hermes-runtime, the venv, node_modules)
+                # is deliberately PRESERVED -- deleting it would force
+                # re-downloads on every Repair run.
                 cp -R "$SOURCE_DIR/." "$INSTALL_DIR/"
-                rm -rf "$INSTALL_DIR/node_modules" "$INSTALL_DIR/.venv" "$INSTALL_DIR/__pycache__" 2>/dev/null || true
                 (cd "$INSTALL_DIR" && git add -A \
                     && git -c user.email=hebri@synapsek.local -c user.name="Hebri Installer" commit -q --allow-empty -m "Hebri: bundle refresh") || true
                 log_success "Bundle install refreshed from local source"
