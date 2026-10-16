@@ -76,6 +76,11 @@ NO_SKILLS=false
 BRANCH="main"
 INSTALL_COMMIT=""
 FORCE_COMMIT=false
+# Local-source install: copy the agent source tree from this directory
+# (the bundle shipped inside the desktop app, or a local checkout) instead of
+# cloning from GitHub. Required for desktop builds stamped to commits upstream
+# does not have, and for air-gapped first-launch installs.
+SOURCE_DIR=""
 ENSURE_DEPS=""
 
 MANIFEST_MODE=false
@@ -127,6 +132,10 @@ while [[ $# -gt 0 ]]; do
         --force-commit|-ForceCommit)
             FORCE_COMMIT=true
             shift
+            ;;
+        --source-dir|-SourceDir)
+            SOURCE_DIR="$2"
+            shift 2
             ;;
         --manifest|-Manifest)
             MANIFEST_MODE=true
@@ -1539,6 +1548,19 @@ clone_repo() {
 
     if [ -d "$INSTALL_DIR" ]; then
         if [ -d "$INSTALL_DIR/.git" ]; then
+            # Bundle install (no origin remote): refresh by re-copying from the
+            # local source dir instead of a git pull (Repair install path).
+            if [ -n "$SOURCE_DIR" ] && [ -f "$SOURCE_DIR/pyproject.toml" ] \
+               && ! git -C "$INSTALL_DIR" remote 2>/dev/null | grep -q .; then
+                log_info "Existing bundle install found; refreshing from local source: $SOURCE_DIR"
+                cp -R "$SOURCE_DIR/." "$INSTALL_DIR/"
+                rm -rf "$INSTALL_DIR/node_modules" "$INSTALL_DIR/.venv" "$INSTALL_DIR/__pycache__" 2>/dev/null || true
+                (cd "$INSTALL_DIR" && git add -A \
+                    && git -c user.email=hebri@synapsek.local -c user.name="Hebri Installer" commit -q --allow-empty -m "Hebri: bundle refresh") || true
+                log_success "Bundle install refreshed from local source"
+                return 0
+            fi
+
             log_info "Existing installation found, updating..."
             cd "$INSTALL_DIR"
 
@@ -1657,6 +1679,31 @@ EOF
             exit 1
         fi
     else
+        # Local-source install (desktop bundle or dev checkout): copy the tree
+        # instead of fetching from GitHub. Desktop builds are stamped to
+        # locally-committed SHAs that upstream does not have, so every network
+        # path 404s for them. This is also the air-gapped/offline path.
+        if [ -n "$SOURCE_DIR" ]; then
+            if [ -f "$SOURCE_DIR/pyproject.toml" ]; then
+                log_info "Installing from local source directory: $SOURCE_DIR"
+                rm -rf "$INSTALL_DIR" 2>/dev/null
+                mkdir -p "$(dirname "$INSTALL_DIR")"
+                cp -R "$SOURCE_DIR" "$INSTALL_DIR"
+                rm -rf "$INSTALL_DIR/.git" "$INSTALL_DIR/node_modules" "$INSTALL_DIR/.venv" "$INSTALL_DIR/__pycache__" 2>/dev/null || true
+                # Give the checkout a resolvable HEAD so the bootstrap marker,
+                # stamps, and update bookkeeping work (mirrors install.ps1).
+                if (cd "$INSTALL_DIR" && git init -q && git checkout -q -b main && git add -A \
+                    && git -c user.email=hebri@synapsek.local -c user.name="Hebri Installer" commit -q -m "Hebri: local bundle install"); then
+                    log_success "Local source checkout committed (HEAD resolvable)"
+                else
+                    log_warn "Local source copied; git commit failed (marker will fall back to the install pin)"
+                fi
+                return 0
+            else
+                log_warn "SOURCE_DIR '$SOURCE_DIR' not found or missing pyproject.toml; falling through to GitHub."
+            fi
+        fi
+
         # Try SSH first (for private repo access), fall back to HTTPS
         # GIT_SSH_COMMAND disables interactive prompts and sets a short timeout
         # so SSH fails fast instead of hanging when no key is configured.

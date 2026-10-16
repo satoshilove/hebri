@@ -33,6 +33,13 @@ param(
     [string]$HermesHome = $(if ($env:HERMES_HOME) { $env:HERMES_HOME } else { "$env:LOCALAPPDATA\hebri" }),
     [string]$InstallDir = $(if ($env:HERMES_HOME) { "$env:HERMES_HOME\hebri-agent" } else { "$env:LOCALAPPDATA\hebri\hebri-agent" }),
 
+    # Local-source install: copy the agent source tree from this directory
+    # (the bundle shipped inside the desktop app, or a local checkout) instead
+    # of cloning from GitHub. Takes precedence over -Commit/-Tag/-Branch in
+    # the repository stage. Required for desktop builds stamped to commits
+    # upstream does not have, and for air-gapped first-launch installs.
+    [string]$SourceDir = "",
+
     # --- Stage protocol (additive; default invocation behaves as before) ----
     # See the "Stage protocol" section near the bottom of the file for the
     # full contract.  Intended for programmatic drivers (the desktop GUI's
@@ -2280,6 +2287,46 @@ function Install-Repository {
         }
 
         if ($repoValid) {
+            # Bundle install (no origin remote): the update is a re-copy from
+            # the local source dir, not a git pull (there is no remote to pull
+            # from). This is the Repair/refresh path for bundled installs.
+            if ($SourceDir) {
+                $hasOrigin = $false
+                Push-Location $InstallDir
+                try {
+                    $global:LASTEXITCODE = 0
+                    $null = & git -c windows.appendAtomically=false remote 2>&1
+                    $hasOrigin = ($LASTEXITCODE -eq 0) -and (-not [string]::IsNullOrWhiteSpace((& git -c windows.appendAtomically=false remote 2>$null) -join ""))
+                } catch { $hasOrigin = $false }
+                Pop-Location
+
+                if (-not $hasOrigin) {
+                    $sourceRoot = $null
+                    try { $sourceRoot = (Resolve-Path $SourceDir).Path } catch { $sourceRoot = $null }
+
+                    if ($sourceRoot -and (Test-Path (Join-Path $sourceRoot 'pyproject.toml'))) {
+                        Write-Info "Existing bundle install found; refreshing from local source: $sourceRoot"
+                        & robocopy $sourceRoot $InstallDir /MIR /NFL /NDL /NJH /NJS /NP /XD .git node_modules .venv __pycache__ .pytest_cache
+                        if ($LASTEXITCODE -ge 8) {
+                            throw "robocopy refresh from local source failed (exit $LASTEXITCODE)"
+                        }
+                        Push-Location $InstallDir
+                        $prevEapRefresh = $ErrorActionPreference
+                        $ErrorActionPreference = "Continue"
+                        try {
+                            git -c windows.appendAtomically=false add -A 2>$null | Out-Null
+                            git -c windows.appendAtomically=false commit -q --allow-empty -m "Hebri: bundle refresh" 2>$null | Out-Null
+                        } finally {
+                            $ErrorActionPreference = $prevEapRefresh
+                            Pop-Location
+                        }
+                        Write-Success "Bundle install refreshed from local source"
+                        $didUpdate = $true
+                        return
+                    }
+                }
+            }
+
             Write-Info "Existing installation found, updating..."
             Push-Location $InstallDir
             # Wrap the entire fetch+checkout block in EAP=Continue so git's
@@ -2502,24 +2549,74 @@ function Install-Repository {
     if (-not $didUpdate) {
         $cloneSuccess = $false
 
-        # Fix Windows git "copy-fd: write returned: Invalid argument" error.
-        # Git for Windows can fail on atomic file operations (hook templates,
-        # config lock files) due to antivirus, OneDrive, or NTFS filter drivers.
-        # The -c flag injects config before any file I/O occurs.
-        Write-Info "Configuring git for Windows compatibility..."
-        $env:GIT_CONFIG_COUNT = "1"
-        $env:GIT_CONFIG_KEY_0 = "windows.appendAtomically"
-        $env:GIT_CONFIG_VALUE_0 = "false"
-        git config --global windows.appendAtomically false 2>$null
+        # Local-source install (desktop bundle or dev checkout): copy the tree
+        # instead of fetching from GitHub. Desktop builds are stamped to
+        # locally-committed SHAs that upstream does not have, so every network
+        # path (SSH/HTTPS clone, ZIP) 404s for them. This is also the
+        # air-gapped/offline first-launch path.
+        if (-not $cloneSuccess -and $SourceDir) {
+            $sourceRoot = $null
+            try { $sourceRoot = (Resolve-Path $SourceDir).Path } catch { $sourceRoot = $null }
 
-        # Try SSH first, then HTTPS, with -c flag for atomic write fix
-        Write-Info "Trying SSH clone..."
-        $env:GIT_SSH_COMMAND = "ssh -o BatchMode=yes -o ConnectTimeout=5"
-        try {
-            Invoke-NativeWithRelaxedErrorAction { git -c windows.appendAtomically=false clone --depth 1 --branch $Branch $RepoUrlSsh $InstallDir }
-            if ($LASTEXITCODE -eq 0) { $cloneSuccess = $true }
-        } catch { }
-        $env:GIT_SSH_COMMAND = $null
+            if ($sourceRoot -and (Test-Path (Join-Path $sourceRoot 'pyproject.toml'))) {
+                if (Test-Path $InstallDir) { Remove-Item -Recurse -Force $InstallDir -ErrorAction SilentlyContinue }
+                New-Item -ItemType Directory -Force -Path (Split-Path $InstallDir) -ErrorAction SilentlyContinue | Out-Null
+                Write-Info "Installing from local source directory: $sourceRoot"
+                & robocopy $sourceRoot $InstallDir /MIR /NFL /NDL /NJH /NJS /NP /XD .git node_modules .venv __pycache__ .pytest_cache
+                if ($LASTEXITCODE -ge 8) {
+                    throw "robocopy from local source failed (exit $LASTEXITCODE)"
+                }
+
+                # Give the checkout a resolvable HEAD so the bootstrap marker,
+                # stamps, and update bookkeeping work (mirrors the ZIP path).
+                $prevEap = $ErrorActionPreference
+                $ErrorActionPreference = "Continue"
+                try {
+                    Push-Location $InstallDir
+                    git -c windows.appendAtomically=false init 2>$null | Out-Null
+                    git -c windows.appendAtomically=false checkout -q -b main 2>$null | Out-Null
+                    git -c windows.appendAtomically=false config windows.appendAtomically false 2>$null
+                    git -c windows.appendAtomically=false config core.autocrlf false 2>$null
+                    git -c windows.appendAtomically=false config user.email "hebri@synapsek.local" 2>$null
+                    git -c windows.appendAtomically=false config user.name "Hebri Installer" 2>$null
+                    git -c windows.appendAtomically=false add -A 2>$null | Out-Null
+                    git -c windows.appendAtomically=false commit -q -m "Hebri: local bundle install" 2>$null | Out-Null
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Success "Local source checkout committed (HEAD resolvable)"
+                    } else {
+                        Write-Warn "Local source copied; git commit failed (marker will fall back to the install pin)"
+                    }
+                } finally {
+                    $ErrorActionPreference = $prevEap
+                    Pop-Location
+                }
+
+                $cloneSuccess = $true
+            } else {
+                Write-Warn "SourceDir '$SourceDir' not found or missing pyproject.toml; falling through to GitHub."
+            }
+        }
+
+        if (-not $cloneSuccess) {
+            # Fix Windows git "copy-fd: write returned: Invalid argument" error.
+            # Git for Windows can fail on atomic file operations (hook templates,
+            # config lock files) due to antivirus, OneDrive, or NTFS filter drivers.
+            # The -c flag injects config before any file I/O occurs.
+            Write-Info "Configuring git for Windows compatibility..."
+            $env:GIT_CONFIG_COUNT = "1"
+            $env:GIT_CONFIG_KEY_0 = "windows.appendAtomically"
+            $env:GIT_CONFIG_VALUE_0 = "false"
+            git config --global windows.appendAtomically false 2>$null
+
+            # Try SSH first, then HTTPS, with -c flag for atomic write fix
+            Write-Info "Trying SSH clone..."
+            $env:GIT_SSH_COMMAND = "ssh -o BatchMode=yes -o ConnectTimeout=5"
+            try {
+                Invoke-NativeWithRelaxedErrorAction { git -c windows.appendAtomically=false clone --depth 1 --branch $Branch $RepoUrlSsh $InstallDir }
+                if ($LASTEXITCODE -eq 0) { $cloneSuccess = $true }
+            } catch { }
+            $env:GIT_SSH_COMMAND = $null
+        }
 
         if (-not $cloneSuccess) {
             if (Test-Path $InstallDir) { Remove-Item -Recurse -Force $InstallDir -ErrorAction SilentlyContinue }
@@ -4863,7 +4960,7 @@ $InstallStages = @(
     @{ Name = "git";              Title = "Installing Git";                       Category = "prereqs";      NeedsUserInput = $false; Worker = "Stage-Git" }
     @{ Name = "node";             Title = "Detecting Node.js";                    Category = "prereqs";      NeedsUserInput = $false; Worker = "Stage-Node" }
     @{ Name = "system-packages";  Title = "Installing ripgrep and ffmpeg";        Category = "prereqs";      NeedsUserInput = $false; Worker = "Stage-SystemPackages" }
-    @{ Name = "repository";       Title = "Cloning Hermes repository";            Category = "install";      NeedsUserInput = $false; Worker = "Stage-Repository" }
+    @{ Name = "repository";       Title = "Installing Hebri source";              Category = "install";      NeedsUserInput = $false; Worker = "Stage-Repository" }
     # Managed Python lives under $InstallDir\.hermes-runtime, so the checkout
     # must exist before this stage creates that directory. Otherwise the later
     # repository stage treats the runtime-only directory as a broken checkout,
@@ -4880,7 +4977,7 @@ if ($IncludeDesktop) {
     $InstallStages += @{ Name = "desktop"; Title = "Building desktop app"; Category = "install"; NeedsUserInput = $false; Worker = "Stage-Desktop" }
 }
 $InstallStages += @(
-    @{ Name = "path";             Title = "Adding Hermes to PATH";                Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-Path" }
+    @{ Name = "path";             Title = "Adding Hebri to PATH";                 Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-Path" }
     @{ Name = "config-templates"; Title = "Writing configuration templates";      Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-ConfigTemplates" }
     @{ Name = "platform-sdks";    Title = "Installing messaging platform SDKs";   Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-PlatformSdks" }
     @{ Name = "bootstrap-marker"; Title = "Marking install complete";              Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-BootstrapMarker" }

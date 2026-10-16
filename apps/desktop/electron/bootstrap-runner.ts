@@ -196,6 +196,30 @@ function resolveLocalInstallScript(sourceRepoRoot) {
   }
 }
 
+// The agent source tree bundled inside the packaged app (resources/hebri-source;
+// staged by scripts/stage-bundle.mjs and copied by electron-builder's
+// extraResources). When present it is the authoritative source for the
+// first-launch install: the app may be stamped to a commit upstream does not
+// have (GitHub 404s), and first-launch must work offline as well.
+function bundledSourceRoot() {
+  const resourcesPath = (process as { resourcesPath?: string }).resourcesPath
+
+  if (!resourcesPath) {
+    return null
+  }
+
+  const root = path.join(resourcesPath, 'hebri-source')
+  const candidate = path.join(root, 'scripts', installScriptName())
+
+  try {
+    fs.accessSync(candidate, fs.constants.R_OK)
+
+    return root
+  } catch {
+    return null
+  }
+}
+
 function bootstrapCacheDir(hermesHome) {
   return path.join(hermesHome, 'bootstrap-cache')
 }
@@ -346,7 +370,24 @@ async function resolveInstallScript({
     return { path: localScript, source: 'local', kind: installScriptKind() }
   }
 
-  // 2. Packaged path: download from GitHub at the install stamp's ref.
+  // 2. Packaged bundle: the agent source tree shipped inside the app. This
+  // beats the GitHub fetch because the stamp may be a commit upstream does
+  // not have (fatal 404 for unpushed builds) and first-launch must work
+  // offline. install.ps1/install.sh then install from -SourceDir/--source-dir.
+  const bundledRoot = bundledSourceRoot()
+
+  if (bundledRoot) {
+    const bundledScript = path.join(bundledRoot, 'scripts', installScriptName())
+
+    emit({
+      type: 'log',
+      line: `[bootstrap] using bundled ${installScriptName()} from ${bundledRoot}`
+    })
+
+    return { path: bundledScript, source: 'bundled', commit: null, sourceDir: bundledRoot, kind: installScriptKind() }
+  }
+
+  // 3. Packaged path: download from GitHub at the install stamp's ref.
   // Non-git fallback builds carry an all-zero commit; treat that as an
   // unpinned branch ref instead of trying to fetch a non-existent SHA.
   const installRef = installRefForStamp(installStamp)
@@ -694,8 +735,14 @@ function spawnBash(scriptPath, args, { emit, stageName, abortSignal, hermesHome 
 // a repair/update path and must not let an old packaged app detach the checkout
 // back to the commit baked into that app. All-zero fallback stamps are never
 // passed as -Commit/--commit — only the branch is used (#50823 / #50864 review).
-function buildPinArgs(installStamp, { pinCommit = true } = {}) {
+function buildPinArgs(installStamp, { pinCommit = true, sourceDir = null } = {}) {
   const args = []
+
+  // Local-source install: the bundled tree (or dev checkout) is the source of
+  // truth; the commit pin is advisory bookkeeping in that mode.
+  if (sourceDir) {
+    args.push('-SourceDir', sourceDir)
+  }
 
   if (pinCommit && installStamp && isPinnedCommit(installStamp.commit)) {
     args.push('-Commit', installStamp.commit)
@@ -708,8 +755,12 @@ function buildPinArgs(installStamp, { pinCommit = true } = {}) {
   return args
 }
 
-function buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit = true }) {
+function buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit = true, sourceDir = null }) {
   const args = ['--dir', activeRoot, '--hermes-home', hermesHome]
+
+  if (sourceDir) {
+    args.push('--source-dir', sourceDir)
+  }
 
   if (installStamp && installStamp.branch) {
     args.push('--branch', installStamp.branch)
@@ -730,14 +781,18 @@ async function fetchManifest({
   activeRoot,
   installStamp,
   pinCommit,
+  sourceDir,
   abortSignal
 }) {
   abortSignal?.throwIfAborted()
   const isPosix = installerKind === 'posix'
 
   const args = isPosix
-    ? ['--manifest', ...buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit })]
-    : ['-Manifest', ...buildPinArgs(installStamp, { pinCommit })]
+    ? [
+        '--manifest',
+        ...buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit, sourceDir })
+      ]
+    : ['-Manifest', ...buildPinArgs(installStamp, { pinCommit, sourceDir })]
 
   const result = await (isPosix ? spawnBash : spawnPowerShell)(scriptPath, args, {
     emit,
@@ -808,7 +863,8 @@ async function runStage({
   activeRoot,
   abortSignal,
   installStamp,
-  pinCommit
+  pinCommit,
+  sourceDir
 }) {
   const startedAt = Date.now()
   emit({ type: 'stage', name: stage.name, state: 'running' })
@@ -821,9 +877,15 @@ async function runStage({
         stage.name,
         '--non-interactive',
         '--json',
-        ...buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit })
+        ...buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit, sourceDir })
       ]
-    : ['-Stage', stage.name, '-NonInteractive', '-Json', ...buildPinArgs(installStamp, { pinCommit })]
+    : [
+        '-Stage',
+        stage.name,
+        '-NonInteractive',
+        '-Json',
+        ...buildPinArgs(installStamp, { pinCommit, sourceDir })
+      ]
 
   const result = await (isPosix ? spawnBash : spawnPowerShell)(scriptPath, args, {
     emit,
@@ -979,6 +1041,7 @@ async function runBootstrap(opts) {
     abortSignal?.throwIfAborted()
 
     const installerKind = scriptInfo.kind || 'powershell'
+    const sourceDir = (scriptInfo as { sourceDir?: string }).sourceDir || null
 
     // 2. Fetch manifest
     const manifest = await fetchManifest({
@@ -989,6 +1052,7 @@ async function runBootstrap(opts) {
       activeRoot,
       installStamp,
       pinCommit,
+      sourceDir,
       abortSignal
     })
 
@@ -1020,7 +1084,8 @@ async function runBootstrap(opts) {
         activeRoot,
         abortSignal,
         installStamp,
-        pinCommit
+        pinCommit,
+        sourceDir
       })
 
       if (ev.state === 'failed') {
@@ -1083,6 +1148,7 @@ async function runBootstrap(opts) {
 export {
   buildPinArgs,
   buildPosixPinArgs,
+  bundledSourceRoot,
   cachedScriptPath,
   cleanInstallerLogLine,
   hasExistingGitCheckout,
