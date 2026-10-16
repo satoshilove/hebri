@@ -1297,6 +1297,36 @@ function Initialize-ManagedPythonEnvironment {
     return [System.IO.Path]::GetFullPath($managedRoot)
 }
 
+function Repair-MinorVersionLinks {
+    # Windows 11 (24H2+) and OneDrive Files On-Demand can make the kernel
+    # reject uv's minor-version link creation with STATUS_UNTRUSTED_MOUNT_POINT
+    # (WinError 448, "untrusted mount point") even though the interpreter
+    # itself extracted fine (astral-sh/uv#19616; NousResearch/hermes-agent
+    # #61557). Retrying uv is NOT reliable -- the same pass can fail twice and
+    # then succeed on its own. The documented recovery is to create the
+    # junction ourselves: mklink /J needs no elevated token and no
+    # SeCreateSymbolicLinkPrivilege. Ensure every extracted interpreter has
+    # its minor-version link and return the count created.
+    $managedRoot = Initialize-ManagedPythonEnvironment
+    $created = 0
+    $dirs = @(Get-ChildItem -LiteralPath $managedRoot -Directory -ErrorAction SilentlyContinue)
+    foreach ($dir in $dirs) {
+        if ($dir.Name -match '^cpython-(\d+\.\d+)\.\d+(.*)$') {
+            $minorLink = Join-Path $managedRoot ("cpython-" + $Matches[1] + $Matches[2])
+            if (-not (Test-Path -LiteralPath $minorLink)) {
+                $mkOut = cmd /c mklink /J $minorLink $dir.FullName 2>&1
+                if (Test-Path -LiteralPath $minorLink) {
+                    $created++
+                    Write-Info "Created Python minor-version link (manual junction): $(Split-Path $minorLink -Leaf)"
+                } else {
+                    Write-Warn "Manual junction creation failed for $(Split-Path $minorLink -Leaf): $($mkOut -join ' ')"
+                }
+            }
+        }
+    }
+    return $created
+}
+
 function Resolve-AvailablePythonVersion {
     # Return the path and minor version of the first Hermes-managed interpreter
     # uv can find, preferring the requested version and then fallback minors.
@@ -1419,6 +1449,17 @@ function Test-Python {
             return $true
         }
 
+        # Last resort for the 448 case: the interpreter extracted fine but the
+        # kernel refused uv's junction creation ("untrusted mount point").
+        # Create the link ourselves instead of relying on uv.
+        Repair-MinorVersionLinks | Out-Null
+        $resolvedPython = Resolve-AvailablePythonVersion
+        if ($resolvedPython) {
+            $ver = & $resolvedPython.Path --version 2>$null
+            Write-Success "Python installed (link created manually): $ver"
+            return $true
+        }
+
         # uv ran but Python still not findable -- show what happened
         if ($uvExitCode -ne 0) {
             Write-Warn "uv python install output:"
@@ -1457,6 +1498,14 @@ function Test-Python {
                     Write-Success "Python fallback installed: $ver"
                     return $true
                 }
+                # Manual junction repair (WinError 448 "untrusted mount point").
+                Repair-MinorVersionLinks | Out-Null
+                $resolvedPython = Resolve-AvailablePythonVersion
+                if ($resolvedPython) {
+                    $ver = & $resolvedPython.Path --version 2>$null
+                    Write-Success "Python fallback installed (link created manually): $ver"
+                    return $true
+                }
             }
         } catch {
             if ($previousFallbackEAP) { $ErrorActionPreference = $previousFallbackEAP }
@@ -1464,7 +1513,18 @@ function Test-Python {
     }
 
     Write-Err "Failed to install Python $PythonVersion"
-    Write-Info "Check network access to uv's managed Python downloads, then retry."
+    # Distinguish "could not download" from "downloaded but the OS refused the
+    # minor-version link" (WinError 448, "untrusted mount point" -- OneDrive
+    # Files On-Demand / Windows 11 24H2): the latter is not a network problem.
+    $managedRoot = Initialize-ManagedPythonEnvironment
+    $extracted = @(Get-ChildItem -LiteralPath $managedRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match '^cpython-(\d+\.\d+)\.\d+' })
+    if ($extracted.Count -gt 0) {
+        Write-Warn "Python downloaded, but Windows refused to create its version link (os error 448, 'untrusted mount point')."
+        Write-Warn "Known Windows 11 / OneDrive Files On-Demand quirk -- not a network problem. Retry; if it persists, reboot and retry, or disable Files On-Demand temporarily."
+    } else {
+        Write-Info "Check network access to uv's managed Python downloads, then retry."
+    }
     return $false
 }
 
@@ -2344,6 +2404,12 @@ function Install-Repository {
                         if ($LASTEXITCODE -ge 8) {
                             throw "robocopy refresh from local source failed (exit $LASTEXITCODE)"
                         }
+                        # Desktop bundles ship with read-only file attributes and
+                        # robocopy preserves them. Left in place they break later
+                        # stages -- e.g. setuptools fails with WinError 5 renaming
+                        # onto a read-only PKG-INFO -- so clear the bit across the
+                        # checkout. (attrib is a no-op on trees without the flag.)
+                        & attrib -R "$InstallDir\*" /S 2>$null | Out-Null
                         Push-Location $InstallDir
                         $prevEapRefresh = $ErrorActionPreference
                         $ErrorActionPreference = "Continue"
@@ -2601,6 +2667,10 @@ function Install-Repository {
                 if ($LASTEXITCODE -ge 8) {
                     throw "robocopy from local source failed (exit $LASTEXITCODE)"
                 }
+                # Bundles ship with read-only attributes; clear them so the
+                # checkout behaves like a normal git tree (same fix as the
+                # refresh branch above).
+                & attrib -R "$InstallDir\*" /S 2>$null | Out-Null
 
                 # Give the checkout a resolvable HEAD so the bootstrap marker,
                 # stamps, and update bookkeeping work (mirrors the ZIP path).
@@ -2838,6 +2908,11 @@ function Install-Venv {
             $resolvedPython = Resolve-AvailablePythonVersion
             if ($resolvedPython) { break }
         }
+        # The kernel can refuse even uv's repair pass (WinError 448,
+        # "untrusted mount point"); the interpreter IS extracted, so create
+        # the junctions ourselves before failing the stage.
+        Repair-MinorVersionLinks | Out-Null
+        $resolvedPython = Resolve-AvailablePythonVersion
     }
     if (-not $resolvedPython) {
         throw "Hermes-managed Python is unavailable. Run install.ps1 -Stage python first."
