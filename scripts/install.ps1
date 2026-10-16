@@ -2548,6 +2548,7 @@ function Install-Repository {
 
     if (-not $didUpdate) {
         $cloneSuccess = $false
+        $bundleInstall = $false
 
         # Local-source install (desktop bundle or dev checkout): copy the tree
         # instead of fetching from GitHub. Desktop builds are stamped to
@@ -2592,6 +2593,7 @@ function Install-Repository {
                 }
 
                 $cloneSuccess = $true
+                $bundleInstall = $true
             } else {
                 Write-Warn "SourceDir '$SourceDir' not found or missing pyproject.toml; falling through to GitHub."
             }
@@ -2738,8 +2740,14 @@ function Install-Repository {
     # Post-clone pin: when a clone (or ZIP-fallback init) just landed us on
     # $Branch's tip, honour the higher-precedence $Commit / $Tag by checking
     # the exact ref out as a detached HEAD.  Skipped for the in-place update
-    # path (above) since that already routed via the same precedence.
-    if (-not $didUpdate) {
+    # path (above) since that already routed via the same precedence.  Also
+    # skipped for bundle installs: the copied tree IS the source of truth and
+    # the build stamp (a locally-committed SHA) does not exist in the bundle's
+    # fresh local repo, so `git fetch origin` / `checkout --detach` would fail
+    # with exit 128 and break first launch.
+    if ($bundleInstall) {
+        Write-Info "Bundle install complete; skipping commit pin (local source is authoritative)."
+    } elseif (-not $didUpdate) {
         # Same EAP=Continue wrap as the update path -- git fetch's 'From <url>'
         # info line goes to stderr and would terminate the script under the
         # global EAP=Stop otherwise.  We check $LASTEXITCODE for real errors.
