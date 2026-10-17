@@ -28,12 +28,21 @@ export interface CachedUpdateCheck {
   status: Record<string, unknown> & { error?: string }
 }
 
-/** `owner/repo` for any GitHub remote form; null for non-GitHub origins. */
+/** `owner/repo` for any GitHub remote form; null for non-GitHub origins
+ *  or private repos the API cannot read without a token (404 as 403). */
 export function githubRepoSlug(originUrl: string): string | null {
   const canonical = canonicalGitHubRemote(originUrl)
   const match = /^github\.com\/([^/]+\/[^/]+)$/.exec(canonical)
 
-  return match ? match[1] : null
+  if (!match) return null
+
+  // Private repos return 404/403 to anonymous API calls — fall back
+  // to git ls-remote which works with cached Git credentials.
+  // The official Nous repo is public; forks and private deployments
+  // skip the API path entirely.
+  const OFFICIAL_PUBLIC_SLUGS = ['nousresearch/hermes-agent']
+  const slug = match[1].toLowerCase()
+  return OFFICIAL_PUBLIC_SLUGS.includes(slug) ? match[1] : null
 }
 
 export function branchTipApiUrl(slug: string, branch: string): string {

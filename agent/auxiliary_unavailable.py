@@ -150,7 +150,7 @@ def record_nous_credential_failure(exc: BaseException) -> str:
     code = getattr(exc, "code", None)
     if code and str(code) not in message:
         message = f"{message} (code: {code})"
-    detail = f"Nous Portal runtime credentials unavailable: {message}"
+    detail = f"Portal runtime credentials unavailable: {message}"
     global _last_nous_detail
     with _lock:
         _last_nous_detail = detail
