@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: "Hermes Agent Quickstart"
+title: "Hebri Quickstart"
 description: "Your first conversation with Hermes Agent — from install to chatting in under 5 minutes"
 ---
 
@@ -16,7 +16,7 @@ This guide gets you from zero to a working Hermes setup that survives real use. 
   <iframe
     style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}}
     src="https://www.youtube-nocookie.com/embed/R3YOGfTBcQg"
-    title="Hermes Agent Masterclass: Installation, Setup, Basic Commands"
+    title="Hebri Masterclass: Installation, Setup, Basic Commands"
     frameBorder="0"
     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowFullScreen

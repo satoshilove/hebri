@@ -88,7 +88,7 @@ hermes chat
 Try something that exercises both the model and the Tool Gateway:
 
 ```
-Hey, search the web for "Hermes Agent release notes" and summarize the top 3 hits.
+Hey, search the web for "Hebri release notes" and summarize the top 3 hits.
 ```
 
 You should see Hermes call `web_search` (Firecrawl-backed, through the gateway) and respond with a summary. If the search runs and the response makes sense, you're done — the Portal is wired up end to end.

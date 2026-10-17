@@ -885,7 +885,7 @@ The ID token is what establishes identity — the access token is treated as opa
   "clients": [
     {
       "clientId": "hermes-dashboard",
-      "name": "Hermes Agent Dashboard",
+      "name": "Hebri Dashboard",
       "enabled": true,
       "publicClient": true,
       "standardFlowEnabled": true,

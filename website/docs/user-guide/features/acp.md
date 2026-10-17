@@ -206,7 +206,7 @@ If you want to define Hermes manually, add it through VS Code settings under `ac
 ```json
 {
   "acp.agents": {
-    "Hermes Agent": {
+    "Hebri": {
       "command": "hermes",
       "args": ["acp"]
     }

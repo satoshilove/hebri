@@ -71,7 +71,7 @@ connected. An enabled platform can correctly show **Messaging gateway stopped**.
 
 ```mermaid
 flowchart TB
-    subgraph Gateway["Hermes Gateway"]
+    subgraph Gateway["Hebri Gateway"]
         subgraph Adapters["Platform adapters"]
             tg[Telegram]
             dc[Discord]

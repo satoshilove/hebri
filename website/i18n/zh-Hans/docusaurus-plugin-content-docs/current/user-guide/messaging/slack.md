@@ -44,7 +44,7 @@ description: "使用 Socket Mode 将 Hermes Agent 设置为 Slack 机器人"
 1. 前往 [https://api.slack.com/apps](https://api.slack.com/apps)
 2. 点击 **Create New App**
 3. 选择 **From scratch**
-4. 输入应用名称（例如 "Hermes Agent"）并选择你的工作区
+4. 输入应用名称（例如 "Hebri"）并选择你的工作区
 5. 点击 **Create App**
 
 你将进入应用的 **Basic Information** 页面。继续执行下方第 2–6 步。

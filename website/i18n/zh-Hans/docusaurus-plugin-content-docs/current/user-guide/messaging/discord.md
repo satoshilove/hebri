@@ -105,7 +105,7 @@ discord:
 
 1. 前往 [Discord 开发者门户](https://discord.com/developers/applications) 并使用你的 Discord 账号登录。
 2. 点击右上角的 **New Application**。
-3. 输入应用名称（例如"Hermes Agent"）并接受开发者服务条款。
+3. 输入应用名称（例如"Hebri"）并接受开发者服务条款。
 4. 点击 **Create**。
 
 你将进入 **General Information** 页面。记下 **Application ID**——稍后构建邀请 URL 时需要用到。

@@ -19,7 +19,7 @@ Hermes Agent 通过以下两种方式与 [Home Assistant](https://www.home-assis
 1. 打开您的 Home Assistant 实例
 2. 进入**个人资料**（点击侧边栏中的用户名）
 3. 滚动至**长期访问令牌**
-4. 点击**创建令牌**，命名为"Hermes Agent"
+4. 点击**创建令牌**，命名为"Hebri"
 5. 复制令牌
 
 ### 2. 配置环境变量
@@ -178,7 +178,7 @@ platforms:
 
 ### Agent 响应
 
-Agent 发出的消息将以 **Home Assistant 持久通知**的形式推送（通过 `persistent_notification.create`），标题为"Hermes Agent"，显示在 HA 通知面板中。
+Agent 发出的消息将以 **Home Assistant 持久通知**的形式推送（通过 `persistent_notification.create`），标题为"Hebri"，显示在 HA 通知面板中。
 
 ### 连接管理
 

@@ -1,6 +1,6 @@
 ---
-title: "Hermes Agent — 配置、扩展或贡献 Hermes Agent"
-sidebar_label: "Hermes Agent"
+title: "Hebri — 配置、扩展或贡献 Hermes Agent"
+sidebar_label: "Hebri"
 description: "配置、扩展或贡献 Hermes Agent"
 ---
 

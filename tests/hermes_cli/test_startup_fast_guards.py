@@ -66,7 +66,7 @@ def test_cli_starts_from_a_deleted_cwd(tmp_path):
     finally:
         os.close(fd)
     assert result.returncode == 0, result.stderr
-    assert "Hermes Agent v" in result.stdout
+    assert "Hebri v" in result.stdout
     assert "FileNotFoundError" not in result.stderr
 
 
@@ -116,7 +116,7 @@ def test_fast_version_parity_on_termux(tmp_path):
         {"HERMES_HOME": str(home), "TERMUX_VERSION": "0.118"}
     )
     assert result.returncode == 0, result.stderr
-    assert "Hermes Agent v" in result.stdout
+    assert "Hebri v" in result.stdout
     assert "Traceback" not in result.stderr
 
 

@@ -1,6 +1,6 @@
 ---
-title: "Hermes Agent — Use, configure, theme, extend, and orchestrate Hermes Agent"
-sidebar_label: "Hermes Agent"
+title: "Hebri — Use, configure, theme, extend, and orchestrate Hermes Agent"
+sidebar_label: "Hebri"
 description: "Use, configure, theme, extend, and orchestrate Hermes Agent"
 ---
 

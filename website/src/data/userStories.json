@@ -853,7 +853,7 @@
     "url": "https://github.com/teknium1/nous-discord-archive/blob/main/archives/community-projects-showcase/1492207991162671255-Hermes-Agent-for-my-team.txt",
     "date": "",
     "category": "business-ops",
-    "headline": "Hermes Agent for my team — repos, onchain debug, protocol docs",
+    "headline": "Hebri for my team — repos, onchain debug, protocol docs",
     "quote": "It's right now integrated with SourceDev to index repos (self hosted), Tenderly MCP to debug onchain transactions, LLM-Wiki ingest of Litepaper of our protocol and other docs. Hopefully team will find it useful and will integrate more infra tools overtime to help the team.",
     "size": "md"
   },
@@ -963,7 +963,7 @@
     "url": "https://open.spotify.com/episode/7tF7zf5GKcxqe2Q2BRRNfn",
     "date": "2026",
     "category": "meta",
-    "headline": "Hermes Agent has won. Here's why.",
+    "headline": "Hebri has won. Here's why.",
     "quote": "Why Hermes Agent has emerged as the leading open-source AI agent that developers and builders are choosing — self-improving skills, three-layer memory architecture, real-world applications including video dubbing workflows.",
     "size": "sm"
   },
@@ -1437,7 +1437,7 @@
     "date": "2026-04-29",
     "category": "general",
     "headline": "An AI employee for my hardest tasks",
-    "quote": "Hermes Agent with ChatGPT 5.5 is literally magic. I've thrown some of my hardest tasks at this combo and the agent has been able to handle EVERYTHING. Time to set up your AI employee.",
+    "quote": "Hebri with ChatGPT 5.5 is literally magic. I've thrown some of my hardest tasks at this combo and the agent has been able to handle EVERYTHING. Time to set up your AI employee.",
     "size": "sm"
   },
   {
@@ -1712,7 +1712,7 @@
     "date": "2026",
     "category": "integrations",
     "headline": "Firecrawl for scrape/search/browse",
-    "quote": "Hermes Agent by Nous Research can now scrape, search, and interact with the web using Firecrawl. Enable it during setup to give Hermes the ability.",
+    "quote": "Hebri by Nous Research can now scrape, search, and interact with the web using Firecrawl. Enable it during setup to give Hermes the ability.",
     "size": "sm"
   },
   {
@@ -3329,7 +3329,7 @@
     "date": "2026-05-13",
     "category": "content-creation",
     "headline": "Automated TikTok slideshow factory that works while you sleep",
-    "quote": "Hermes Agent = automated TikTok slideshow factory. It researches the topic, writes the script, formats the slides, outputs in the exact dimensions TikTok needs. 10 slideshows a week manually takes 30-40 hours. With Hermes it takes the time to review and approve.",
+    "quote": "Hebri = automated TikTok slideshow factory. It researches the topic, writes the script, formats the slides, outputs in the exact dimensions TikTok needs. 10 slideshows a week manually takes 30-40 hours. With Hermes it takes the time to review and approve.",
     "size": "md"
   },
   {

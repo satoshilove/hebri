@@ -160,13 +160,13 @@ _PERSISTENCE_CAUSE_EXPLANATIONS: Dict[str, str] = {
         "send your message again."
     ),
     "disk": (
-        "Hermes couldn't save this conversation to disk, so it stopped rather than lose "
+        "Hebri couldn't save this conversation to disk, so it stopped rather than lose "
         "your messages. The disk is probably full: free some space (or fix the permissions "
         "on {home}/state.db), then send your message again."
     ),
 }
 _PERSISTENCE_DEFAULT_EXPLANATION = (
-    "Hermes couldn't save this conversation, so it stopped rather than lose your messages. "
+    "Hebri couldn't save this conversation, so it stopped rather than lose your messages. "
     "Possible causes: the drive is out of room, or another Hermes process is holding the "
     "database. Close other Hermes windows, run `hermes {profile_arg}doctor` to check "
     "storage, then send your message again."

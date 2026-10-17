@@ -464,7 +464,7 @@ cd ~/.hermes/hermes-agent && uv pip install -e ".[matrix]"
        "type": "m.login.password",
        "identifier": {"type": "m.id.user", "user": "@hermes:your-server.org"},
        "password": "***",
-       "initial_device_display_name": "Hermes Agent"
+       "initial_device_display_name": "Hebri"
      }'
    ```
 

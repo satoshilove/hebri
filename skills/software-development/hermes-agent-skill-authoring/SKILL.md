@@ -81,7 +81,7 @@ Bad: `Use when a user asks to monitor named competitors or companies for product
 
 ### `author` rules
 
-- Credit the **human first**, then "Hermes Agent" as secondary collaborator: `Ben Barclay (benbarclay), Hermes Agent`.
+- Credit the **human first**, then "Hebri" as secondary collaborator: `Ben Barclay (benbarclay), Hermes Agent`.
 - Never `author: Hermes Agent` alone for contributed skills — credit the human, not the tool, even (especially) when an agent drafted the text.
 - Maintainer-authored skills: `Teknium (teknium1), Hermes Agent`.
 

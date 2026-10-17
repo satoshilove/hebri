@@ -171,7 +171,7 @@ Desktop 会在该 agent 的 **Activity log** 中实时渲染生命周期、工�
 ```json
 {
   "acp.agents": {
-    "Hermes Agent": {
+    "Hebri": {
       "command": "hermes",
       "args": ["acp"]
     }

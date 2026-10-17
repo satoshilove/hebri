@@ -96,7 +96,7 @@ Management metadata lives in `~/.hermes/auth.json` under `credential_pool`:
         "dashboard_project_id": "<project id>",
         "spectrum_project_id": "<project id>",
         "project_secret": "<projectSecret>",
-        "name": "Hermes Agent"
+        "name": "Hebri"
       }
     ]
   }

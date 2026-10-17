@@ -52,7 +52,7 @@ _KEY_URL = "https://www.perplexity.ai/account/api"
 # request; the call already carries the user's own API key.
 _HEADERS = {
     "HTTP-Referer": "https://hermes-agent.nousresearch.com",
-    "X-Title": "Hermes Agent",
+    "X-Title": "Hebri",
     "User-Agent": f"HermesAgent/{_HERMES_VERSION}",
     "X-Pplx-Integration": "hermes-agent",
 }

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: "常见问题与故障排查"
-description: "Hermes Agent 常见问题解答及常见问题解决方案"
+description: "Hebri 常见问题解答及常见问题解决方案"
 ---
 
 # 常见问题与故障排查

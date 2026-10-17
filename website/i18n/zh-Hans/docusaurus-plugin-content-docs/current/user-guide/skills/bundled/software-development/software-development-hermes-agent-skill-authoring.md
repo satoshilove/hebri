@@ -1,6 +1,6 @@
 ---
-title: "Hermes Agent Skill 编写——在仓库中编写 SKILL"
-sidebar_label: "Hermes Agent Skill 编写"
+title: "Hebri Skill 编写——在仓库中编写 SKILL"
+sidebar_label: "Hebri Skill 编写"
 description: "在仓库中编写 SKILL.md"
 ---
 

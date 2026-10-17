@@ -1,4 +1,4 @@
-"""Hermes Agent Uninstaller."""
+"""Hebri Uninstaller."""
 
 import os
 import shutil
