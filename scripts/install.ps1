@@ -1307,6 +1307,11 @@ function Repair-MinorVersionLinks {
     # junction ourselves: mklink /J needs no elevated token and no
     # SeCreateSymbolicLinkPrivilege. Ensure every extracted interpreter has
     # its minor-version link and return the count created.
+    #
+    # When junctions are also blocked (some Windows 11 24H2 / OneDrive Files
+    # On-Demand configurations reject ALL reparse-point creation), fall back
+    # to a full directory copy. This is slow (~100 MB per interpreter) but
+    # unblocks machines where no link type works.
     $managedRoot = Initialize-ManagedPythonEnvironment
     $created = 0
     $dirs = @(Get-ChildItem -LiteralPath $managedRoot -Directory -ErrorAction SilentlyContinue)
@@ -1314,12 +1319,26 @@ function Repair-MinorVersionLinks {
         if ($dir.Name -match '^cpython-(\d+\.\d+)\.\d+(.*)$') {
             $minorLink = Join-Path $managedRoot ("cpython-" + $Matches[1] + $Matches[2])
             if (-not (Test-Path -LiteralPath $minorLink)) {
+                # Try junction first (fast, no elevated token needed)
                 $mkOut = cmd /c mklink /J $minorLink $dir.FullName 2>&1
                 if (Test-Path -LiteralPath $minorLink) {
                     $created++
                     Write-Info "Created Python minor-version link (manual junction): $(Split-Path $minorLink -Leaf)"
                 } else {
-                    Write-Warn "Manual junction creation failed for $(Split-Path $minorLink -Leaf): $($mkOut -join ' ')"
+                    # Junction blocked by the OS — fall back to a full copy.
+                    # This is a last resort for machines where ALL reparse-point
+                    # creation is rejected (WinError 448 across uv, mklink /J,
+                    # and New-Item -ItemType Junction alike).
+                    Write-Warn "Manual junction creation failed for $(Split-Path $minorLink -Leaf); falling back to directory copy..."
+                    try {
+                        Copy-Item -LiteralPath $dir.FullName -Destination $minorLink -Recurse -Force -ErrorAction Stop
+                        if (Test-Path -LiteralPath $minorLink) {
+                            $created++
+                            Write-Info "Created Python minor-version link (directory copy): $(Split-Path $minorLink -Leaf)"
+                        }
+                    } catch {
+                        Write-Warn "Directory copy also failed for $(Split-Path $minorLink -Leaf): $_"
+                    }
                 }
             }
         }
