@@ -363,3 +363,30 @@ export type AttentionClass = 'agent_blocked' | 'missing_config' | 'provider_auth
 
 export type RosterKindFilter = 'all' | 'bots' | 'groups'
 export type RosterActivityFilter = 'active' | 'all' | 'older' | 'recent'
+
+// ── Team Chat types ─────────────────────────────────────────────────────────
+
+export interface TeamMember {
+  id: string
+  name: string
+  publicKey?: string   // base64 of JWK x coordinate fingerprint
+  online?: boolean
+}
+
+export interface TeamRoom {
+  id: string
+  name: string
+  members: string[]    // team member ids
+  encrypted: boolean
+  createdAt: number
+}
+
+export interface TeamMessage {
+  id: string
+  roomId: string
+  senderId: string
+  senderName: string
+  ciphertext: string
+  iv: string
+  timestamp: number
+}

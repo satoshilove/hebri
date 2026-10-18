@@ -473,6 +473,32 @@ export default {
       render: () => <BotsPane />
     })
 
+    // Team Chat — human-to-human encrypted messaging pane.
+    // Registered alongside Bots: the zone's tab strip becomes
+    // SESSIONS | TEAM CHAT | BOTS.
+    ctx.register({
+      id: 'team-chat',
+      area: 'panes',
+      title: 'Team Chat',
+      data: {
+        placement: 'left',
+        width: '600px',
+        collapsible: true,
+        hideOnly: true,
+        tabTitle: () => <span>Team Chat</span>,
+        tabTitleText: () => 'Team Chat',
+        dock: {
+          pane: 'sessions',
+          pos: 'center',
+          enforce: true
+        }
+      },
+      render: () => {
+        const { TeamChatPane } = require('./team-chat-pane')
+        return <TeamChatPane />
+      }
+    })
+
     // Routines — its OWN tiling pane splitting the workspace's right edge
     // (NOT the collapsible right sidebar; placement 'right' is that sidebar's
     // role and hides the pane until "Show Right Sidebar").
