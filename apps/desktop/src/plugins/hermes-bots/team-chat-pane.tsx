@@ -13,16 +13,14 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
-  encryptMessage,
   decryptMessage,
-  generateTeamIdentity,
-  generateRoomKey,
+  encryptMessage,
   exportRoomKey,
-  keyFingerprint,
-  type TeamIdentity,
-  type EncryptedMessage
+  generateRoomKey,
+  generateTeamIdentity,
+  type TeamIdentity
 } from './crypto'
-import type { TeamRoom, TeamMessage, TeamMember } from './types'
+import type { TeamMessage, TeamRoom } from './types'
 
 // ── Local state ──────────────────────────────────────────────────────────
 
@@ -49,10 +47,13 @@ function useTeamState() {
   // Generate identity on mount
   useEffect(() => {
     let cancelled = false
+
     ;(async () => {
       const id = await generateTeamIdentity('You')
-      if (!cancelled) setState(s => ({ ...s, identity: id }))
+
+      if (!cancelled) {setState(s => ({ ...s, identity: id }))}
     })()
+
     return () => { cancelled = true }
   }, [])
 
@@ -73,20 +74,24 @@ function TeamRoomList({
   const [newName, setNewName] = useState('')
 
   const filtered = useMemo(() => {
-    if (!query) return state.rooms
+    if (!query) {return state.rooms}
+
     return state.rooms.filter(r =>
       r.name.toLowerCase().includes(query.toLowerCase())
     )
   }, [query, state.rooms])
 
   const createRoom = useCallback(async () => {
-    if (!state.identity || !newName.trim()) return
+    if (!state.identity || !newName.trim()) {return}
     const roomKey = await generateRoomKey()
     const raw = await exportRoomKey(roomKey)
+
     const ab2b64 = (buf: ArrayBuffer) => {
       const bytes = new Uint8Array(buf)
+
       return btoa(Array.from(bytes, b => String.fromCharCode(b)).join(''))
     }
+
     const room: TeamRoom = {
       id: `room-${Date.now()}`,
       name: newName.trim(),
@@ -94,6 +99,7 @@ function TeamRoomList({
       encrypted: true,
       createdAt: Date.now()
     }
+
     setState(s => ({
       ...s,
       rooms: [...s.rooms, room],
@@ -163,11 +169,11 @@ function TeamRoomList({
         ) : (
           filtered.map(room => (
             <button
-              key={room.id}
               className={cn(
                 'w-full text-left px-2.5 py-2 text-[0.8125rem] hover:bg-(--ui-hover)',
                 state.activeRoomId === room.id && 'bg-(--ui-active)'
               )}
+              key={room.id}
               onClick={() => setState(s => ({ ...s, activeRoomId: room.id }))}
             >
               <div className="font-medium"># {room.name}</div>
@@ -201,12 +207,14 @@ function TeamChatView({
   const room = state.rooms.find(r => r.id === state.activeRoomId)
 
   const sendMessage = useCallback(async () => {
-    if (!state.identity || !room || !state.composeText.trim()) return
+    if (!state.identity || !room || !state.composeText.trim()) {return}
     const roomKey = state.roomKeys[room.id]
-    if (!roomKey) return
+
+    if (!roomKey) {return}
 
     const plaintext = state.composeText.trim()
     const encrypted = await encryptMessage(plaintext, roomKey)
+
     const msg: TeamMessage = {
       id: `msg-${Date.now()}`,
       roomId: room.id,
@@ -216,6 +224,7 @@ function TeamChatView({
       iv: encrypted.iv,
       timestamp: Date.now()
     }
+
     setState(s => ({
       ...s,
       messages: [...s.messages, msg],
@@ -262,10 +271,10 @@ function TeamChatView({
           value={state.composeText}
         />
         <Button
+          disabled={!state.composeText.trim()}
           onClick={sendMessage}
           size="sm"
           variant="primary"
-          disabled={!state.composeText.trim()}
         >
           Send
         </Button>
@@ -287,13 +296,16 @@ function TeamMessageBubble({
   const [decrypting, setDecrypting] = useState(false)
 
   useEffect(() => {
-    if (decrypted || decrypting) return
+    if (decrypted || decrypting) {return}
     setDecrypting(true)
     const roomKey = state.roomKeys[room.id]
+
     if (!roomKey) {
       setDecrypted('[no room key]')
+
       return
     }
+
     decryptMessage({ c: msg.ciphertext, iv: msg.iv }, roomKey)
       .then(plain => setDecrypted(plain))
       .catch(() => setDecrypted('[decrypt failed]'))
@@ -325,9 +337,9 @@ export function TeamChatPane() {
   return (
     <div className="flex h-full">
       <div className="w-[240px] border-r border-(--ui-border) shrink-0">
-        <TeamRoomList state={state as TeamState} setState={setState} />
+        <TeamRoomList setState={setState} state={state as TeamState} />
       </div>
-      <TeamChatView state={state as TeamState} setState={setState} />
+      <TeamChatView setState={setState} state={state as TeamState} />
     </div>
   )
 }

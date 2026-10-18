@@ -495,6 +495,7 @@ export default {
       },
       render: () => {
         const { TeamChatPane } = require('./team-chat-pane')
+
         return <TeamChatPane />
       }
     })

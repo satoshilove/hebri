@@ -116,6 +116,7 @@ export function relayRegister(
   peer: string
 ): Promise<{ expires_in: number; grant: string; room: { id: string; name: string } }> {
   const url = `${normalizeRelayBase(base)}/api/team/relay/register`
+
   return fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -123,14 +124,18 @@ export function relayRegister(
   }).then(async (res) => {
     if (!res.ok) {
       let detail = `relay join failed (${res.status})`
+
       try {
         const data = (await res.json()) as { detail?: string }
-        if (data && typeof data.detail === 'string') detail = data.detail
+
+        if (data && typeof data.detail === 'string') {detail = data.detail}
       } catch {
         /* keep default */
       }
+
       throw new Error(detail)
     }
+
     return (await res.json()) as { expires_in: number; grant: string; room: { id: string; name: string } }
   })
 }
@@ -140,8 +145,10 @@ export function relayListMessages(
   sinceSeq: number
 ): Promise<{ latest_seq: number; messages: TeamMessage[] }> {
   const url = `${normalizeRelayBase(relay.base)}/api/team/relay/${relay.code}/messages?since_seq=${sinceSeq}&limit=300&grant=${encodeURIComponent(relay.grant)}`
+
   return fetch(url).then(async (res) => {
-    if (!res.ok) throw new Error(`relay ${res.status}`)
+    if (!res.ok) {throw new Error(`relay ${res.status}`)}
+
     return (await res.json()) as { latest_seq: number; messages: TeamMessage[] }
   })
 }
@@ -151,6 +158,7 @@ export function relaySendMessage(
   text: string
 ): Promise<{ message: TeamMessage }> {
   const url = `${normalizeRelayBase(relay.base)}/api/team/relay/${relay.code}/messages`
+
   return fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -158,22 +166,28 @@ export function relaySendMessage(
   }).then(async (res) => {
     if (!res.ok) {
       let detail = `relay send failed (${res.status})`
+
       try {
         const data = (await res.json()) as { detail?: string }
-        if (data && typeof data.detail === 'string') detail = data.detail
+
+        if (data && typeof data.detail === 'string') {detail = data.detail}
       } catch {
         /* keep default */
       }
+
       throw new Error(detail)
     }
+
     return (await res.json()) as { message: TeamMessage }
   })
 }
 
 export function relayGetPresence(relay: TeamRelay): Promise<{ online: TeamPresence[] }> {
   const url = `${normalizeRelayBase(relay.base)}/api/team/relay/${relay.code}/presence?grant=${encodeURIComponent(relay.grant)}`
+
   return fetch(url).then(async (res) => {
-    if (!res.ok) throw new Error(`relay ${res.status}`)
+    if (!res.ok) {throw new Error(`relay ${res.status}`)}
+
     return (await res.json()) as { online: TeamPresence[] }
   })
 }
@@ -183,12 +197,14 @@ export function relayUpdatePresence(
   status: string
 ): Promise<{ ok: boolean }> {
   const url = `${normalizeRelayBase(relay.base)}/api/team/relay/${relay.code}/presence`
+
   return fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: relay.peer, status, grant: relay.grant })
   }).then(async (res) => {
-    if (!res.ok) throw new Error(`relay ${res.status}`)
+    if (!res.ok) {throw new Error(`relay ${res.status}`)}
+
     return (await res.json()) as { ok: boolean }
   })
 }
