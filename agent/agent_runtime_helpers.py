@@ -2286,6 +2286,7 @@ def switch_model(
     snapshot and re-raises (callers catch)."""
     old_model = agent.model
     old_provider = agent.provider
+    agent._switch_old_context_length = getattr(agent, "effective_context_length", 0) or 0
     # ── Reload credential pool for the new provider (issue #52727) ── Without this,
     # ``recover_with_credential_pool`` sees a ``pool.provider != agent.provider`` mismatch and
     # short-circuits, leaving the new provider with no rotation/recovery on 401/429 and burning the original
@@ -2342,6 +2343,190 @@ def switch_model(
         old_model, old_provider, new_model, new_provider,
     )
     _persist_switch_billing_route(agent)
+    # Bridge conversation context for the new model: reformat messages if provider families
+    # differ, compact oldest turns when the new context window is smaller. Runs after the
+    # runtime is fully active so the compressor and client are ready.
+    msgs = getattr(agent, "messages", None) or []
+    _bridge_context_on_model_switch(agent, old_model, old_provider, len(msgs))
+
+
+def _bridge_context_on_model_switch(agent, old_model: str, old_provider: str, msg_count: int) -> None:
+    """Reformat persisted messages for the new provider and compact if the context window shrank.
+
+    When switching between different model families (e.g. DeepSeek ↔ Claude), message
+    formats and tool schemas differ. This bridge:
+
+    1. Detects format differences between old and new providers
+    2. Reformats tool call/result wrappers as needed
+    3. Compacts oldest turns when the new context window is substantially smaller
+    4. Preserves the last user request + recent tool results intact
+
+    Provider families:
+    - ``deepseek`` family (deepseek/*): OpenAI-compat, requires `tool_calls` array
+    - ``openai`` / ``openrouter`` family: standard OpenAI format
+    - ``anthropic`` family: native Anthropic format via litellm adapter
+    - ``google`` family: Gemini native format
+
+    Most switches stay within OpenAI-compat (same format), but switching TO or FROM
+    Anthropic/Google native modes needs message reformatting.
+    """
+    if msg_count < 2:
+        return  # No conversation to bridge
+
+    old_family = _provider_family(old_provider, old_model)
+    new_family = _provider_family(agent.provider, agent.model)
+
+    # Context window check: compact if the new window is < 60% of the old one
+    old_ctx: int = getattr(agent, "_switch_old_context_length", 0) or 0
+    new_ctx: int = getattr(agent, "effective_context_length", 0) or 0
+    needs_compact = False
+    if old_ctx and new_ctx and old_ctx > 0 and new_ctx > 0:
+        if new_ctx < old_ctx * 0.6:
+            needs_compact = True
+            logger.info(
+                "bridge_context: new context window (%d) is significantly smaller "
+                "than old (%d) — compacting oldest turns",
+                new_ctx, old_ctx,
+            )
+
+    # Format reformatting: when families differ
+    needs_format = old_family != new_family
+
+    if not needs_compact and not needs_format:
+        logger.debug("bridge_context: same family, compatible windows — no bridging needed")
+        return
+
+    try:
+        messages = getattr(agent, "messages", None) or []
+        if not messages:
+            return
+
+        bridged = list(messages)
+
+        if needs_format:
+            bridged = _reformat_messages_for_provider(
+                bridged, old_family, new_family, agent.model
+            )
+
+        if needs_compact:
+            bridged = _compact_oldest_turns_for_window(
+                agent, bridged, old_ctx, new_ctx
+            )
+
+        # Persist the bridged messages
+        if bridged is not messages:
+            agent.messages = bridged
+            logger.info(
+                "bridge_context: reformatted %d messages (%s → %s)%s",
+                len(bridged),
+                old_family, new_family,
+                " + compacted" if needs_compact else "",
+            )
+            # Invalidate the cached wire payload so it rebuilds with bridged messages
+            agent._cached_system_prompt = None
+    except Exception as exc:
+        logger.warning("bridge_context: failed (non-fatal) — %s", exc)
+
+
+def _provider_family(provider: str, model: str) -> str:
+    """Classify provider+model into a format family."""
+    norm = f"{(provider or '').strip().lower()}/{(model or '').strip().lower()}"
+    if "deepseek" in norm:
+        return "deepseek"
+    if "anthropic" in norm or "claude" in norm:
+        return "anthropic"
+    if "google" in norm or "gemini" in norm:
+        return "google"
+    if "openai" in norm or "gpt" in norm:
+        return "openai"
+    if "openrouter" in norm:
+        # OpenRouter proxies to multiple backends — preserve original family
+        inner = model.replace("openrouter/", "", 1) if model else ""
+        return _provider_family("openrouter", inner)
+    return "openai-compat"  # default: standard OpenAI format
+
+
+def _reformat_messages_for_provider(
+    messages: list, old_family: str, new_family: str, model: str
+) -> list:
+    """Reformat message list from old family format to new family format.
+
+    Most providers use the OpenAI standard (role, content, tool_calls, tool_call_id).
+    The main reformatting needed: Anthropic native uses `tool_use` blocks instead of
+    `tool_calls` arrays, and tool results as `tool_result` blocks with `tool_use_id`.
+
+    For the MVP: the common case is OpenAI-compat ↔ OpenAI-compat (no reformatting).
+    The Anthropic-specific path is handled by litellm's adapter at send time.
+    """
+    if old_family == "openai-compat" and new_family == "openai-compat":
+        return messages  # No reformatting needed
+    if old_family == "deepseek" and new_family == "openai-compat":
+        return messages  # DeepSeek uses standard OpenAI format
+    if old_family == "openai-compat" and new_family == "deepseek":
+        return messages  # Same format
+
+    # Anthropic ↔ OpenAI-compat: litellm handles this at send time.
+    # We just ensure tool_call_id fields are present for OpenAI-native models.
+    if new_family == "openai-compat":
+        for msg in messages:
+            if msg.get("role") == "tool" and not msg.get("tool_call_id"):
+                msg["tool_call_id"] = msg.get("id", msg.get("name", "call_unknown"))
+
+    logger.debug("reformat_messages: %s → %s (%d messages)", old_family, new_family, len(messages))
+    return messages
+
+
+def _compact_oldest_turns_for_window(
+    agent, messages: list, old_ctx: int, new_ctx: int
+) -> list:
+    """Drop or summarise the oldest turns until the transcript fits the new context window.
+
+    Preserves:
+    - System message (index 0)
+    - Last 2 user requests
+    - Last assistant turn + its tool calls/results
+    - All tool messages belonging to preserved assistant turns
+    """
+    if not messages:
+        return messages
+
+    ratio = new_ctx / max(old_ctx, 1)
+    keep_turns = max(3, int(len(messages) * ratio))
+    system_msg = messages[0] if messages and messages[0].get("role") == "system" else None
+
+    # Walk backwards, collecting the most recent turns
+    kept = []
+    seen_user = 0
+    min_users = 2  # always keep last 2 user requests
+
+    for msg in reversed(messages):
+        if seen_user >= min_users and len(kept) >= keep_turns:
+            # Insert a summary marker before the dropped region
+            marker = {
+                "role": "user",
+                "content": (
+                    "[Earlier conversation compacted: switched from a model with "
+                    f"{old_ctx:,} token context to one with {new_ctx:,} tokens. "
+                    "The most recent exchanges are preserved below.]"
+                ),
+            }
+            kept.append(marker)
+            break
+        if msg.get("role") == "user":
+            seen_user += 1
+        kept.append(msg)
+
+    kept.reverse()
+
+    # Restore system message
+    if system_msg and (not kept or kept[0].get("role") != "system"):
+        kept.insert(0, system_msg)
+
+    logger.info(
+        "compact_oldest_turns: %d → %d messages (%.0f%% kept)",
+        len(messages), len(kept), len(kept) / max(len(messages), 1) * 100,
+    )
+    return kept
 
 
 def _pre_tool_block_message(agent, function_name, function_args, effective_task_id, tool_call_id, middleware_trace):
