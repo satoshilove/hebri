@@ -44,7 +44,7 @@ describe('enforced dock (stacked Bots pane → sessions-zone tab, every boot)', 
     vi.resetModules()
   })
 
-  async function setupTree(initialTree: object, options: { routines?: boolean } = {}) {
+  async function setupTree(initialTree: object, options: { routines?: boolean; team?: boolean } = {}) {
     window.localStorage.setItem(TREE_KEY, JSON.stringify(initialTree))
 
     const tree = await import('@/components/pane-shell/tree/store')
@@ -75,6 +75,19 @@ describe('enforced dock (stacked Bots pane → sessions-zone tab, every boot)', 
       },
       render: () => null
     })
+
+    if (options.team) {
+      registry.register({
+        id: 'team',
+        area: 'panes',
+        title: 'Team',
+        data: {
+          placement: 'left',
+          dock: { pane: 'sessions', pos: 'center', enforce: true }
+        },
+        render: () => null
+      })
+    }
 
     if (options.routines) {
       registry.register({
@@ -107,6 +120,17 @@ describe('enforced dock (stacked Bots pane → sessions-zone tab, every boot)', 
     const persisted = JSON.parse(window.localStorage.getItem(TREE_KEY)!) as { children?: unknown[] }
 
     expect(JSON.stringify(persisted)).toContain('"panes":["sessions","hermes-bots:pane"]')
+  })
+
+  it('keeps the human Team workspace discoverable in the Sessions/Bots strip', async () => {
+    const { model, tree } = await setupTree(stackedTree, { team: true })
+
+    tree.watchContributedPanes()
+
+    const group = model.findGroupOfPane(tree.$layoutTree.get()!, 'team')!
+
+    expect(group.panes).toEqual(['sessions', 'hermes-bots:pane', 'team'])
+    expect(group.active).toBe('sessions')
   })
 
   it('re-homes even a USER-PLACED pane — the owner invariant beats the drag record', async () => {

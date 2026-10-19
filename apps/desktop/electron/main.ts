@@ -272,7 +272,7 @@ import { assertNoSecondLocalBackend, assertNotPassiveSpawn } from './host-backen
 import { requestHudClose } from './hud-close'
 import { cursorPointInWindow } from './hud-cursor'
 import { startHudGameOverlayWatch } from './hud-game-overlay'
-import { applyHudResetBounds, defaultHudBounds } from './hud-geometry'
+import { applyHudResetBounds, defaultHudBounds, topDockHudBounds } from './hud-geometry'
 import { registerHudIpc } from './hud-ipc'
 import { installHudModifierTap } from './hud-modifier'
 import { applyHudElectronOverlay, promoteHudOverlay } from './hud-overlay'
@@ -14781,7 +14781,9 @@ function hudBounds() {
     })
 
     if (onScreen) {
-      return saved
+      const display = screen.getDisplayMatching(saved)
+
+      return topDockHudBounds(saved, display.workArea)
     }
   }
 

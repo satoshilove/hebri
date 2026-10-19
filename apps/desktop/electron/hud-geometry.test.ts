@@ -2,17 +2,35 @@ import assert from 'node:assert/strict'
 
 import { test } from 'vitest'
 
-import { applyHudResetBounds, defaultHudBounds, HUD_HEIGHT, HUD_WIDTH, normalizeHudResizeBounds } from './hud-geometry'
+import {
+  applyHudResetBounds,
+  defaultHudBounds,
+  HUD_HEIGHT,
+  HUD_TOP_MARGIN,
+  HUD_WIDTH,
+  normalizeHudResizeBounds,
+  topDockHudBounds
+} from './hud-geometry'
 
-test('defaultHudBounds restores the standard size, centered near the bottom of the work area', () => {
+test('defaultHudBounds restores the standard size, centered at the top of the work area', () => {
   const area = { x: 0, y: 25, width: 1440, height: 875 }
   const bounds = defaultHudBounds(area)
 
   assert.equal(bounds.width, HUD_WIDTH)
   assert.equal(bounds.height, HUD_HEIGHT)
   assert.equal(bounds.x! - area.x, area.x + area.width - (bounds.x! + bounds.width))
-  assert.ok(bounds.y! + bounds.height <= area.y + area.height)
-  assert.ok(bounds.y! > area.y + area.height / 2)
+  assert.equal(bounds.y, area.y + HUD_TOP_MARGIN)
+})
+
+test('topDockHudBounds migrates saved placement while preserving size and clamping x', () => {
+  const area = { x: 100, y: 30, width: 1000, height: 700 }
+
+  assert.deepEqual(topDockHudBounds({ x: 980, y: 600, width: 620, height: 320 }, area), {
+    x: 480,
+    y: 42,
+    width: 620,
+    height: 320
+  })
 })
 
 test('defaultHudBounds fits the default layout to a small work area', () => {

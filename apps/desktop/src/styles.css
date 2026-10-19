@@ -781,6 +781,7 @@
   }
 
   :root[data-hermes-theme='synapsek'] .synapsek-desktop-shell {
+    position: relative;
     background-color: color-mix(in srgb, var(--ui-bg-chrome) 94%, transparent);
     background-image:
       linear-gradient(color-mix(in srgb, var(--dt-midground) 3.5%, transparent) 1px, transparent 1px),
@@ -788,20 +789,122 @@
     background-size: 32px 32px;
   }
 
+  /* A two-colour signal rail is the Synapsek signature: green means active
+     work, blue means focus/navigation. It gives the shell a recognisable top
+     edge without spending titlebar space on a logo lockup. */
+  :root[data-hermes-theme='synapsek'] .synapsek-desktop-shell::before {
+    position: fixed;
+    z-index: 90;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--dt-midground) 92%, transparent),
+      color-mix(in srgb, var(--dt-primary) 90%, transparent) 42%,
+      color-mix(in srgb, var(--dt-ring) 86%, transparent) 72%,
+      transparent
+    );
+    box-shadow: 0 1px 12px color-mix(in srgb, var(--dt-primary) 18%, transparent);
+    content: '';
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-slot='titlebar'] {
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--dt-primary) 5%, transparent), transparent 38%),
+      color-mix(in srgb, var(--ui-chat-surface-background) 96%, var(--dt-background));
+    border-color: color-mix(in srgb, var(--dt-ring) 18%, var(--ui-stroke-tertiary));
+    box-shadow: 0 8px 24px -22px color-mix(in srgb, var(--dt-ring) 55%, transparent);
+  }
+
   :root[data-hermes-theme='synapsek'] [data-slot='sidebar-inner'] {
     background:
-      linear-gradient(180deg, color-mix(in srgb, var(--dt-ring) 5%, transparent), transparent 12rem),
-      var(--sidebar);
+      linear-gradient(180deg, color-mix(in srgb, var(--dt-ring) 5%, transparent), transparent 12rem), var(--sidebar);
     border-color: color-mix(in srgb, var(--dt-midground) 18%, var(--sidebar-border));
+    box-shadow: inset -1px 0 0 color-mix(in srgb, var(--dt-ring) 7%, transparent);
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-sidebar='group-label'] {
+    color: color-mix(in srgb, var(--ui-text-tertiary) 82%, var(--dt-primary));
+    font-family: var(--dt-font-mono);
+    font-size: 0.625rem;
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-sidebar='menu-button'] {
+    border: 1px solid transparent;
+    border-radius: 0.65rem;
+    transition:
+      border-color 140ms ease,
+      background-color 140ms ease,
+      color 140ms ease,
+      box-shadow 180ms ease,
+      translate 140ms ease;
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-sidebar='menu-button']:hover {
+    translate: 2px 0;
+    border-color: color-mix(in srgb, var(--dt-ring) 15%, transparent);
+    background: color-mix(in srgb, var(--dt-ring) 7%, var(--sidebar-accent));
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-sidebar='menu-button'][data-active='true'] {
+    border-color: color-mix(in srgb, var(--dt-primary) 30%, transparent);
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--dt-primary) 17%, transparent), transparent 76%),
+      color-mix(in srgb, var(--sidebar-accent) 92%, transparent);
+    box-shadow:
+      inset 2px 0 0 var(--dt-primary),
+      0 7px 18px -16px color-mix(in srgb, var(--dt-primary) 85%, transparent);
   }
 
   :root[data-hermes-theme='synapsek'] [data-panel-header] {
     border-color: color-mix(in srgb, var(--dt-midground) 15%, var(--ui-stroke-tertiary));
-    background-image: linear-gradient(90deg, color-mix(in srgb, var(--dt-midground) 5%, transparent), transparent 38%);
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--dt-primary) 5%, transparent), transparent 38%),
+      color-mix(in srgb, var(--ui-sidebar-surface-background) 96%, var(--dt-background));
+    box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--dt-ring) 6%, transparent);
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-chat-surface] {
+    background-image:
+      radial-gradient(circle at 50% 115%, color-mix(in srgb, var(--dt-primary) 5%, transparent), transparent 34rem),
+      radial-gradient(circle at 95% 8%, color-mix(in srgb, var(--dt-ring) 4%, transparent), transparent 24rem);
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-slot='composer-surface'] {
+    border-color: color-mix(in srgb, var(--dt-ring) 18%, var(--ui-stroke-secondary));
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--dt-primary) 4%, transparent), transparent 48%),
+      var(--composer-fill, var(--dt-card));
+    box-shadow:
+      0 18px 42px -34px color-mix(in srgb, var(--dt-ring) 70%, transparent),
+      inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
+    transition:
+      border-color 160ms ease,
+      box-shadow 220ms ease,
+      background-color 160ms ease;
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-slot='composer-surface']:focus-within {
+    border-color: color-mix(in srgb, var(--dt-primary) 64%, var(--dt-ring));
+    box-shadow:
+      0 18px 46px -28px color-mix(in srgb, var(--dt-primary) 46%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--dt-ring) 14%, transparent),
+      inset 0 1px 0 color-mix(in srgb, white 6%, transparent);
   }
 
   :root[data-hermes-theme='synapsek'] [data-slot='statusbar'] {
-    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--dt-midground) 18%, transparent);
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--dt-primary) 7%, transparent), transparent 28%),
+      var(--ui-sidebar-surface-background);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--dt-ring) 14%, transparent);
+    font-family: var(--dt-font-mono);
+    letter-spacing: 0.015em;
   }
 
   button,
@@ -2825,6 +2928,30 @@ button[data-slot='aui_msg-reactions'] svg {
   /* The band is narrower than the bar, centred under it, so the bar's corner
      controls sit clear of the sheet's edge instead of on top of it. */
   --hud-band-inset: 0.5rem;
+  --hud-signal: #9ece6a;
+  --hud-focus: #7aa2f7;
+}
+
+/* The top HUD arrives like a command surface, not a second app window. The
+   window itself is transparent; the dock carries the depth and signal glow. */
+[data-hud-shell] [data-slot='composer-dock'] {
+  animation: hud-dock-arrive 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  filter: drop-shadow(0 14px 18px rgb(0 0 0 / 0.22))
+    drop-shadow(0 0 16px color-mix(in srgb, var(--hud-focus) 10%, transparent));
+  transition:
+    filter var(--hud-dim) var(--hud-ease-enter),
+    opacity var(--hud-fade) var(--hud-ease-exit);
+}
+
+@keyframes hud-dock-arrive {
+  from {
+    translate: 0 -0.75rem;
+    scale: 0.975;
+  }
+  to {
+    translate: none;
+    scale: 1;
+  }
 }
 
 /* Chat surface carries nothing in HUD mode — the visual is the BAND below. */
@@ -3535,20 +3662,28 @@ button[data-slot='aui_msg-reactions'] svg {
    breathing belongs to the thread and the chat surface; the bar just sits
    there, solid, like Spotlight does. */
 [data-hud-shell] [data-slot='composer-surface'] {
-  border: 1px solid var(--ui-stroke-secondary) !important;
+  border: 1px solid color-mix(in srgb, var(--hud-focus) 28%, var(--ui-stroke-secondary)) !important;
   /* Same radius as the band's top and the window's own corners, so the HUD
      reads as one object however the band is behaving. Its top corners let a
      sliver of band through, which is the point — the glass wraps the bar's
      shoulders instead of stopping in a straight line above it. */
   border-radius: 0.75rem !important;
-  background: var(--dt-card) !important;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--hud-signal) 8%, transparent), transparent 42%),
+    linear-gradient(90deg, color-mix(in srgb, var(--hud-focus) 7%, transparent), transparent 64%), var(--dt-card) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   /* Bottom edge only. Enough to lift the bar off whatever it is lying over —
      without it the HUD reads as pasted onto the other app — and tight enough
      that it never becomes a glow around a floating card. */
-  box-shadow: 0 2px 2px -1px rgb(0 0 0 / 0.12) !important;
-  transition: border-color var(--hud-reveal) var(--hud-ease-enter);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.055),
+    inset 3px 0 0 color-mix(in srgb, var(--hud-signal) 68%, transparent),
+    0 8px 26px -16px rgb(0 0 0 / 0.78) !important;
+  transition:
+    border-color var(--hud-reveal) var(--hud-ease-enter),
+    box-shadow var(--hud-dim) var(--hud-ease-enter),
+    background-color var(--hud-dim) var(--hud-ease-enter);
 }
 
 /* Focus: the border the bar already has, in the accent. Everything with its own
@@ -3557,7 +3692,25 @@ button[data-slot='aui_msg-reactions'] svg {
    the clearance moves the bar. Recolouring what is already drawn costs no
    space, cannot be clipped, and leaves the working arc as the only ring. */
 [data-hud-shell][data-hud-typing] [data-slot='composer-surface'] {
-  border-color: var(--dt-primary) !important;
+  border-color: color-mix(in srgb, var(--hud-signal) 62%, var(--hud-focus)) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    inset 3px 0 0 var(--hud-signal),
+    0 9px 32px -17px color-mix(in srgb, var(--hud-focus) 55%, rgb(0 0 0 / 0.7)) !important;
+}
+
+[data-hud-shell][data-hud-held] [data-slot='composer-surface'] {
+  animation: hud-signal-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes hud-signal-breathe {
+  0%,
+  100% {
+    border-color: color-mix(in srgb, var(--hud-signal) 38%, var(--ui-stroke-secondary));
+  }
+  50% {
+    border-color: color-mix(in srgb, var(--hud-signal) 72%, var(--hud-focus));
+  }
 }
 
 /* GAME OVERLAY — a fullscreen app owns the screen (data-hud-game, pushed by
@@ -3577,14 +3730,28 @@ button[data-slot='aui_msg-reactions'] svg {
    changes, so leaving the game hands back the standard HUD without a rebuild. */
 [data-hud-shell][data-hud-game] [data-slot='composer-dock'] {
   opacity: 0.35;
-  transition: opacity var(--hud-fade) var(--hud-ease-exit);
+  filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.18));
+  transition:
+    filter var(--hud-fade) var(--hud-ease-exit),
+    opacity var(--hud-fade) var(--hud-ease-exit);
 }
 
 [data-hud-shell][data-hud-game][data-hud-recent] [data-slot='composer-dock'],
 [data-hud-shell][data-hud-game]:focus-within [data-slot='composer-dock'],
 [data-hud-shell][data-hud-game] [data-slot='composer-dock']:hover {
   opacity: 1;
-  transition: opacity var(--hud-reveal) var(--hud-ease-enter);
+  filter: drop-shadow(0 14px 18px rgb(0 0 0 / 0.24))
+    drop-shadow(0 0 18px color-mix(in srgb, var(--hud-signal) 14%, transparent));
+  transition:
+    filter var(--hud-reveal) var(--hud-ease-enter),
+    opacity var(--hud-reveal) var(--hud-ease-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-hud-shell] [data-slot='composer-dock'],
+  [data-hud-shell][data-hud-held] [data-slot='composer-surface'] {
+    animation: none;
+  }
 }
 
 /* Long-press drag armed — the whole bar is the handle until release. */

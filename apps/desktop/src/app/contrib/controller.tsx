@@ -275,18 +275,17 @@ registry.registerMany([
     id: 'team',
     area: 'panes',
     // Hebri Team is human collaboration, not a Bot/agent identity. Keep it as
-    // a standing tab in the right workspace so saved layouts cannot strand it
-    // after the old Bots-hosted Team Chat pane disappears.
+    // its own top-level tab beside Sessions and Bots. Anchoring to Sessions
+    // keeps it discoverable even when a saved layout has no Files/right-side
+    // zone, while the separate pane id and content preserve the human/agent
+    // boundary.
     title: 'Team',
     data: {
-      placement: 'right',
+      placement: 'left',
       collapsible: true,
       hideOnly: true,
-      dock: { pane: 'files', pos: 'center', before: 'files', enforce: true },
+      dock: { pane: 'sessions', pos: 'center', enforce: true },
       revealAliases: ['team-chat'],
-      width: FILE_BROWSER_DEFAULT_WIDTH,
-      minWidth: FILE_BROWSER_MIN_WIDTH,
-      maxWidth: FILE_BROWSER_MAX_WIDTH,
       tabTitleText: () => 'Team'
     },
     render: () => idle(<TeamPane />)

@@ -1,12 +1,33 @@
 export const HUD_WIDTH = 620
 export const HUD_HEIGHT = 320
-export const HUD_BOTTOM_MARGIN = 72
+export const HUD_TOP_MARGIN = 12
 
 export interface HudWorkArea {
   height: number
   width: number
   x: number
   y: number
+}
+
+export interface HudRect extends HudWorkArea {}
+
+/**
+ * Park a HUD rectangle along the top of its display without losing the user's
+ * chosen size or horizontal position. This also migrates previously persisted
+ * bottom-docked geometry the next time the HUD opens.
+ */
+export function topDockHudBounds(bounds: HudRect, area: HudWorkArea): HudRect {
+  const width = Math.min(Math.max(1, Math.round(bounds.width)), area.width)
+  const height = Math.min(Math.max(1, Math.round(bounds.height)), area.height)
+  const maxX = area.x + area.width - width
+  const topRoom = Math.max(0, area.height - height)
+
+  return {
+    width,
+    height,
+    x: Math.min(Math.max(Math.round(bounds.x), area.x), maxX),
+    y: area.y + Math.min(HUD_TOP_MARGIN, topRoom)
+  }
 }
 
 /** Display-aware default bounds used to spawn and recover the HUD layout. */
@@ -23,12 +44,15 @@ export function defaultHudBounds(area?: HudWorkArea): {
   const width = Math.min(HUD_WIDTH, area.width)
   const height = Math.min(HUD_HEIGHT, area.height)
 
-  return {
-    width,
-    height,
-    x: Math.round(area.x + (area.width - width) / 2),
-    y: Math.round(Math.max(area.y, area.y + area.height - height - HUD_BOTTOM_MARGIN))
-  }
+  return topDockHudBounds(
+    {
+      width,
+      height,
+      x: Math.round(area.x + (area.width - width) / 2),
+      y: area.y
+    },
+    area
+  )
 }
 
 export interface HudBoundsWindow {
