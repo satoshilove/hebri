@@ -759,6 +759,27 @@ export default {
       }
     })
 
+    // Computer Mode — autonomous browser agent like Manus/Omarchy Run
+    ctx.register({
+      id: 'computer-mode',
+      area: PALETTE_AREA,
+      data: {
+        id: `${ID}.computer-mode`,
+        label: 'New Computer Mode Bot…',
+        keywords: ['computer', 'browser', 'automation', 'manus', 'omarchy', 'research', 'autonomous'],
+        run: () => {
+          const { COMPUTER_MODE_PROFILE } = require('./computer-mode')
+          host.notify({
+            kind: 'info',
+            title: 'Computer Mode',
+            message:
+              'Create a new Bot, then in Advanced → paste the Computer Mode system prompt and enable tools: browser_exec, computer_use, terminal, web_search, web_extract.\n\n' +
+              'The bot will plan, execute, observe, and report — like Manus.ai.'
+          })
+        }
+      }
+    })
+
     // @-mention middleware: "@<bot> do the thing" in any chat gets an
     // IDENTIFICATION note — who the user is referring to, resolved against
     // the LIVE roster ("user@example.com" or an unknown @ passes through

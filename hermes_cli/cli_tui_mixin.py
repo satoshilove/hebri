@@ -449,7 +449,7 @@ class CLITuiMixin:
         multi_select = state.get("multi_select", False)
         selected_indices = state.get("selected_indices", set()) if multi_select else set()
         freetext = self._clarify_freetext
-        title = "Hermes needs your input"
+        title = "Hebri needs your input"
         header = f"{len(questions_list)} questions"
 
         def _status_rows(width):
@@ -529,7 +529,7 @@ class CLITuiMixin:
         multi_select = state.get("multi_select", False)
         selected_indices = state.get("selected_indices", set()) if multi_select else set()
         freetext = self._clarify_freetext
-        title = "Hermes needs your input"
+        title = "Hebri needs your input"
         other_idx = len(choices)
 
         def _label(i, text):
@@ -738,7 +738,7 @@ class CLITuiMixin:
             return self._render_sudo_style_panel(
                 f'🔐 Verification code for {code["site"]}',
                 [f'{code["site"]} is asking for a one-time code (text message, email or authenticator app).',
-                 'Type the code and press Enter; Hermes enters it into the page for you.',
+                 'Type the code and press Enter; Hebri enters it into the page for you.',
                  'Enter on an empty line skips. The model never sees the code.'])
         if save := self._sudo_state.get("vault_save"):
             if save["step"] == "identifier":

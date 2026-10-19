@@ -380,11 +380,11 @@ def _print_side_result_panel(cli, *, header_lines, body, title_suffix, empty_not
     try:
         from hermes_cli.skin_engine import get_active_skin
         _skin = get_active_skin()
-        label = _skin.get_branding("response_label", "☤ Hermes")
+        label = _skin.get_branding("response_label", "☤ Hebri")
         _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#CD7F32"))
         _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#FFF8DC"))
     except Exception:
-        label, _resp_color, _resp_text = "☤ Hermes", "#CD7F32", "#FFF8DC"
+        label, _resp_color, _resp_text = "☤ Hebri", "#CD7F32", "#FFF8DC"
     rich_console.print(Panel(
         _render_final_assistant_content(body, mode=cli.final_response_markdown),
         title=f"[{_resp_color} bold]{label} {title_suffix}[/]", title_align="left",
@@ -537,9 +537,9 @@ def _browser_connect(cli, cdp_url: str) -> None:
             "a Chromium-family dev/debug browser via Chrome DevTools Protocol. "
             "Your browser_navigate, browser_snapshot, browser_click, and other browser tools now "
             "control that CDP browser. The command itself is a signal that using browser tools for "
-            "their current browser-related request is expected; do not wait for separate permission "
-            "just because CDP is connected. This is typically a Hermes-managed isolated debug "
-            "profile, not the user's main everyday browser. It is still user-visible and may contain "
+            "browser-related request is expected; do not wait for separate permission "
+                        "just because CDP is connected. This is typically a Hebri-managed isolated debug "
+                        "profile, not the user's main everyday browser. It is still user-visible and may contain "
             "pages, logged-in sessions, or cookies in that debug profile, so avoid destructive actions, "
             "closing tabs, or navigating away unless the user's task calls for it.]")
 
@@ -782,7 +782,7 @@ class CLICommandsMixin:
             return print(f"  {result.get('error', 'Could not generate diff')}")
         stat, diff = result.get("stat", ""), result.get("diff", "")
         if result.get("empty") or (not stat and not diff):
-            return print("  No changes — Hermes hasn't edited any files here yet.")
+            return print("  No changes — Hebri hasn't edited any files here yet.")
         if stat:
             self._print_diff_text(f"\n{stat}")
         if diff and not stat_only:
@@ -2703,7 +2703,7 @@ class CLICommandsMixin:
         choices = [("once", "Update Now", "exit the current session and update Hermes Agent"),
                    ("cancel", "Cancel", "keep the current session")]
         raw = self._prompt_text_input_modal(
-            title="☤  Update Hermes Agent",
+            title="☤  Update Hebri",
             detail="This will exit the current session and run `hermes update`.", choices=choices)
         if raw is None or self._normalize_slash_confirm_choice(raw, choices) != "once":
             print("  🟡 /update cancelled.")

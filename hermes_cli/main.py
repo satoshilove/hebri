@@ -1719,7 +1719,7 @@ def _first_run_setup_guard(args) -> None:
     """No provider configured: offer `hermes setup` (TTY) or exit 1 with guidance."""
     print()
     print(
-        "It looks like Hermes isn't configured yet -- no API keys or providers found."
+        "It looks like Hebri isn't configured yet -- no API keys or providers found."
     )
     print()
     print("  Run:  hermes setup")
@@ -2414,7 +2414,7 @@ def _update_preflight_handled(args) -> bool:
 
 
 def cmd_update(args):
-    """Update Hermes Agent: hangup protection + update lock around ``_cmd_update_impl``."""
+    """Update Hebri: hangup protection + update lock around ``_cmd_update_impl``."""
     if _update_preflight_handled(args):
         return
     gateway_mode = getattr(args, "gateway", False)
