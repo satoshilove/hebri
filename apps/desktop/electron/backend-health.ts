@@ -127,12 +127,10 @@ export function makeNousCloudBackendDownError(baseUrl: string, error: unknown): 
   const detail = error instanceof Error ? error.message : String(error ?? '')
 
   const err = new Error(
-    `Nous Cloud agent ${hostname} is down ` +
+    `Managed cloud agent ${hostname} is down ` +
       `(HTTP ${serverError.statusCode}: server-side fault). ` +
-      'Check https://portal.nousresearch.com for backend status, ' +
-      'or switch to Local mode in Settings → Gateway. ' +
-      'You can also reach out on Discord at discord.gg/NousResearch ' +
-      'for immediate assistance. ' +
+      'Check https://github.com/satoshilove/hebri/issues for Hebri support, ' +
+      'or switch to Local mode in Settings → Gateways. ' +
       `Original detail: ${detail}`
   ) as any
 

@@ -133,6 +133,17 @@ describe('MessagingView profile scope', () => {
 })
 
 describe('MessagingView setup-guide link', () => {
+  it('rebrands inherited platform prose while preserving lowercase CLI commands', async () => {
+    getMessagingPlatforms.mockResolvedValue({
+      platforms: [platform({ description: 'Run Hermes Agent here with `hermes gateway setup`.' })]
+    })
+
+    await renderMessaging()
+
+    expect((await screen.findAllByText('Run Hebri here with `hermes gateway setup`.')).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/Run Hermes Agent/)).toBeNull()
+  })
+
   it('hides the setup-guide button for a plugin platform with no docs URL', async () => {
     // Teams (and other plugin platforms) ship an empty docs_url. Rendering an
     // anchor with href="" let Electron resolve it to the app's own packaged
@@ -146,7 +157,7 @@ describe('MessagingView setup-guide link', () => {
     expect(screen.queryByText('Open setup guide')).toBeNull()
   })
 
-  it('opens a real docs URL through the validated external opener', async () => {
+  it('redirects an inherited Hermes guide to Hebri-owned documentation', async () => {
     const docsUrl = 'https://hermes-agent.nousresearch.com/docs/user-guide/messaging/teams'
     getMessagingPlatforms.mockResolvedValue({ platforms: [platform({ docs_url: docsUrl })] })
 
@@ -156,6 +167,20 @@ describe('MessagingView setup-guide link', () => {
     await act(async () => {
       fireEvent.click(link)
     })
+
+    await waitFor(() =>
+      expect(openExternalLink).toHaveBeenCalledWith(
+        'https://github.com/satoshilove/hebri#cli-vs-messaging-quick-reference'
+      )
+    )
+  })
+
+  it('keeps a messaging vendor setup URL intact', async () => {
+    const docsUrl = 'https://discord.com/developers/applications'
+    getMessagingPlatforms.mockResolvedValue({ platforms: [platform({ docs_url: docsUrl })] })
+
+    await renderMessaging()
+    fireEvent.click(await screen.findByText('Open setup guide'))
 
     await waitFor(() => expect(openExternalLink).toHaveBeenCalledWith(docsUrl))
   })

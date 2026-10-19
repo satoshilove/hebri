@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import type { Translations } from '@/i18n'
 import { en } from '@/i18n/en'
+import { HEBRI_SITE_URL } from '@/lib/hebri-links'
 import { fmtDate } from '@/lib/time'
 import { FREE_TIER_MODEL } from '@/store/free-tier'
 import { openFreeTierSignIn } from '@/store/free-tier-sign-in'
@@ -12,8 +13,9 @@ import { resolveRefusal } from './errors'
 import type { BillingStateResponse, SubscriptionStateResponse, SubscriptionTierOption, UsageModelData } from './types'
 
 export const EMPTY_BILLING_VALUE = '—'
-export const FALLBACK_PORTAL_BILLING_URL = (typeof process !== 'undefined' && process.env?.HEBRI_PORTAL_URL) ? process.env.HEBRI_PORTAL_URL + '/billing' : 'https://portal.nousresearch.com/billing'
-export const FALLBACK_PORTAL_URL = (typeof process !== 'undefined' && process.env?.HEBRI_PORTAL_URL) ? process.env.HEBRI_PORTAL_URL : 'https://portal.nousresearch.com'
+export const FALLBACK_PORTAL_URL =
+  typeof process !== 'undefined' && process.env?.HEBRI_PORTAL_URL ? process.env.HEBRI_PORTAL_URL : HEBRI_SITE_URL
+export const FALLBACK_PORTAL_BILLING_URL = `${FALLBACK_PORTAL_URL.replace(/\/+$/, '')}/billing`
 
 // The billing endpoint is the authoritative source of truth for balance / cap /
 // plan — the inference `x-nous-credits-*` headers are best-effort and can drift

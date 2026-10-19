@@ -214,5 +214,7 @@ describe('a stacked tool zone collapsed in a row keeps a vertical restore rail',
     expect(tabEl('logs')).toBeTruthy()
     expect(tabEl('terminal')?.getAttribute('data-vertical')).toBe('true')
     expect(tabEl('logs')?.getAttribute('data-vertical')).toBe('true')
+    expect(tabEl('terminal')?.getAttribute('data-active')).toBe('true')
+    expect(tabEl('terminal')?.getAttribute('title')).toBe('Terminal')
   })
 })

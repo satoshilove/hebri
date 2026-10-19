@@ -25,6 +25,7 @@ import {
   togglePanesFlipped,
   toggleSidebarOpen
 } from '@/store/layout'
+import { openBrowserTab } from '@/store/preview'
 import { $unreadSessionCount } from '@/store/session-dot-state'
 import { $titlebarAppActionsSide, TITLEBAR_FIXED_TOOLS } from '@/store/titlebar-app-actions'
 
@@ -219,6 +220,19 @@ export function TitlebarControls({ leftTools = [], tools = [], onOpenSettings }:
         triggerHaptic('open')
         onOpenSettings()
       }
+    },
+    {
+      ...TITLEBAR_FIXED_TOOLS.web,
+      actionId: 'view.showBrowser',
+      className: 'text-primary',
+      icon: <TitlebarIcon name="globe" />,
+      id: 'web',
+      label: t.titlebar.openWeb,
+      onSelect: () => {
+        triggerHaptic('open')
+        openBrowserTab()
+      },
+      tour: 'open-web'
     },
     {
       ...TITLEBAR_FIXED_TOOLS.layout,

@@ -2,7 +2,7 @@
   "name": "hermes",
   "productName": "Hebri",
   "private": true,
-  "version": "0.17.7",
+  "version": "0.17.8",
   "description": "Native desktop shell for Hebri.",
   "license": "MIT",
   "author": "Synapsek",

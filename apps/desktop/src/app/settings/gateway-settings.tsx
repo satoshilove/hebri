@@ -10,11 +10,13 @@ import type {
   DesktopAuthProvider,
   DesktopCloudAgent,
   DesktopCloudOrg,
+  DesktopCloudStatus,
   DesktopConnectionProbeResult,
   DesktopRegistryConnection
 } from '@/global'
 import { useI18n } from '@/i18n'
 import { ExternalLink } from '@/lib/external-link'
+import { HEBRI_SITE_URL } from '@/lib/hebri-links'
 import {
   AlertCircle,
   Check,
@@ -331,6 +333,7 @@ function GatewayConnectionSettings({ embedded, standalone }: { embedded: boolean
   // track the cloud panel: whether we're signed in, the discovered agent list,
   // and which agent is mid-connect.
   const [cloudSignedIn, setCloudSignedIn] = useState(false)
+  const [cloudStatus, setCloudStatus] = useState<DesktopCloudStatus | null>(null)
   const [cloudSigningIn, setCloudSigningIn] = useState(false)
   const [cloudAgents, setCloudAgents] = useState<DesktopCloudAgent[]>([])
   const [cloudDiscover, setCloudDiscover] = useState<CloudDiscoverStatus>('idle')
@@ -892,6 +895,7 @@ function GatewayConnectionSettings({ embedded, standalone }: { embedded: boolean
           return
         }
 
+        setCloudStatus(status)
         setCloudSignedIn(status.signedIn)
 
         if (status.signedIn) {
@@ -915,6 +919,7 @@ function GatewayConnectionSettings({ embedded, standalone }: { embedded: boolean
       })
       .catch(() => {
         if (!cancelled) {
+          setCloudStatus(null)
           setCloudSignedIn(false)
         }
       })
@@ -1338,7 +1343,13 @@ function GatewayConnectionSettings({ embedded, standalone }: { embedded: boolean
           ) : null}
           <ListRow
             action={
-              cloudSignedIn ? (
+              cloudStatus?.configured === false ? (
+                <Button asChild variant="outline">
+                  <ExternalLink href={HEBRI_SITE_URL}>
+                    {g.cloudUnavailableAction}
+                  </ExternalLink>
+                </Button>
+              ) : cloudSignedIn ? (
                 <div className="flex items-center gap-2">
                   <Pill tone="primary">
                     <Check className="size-3" /> {g.cloudSignedIn}
@@ -1355,8 +1366,14 @@ function GatewayConnectionSettings({ embedded, standalone }: { embedded: boolean
                 </Button>
               )
             }
-            description={cloudSignedIn ? g.cloudSignedInDesc : g.cloudNeedsSignIn}
-            title={g.cloudSignInTitle}
+            description={
+              cloudStatus?.configured === false
+                ? g.cloudUnavailableDesc
+                : cloudSignedIn
+                  ? g.cloudSignedInDesc
+                  : g.cloudNeedsSignIn
+            }
+            title={cloudStatus?.configured === false ? g.cloudUnavailableTitle : g.cloudSignInTitle}
           />
 
           {cloudSignedIn ? (
@@ -1424,7 +1441,10 @@ function GatewayConnectionSettings({ embedded, standalone }: { embedded: boolean
                     <AlertCircle className="mt-0.5 size-4 shrink-0" />
                     <span>
                       {g.cloudNoAgents.before}
-                      <ExternalLink href="https://portal.nousresearch.com/agents" showExternalIcon={false}>
+                      <ExternalLink
+                        href={cloudStatus?.portalBaseUrl ? `${cloudStatus.portalBaseUrl}/agents` : HEBRI_SITE_URL}
+                        showExternalIcon={false}
+                      >
                         {g.cloudNoAgents.linkText}
                       </ExternalLink>
                       {g.cloudNoAgents.after}

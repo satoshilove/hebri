@@ -622,6 +622,7 @@ export interface Translations {
     muteHaptics: string
     unmuteHaptics: string
     openSettings: string
+    openWeb: string
     openStarmap: string
     enterHud: string
     exitHud: string
@@ -676,6 +677,7 @@ export interface Translations {
       providerCustomEndpoints: string
       providerLocalModels: string
       gateway: string
+      computerControl: string
       apiKeys: string
       keybinds: string
       keysTools: string
@@ -1052,6 +1054,13 @@ export interface Translations {
       contextPlaceholder: string
     }
     computerUse: {
+      title: string
+      intro: string
+      consentTitle: string
+      consentDesc: string
+      readinessTitle: string
+      backendTitle: string
+      backendDesc: string
       accessibility: string
       screenRecording: string
       driverHealth: string
@@ -1278,6 +1287,9 @@ export interface Translations {
       cloudSignIn: string
       cloudSignedIn: string
       cloudNeedsSignIn: string
+      cloudUnavailableTitle: string
+      cloudUnavailableDesc: string
+      cloudUnavailableAction: string
       cloudSignedInDesc: string
       cloudAgentsTitle: string
       cloudOrgPickerTitle: string
@@ -2404,6 +2416,7 @@ export interface Translations {
 
   messaging: {
     search: string
+    ownershipIntro: string
     loading: string
     loadFailed: string
     states: Record<string, string>

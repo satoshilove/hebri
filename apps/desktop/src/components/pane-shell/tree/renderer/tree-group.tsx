@@ -510,10 +510,11 @@ export function TreeGroup({
         <ZoneMenu {...zoneMenu}>
           <div
             className={cn(
-              'flex h-full min-h-7 w-7 min-w-7 shrink-0 cursor-pointer select-none flex-col items-stretch bg-(--ui-sidebar-surface-background)',
+              'flex h-full min-h-7 w-7 min-w-7 shrink-0 cursor-pointer select-none flex-col items-stretch bg-[linear-gradient(180deg,color-mix(in_srgb,var(--theme-primary)_12%,var(--ui-sidebar-surface-background)),var(--ui-sidebar-surface-background)_42%)] shadow-[inset_0_0_18px_color-mix(in_srgb,var(--theme-primary)_10%,transparent)]',
               // Strip line faces the content the zone collapsed away from.
               railSide === 'right' ? PANE_TAB_STRIP_LINE_LEFT : PANE_TAB_STRIP_LINE_RIGHT
             )}
+            data-collapsed-rail=""
             onClick={() => restoreTreePane(activeId)}
             title={t.zones.restore}
           >
@@ -526,9 +527,16 @@ export function TreeGroup({
 
                 return (
                   <PaneTab
-                    // Match the horizontal minimized strip: no tab is "active"
-                    // while collapsed (there's no content surface to merge into).
+                    active={paneId === activeId}
                     aria-selected={paneId === activeId}
+                    className={cn(
+                      'transition-[color,background-color,box-shadow] duration-150',
+                      paneId === activeId &&
+                        (railSide === 'right'
+                          ? 'shadow-[inset_2px_0_0_var(--theme-primary),0_0_14px_color-mix(in_srgb,var(--theme-primary)_18%,transparent)]'
+                          : 'shadow-[inset_-2px_0_0_var(--theme-primary),0_0_14px_color-mix(in_srgb,var(--theme-primary)_18%,transparent)]')
+                    )}
+                    data-current={paneId === activeId || undefined}
                     data-tree-tab={paneId}
                     key={paneId}
                     onClick={event => {
@@ -538,6 +546,7 @@ export function TreeGroup({
                     onClose={closeable ? () => closeTab(paneId) : undefined}
                     role="tab"
                     side={railSide}
+                    title={tabText(paneId)}
                     vertical
                   >
                     <PaneTabLabel>{tabLabel(paneId)}</PaneTabLabel>

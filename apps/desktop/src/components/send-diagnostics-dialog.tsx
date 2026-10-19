@@ -22,13 +22,13 @@ import {
 } from '@/components/ui/dialog'
 import { useI18n } from '@/i18n'
 import { ExternalLink as ExternalLinkAnchor, openExternalLink } from '@/lib/external-link'
-import { ExternalLink, Loader2Icon, Lock } from '@/lib/icons'
-import { $sendDiagnostics, confirmSendDiagnostics, dismissSendDiagnostics } from '@/store/send-diagnostics'
+import { HEBRI_SITE_URL, HEBRI_SUPPORT_URL } from '@/lib/hebri-links'
+import { ExternalLink, Lock } from '@/lib/icons'
+import { $sendDiagnostics, dismissSendDiagnostics } from '@/store/send-diagnostics'
 
 const SUPPORT_LINKS = [
-  { key: 'github', url: 'https://github.com/NousResearch/hermes-agent/issues' },
-  { key: 'portal', url: 'https://portal.nousresearch.com/help' },
-  { key: 'discord', url: 'https://discord.gg/NousResearch' }
+  { key: 'github', url: HEBRI_SUPPORT_URL },
+  { key: 'portal', url: HEBRI_SITE_URL }
 ] as const
 
 export function SendDiagnosticsHost() {
@@ -39,8 +39,6 @@ export function SendDiagnosticsHost() {
   if (!state) {
     return null
   }
-
-  const busy = state.phase === 'uploading'
 
   return (
     // Dismissal is allowed in EVERY phase, including mid-upload: the store's
@@ -59,19 +57,7 @@ export function SendDiagnosticsHost() {
               <DialogDescription className="whitespace-pre-line text-left">{copy.privacyNotice}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button onClick={dismissSendDiagnostics} variant="ghost">
-                {copy.cancel}
-              </Button>
-              <Button disabled={busy} onClick={() => void confirmSendDiagnostics()}>
-                {busy ? (
-                  <span className="flex items-center gap-1.5">
-                    <Loader2Icon className="size-3.5 animate-spin" />
-                    {copy.uploading}
-                  </span>
-                ) : (
-                  copy.upload
-                )}
-              </Button>
+              <Button onClick={dismissSendDiagnostics}>{copy.close}</Button>
             </DialogFooter>
           </>
         ) : state.phase === 'error' ? (

@@ -1182,6 +1182,9 @@ export interface DesktopOauthLogoutResult {
 // --- Hebri Cloud (cloud-auto-discovery Phase 3) ---
 
 export interface DesktopCloudStatus {
+  // False when this build has no Synapsek portal endpoint configured. Hebri
+  // deliberately has no implicit upstream Nous fallback.
+  configured: boolean
   // The portal base URL the desktop talks to (default or env-overridden).
   portalBaseUrl: string
   // Whether the OAuth partition holds portal access or renewal credentials

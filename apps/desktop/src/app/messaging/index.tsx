@@ -25,6 +25,7 @@ import {
 } from '@/hermes'
 import { type Translations, useI18n } from '@/i18n'
 import { openExternalLink } from '@/lib/external-link'
+import { hebriOwnedHelpUrl, hebriOwnedProductCopy } from '@/lib/hebri-links'
 import { AlertTriangle, ExternalLink, RefreshCw, Save, Trash2 } from '@/lib/icons'
 import { normalize } from '@/lib/text'
 import { cn } from '@/lib/utils'
@@ -121,9 +122,9 @@ function fieldCopy(field: MessagingEnvVarInfo, m: Translations['messaging']) {
   const localized = m.fieldCopy[field.key] || {}
 
   return {
-    label: localized.label || field.prompt || field.key,
-    help: localized.help || field.description,
-    placeholder: localized.placeholder || field.prompt,
+    label: hebriOwnedProductCopy(localized.label || field.prompt || field.key),
+    help: hebriOwnedProductCopy(localized.help || field.description),
+    placeholder: hebriOwnedProductCopy(localized.placeholder || field.prompt),
     advanced: Boolean(copy.advanced || field.advanced)
   }
 }
@@ -515,6 +516,9 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
           {/* Which profile's gateway this page configures (hidden for
               single-profile users). */}
           <SettingsProfileScope className="border-b border-(--ui-stroke-secondary) px-3 py-2" />
+          <div className="border-b border-(--ui-stroke-secondary) bg-primary/5 px-3 py-2 text-xs leading-5 text-(--ui-text-secondary)">
+            {m.ownershipIntro}
+          </div>
           <div className="min-h-0 flex-1">
             <MasterDetail>
               <ListColumn>
@@ -688,6 +692,7 @@ function PlatformDetail({
   const optionalFields = platform.env_vars.filter(field => !field.required && !fieldCopy(field, m).advanced)
   const advancedFields = platform.env_vars.filter(field => !field.required && fieldCopy(field, m).advanced)
   const hiddenCount = advancedFields.length
+  const setupGuideUrl = hebriOwnedHelpUrl(platform.docs_url)
 
   return (
     <>
@@ -706,13 +711,13 @@ function PlatformDetail({
             )}
           </div>
           <p className="mt-1 text-[length:var(--conversation-caption-font-size)] leading-(--conversation-caption-line-height) text-(--ui-text-tertiary)">
-            {platform.description}
+            {hebriOwnedProductCopy(platform.description)}
           </p>
           <PlatformHint platform={platform} />
         </div>
       </header>
 
-      {platform.error_message && <ErrorBanner>{platform.error_message}</ErrorBanner>}
+      {platform.error_message && <ErrorBanner>{hebriOwnedProductCopy(platform.error_message)}</ErrorBanner>}
 
       {/* Pending pairing requests. Rendered only when someone is actually
           waiting — an empty-state card here would be permanent chrome on a
@@ -788,11 +793,11 @@ function PlatformDetail({
         <p className="mt-1 text-[length:var(--conversation-caption-font-size)] leading-(--conversation-caption-line-height) text-(--ui-text-tertiary)">
           {introCopy(platform, m)}
         </p>
-        {platform.docs_url && (
+        {setupGuideUrl && (
           <div className="mt-3">
             <Button asChild size="sm" variant="textStrong">
               <a
-                href={platform.docs_url}
+                href={setupGuideUrl}
                 onClick={event => {
                   // Route through the validated external opener instead of
                   // letting Electron resolve the anchor. A packaged build's
@@ -802,7 +807,7 @@ function PlatformDetail({
                   // ship no docs_url, so this guard + handler keeps the
                   // button from ever pointing at a local bundle path.
                   event.preventDefault()
-                  openExternalLink(platform.docs_url)
+                  openExternalLink(setupGuideUrl)
                 }}
                 rel="noreferrer"
                 target="_blank"
@@ -961,7 +966,7 @@ const PLATFORM_INTRO: Record<string, string> = {
 }
 
 const introCopy = (platform: MessagingPlatformInfo, m: Translations['messaging']) =>
-  m.platformIntro[platform.id] || PLATFORM_INTRO[platform.id] || platform.description
+  hebriOwnedProductCopy(m.platformIntro[platform.id] || PLATFORM_INTRO[platform.id] || platform.description)
 
 function MessagingField({
   edits,
@@ -980,6 +985,7 @@ function MessagingField({
   const m = t.messaging
   const copy = fieldCopy(field, m)
   const fieldId = `messaging-field-${field.key}`
+  const docsUrl = hebriOwnedHelpUrl(field.url)
 
   return (
     <ListRow
@@ -993,10 +999,18 @@ function MessagingField({
             type={field.is_password ? 'password' : 'text'}
             value={edits[field.key] || ''}
           />
-          {field.url && (
+          {docsUrl && (
             <Tip label={m.openDocs}>
               <Button asChild className="size-8 shrink-0" variant="ghost">
-                <a href={field.url} rel="noreferrer" target="_blank">
+                <a
+                  href={docsUrl}
+                  onClick={event => {
+                    event.preventDefault()
+                    openExternalLink(docsUrl)
+                  }}
+                  rel="noreferrer"
+                  target="_blank"
+                >
                   <ExternalLink className="size-3.5" />
                 </a>
               </Button>

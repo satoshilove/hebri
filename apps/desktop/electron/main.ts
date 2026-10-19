@@ -1040,7 +1040,7 @@ const BOOT_FAKE_STEP_MS = (() => {
   return Math.max(120, raw)
 })()
 
-const APP_NAME = process.env.HERMES_DESKTOP_APP_NAME || 'Hermes'
+const APP_NAME = process.env.HEBRI_DESKTOP_APP_NAME || process.env.HERMES_DESKTOP_APP_NAME || 'Hebri'
 const HUD_WINDOW_TITLE = `${APP_NAME} HUD`
 const TITLEBAR_HEIGHT = 34
 const MACOS_TRAFFIC_LIGHTS_HEIGHT = 14
@@ -8098,7 +8098,7 @@ function openOauthLoginWindow(baseUrl, { silent = false } = {}) {
       win = new BrowserWindow({
         width: 520,
         height: 720,
-        title: silent ? 'Connecting to Hermes Cloud agent…' : 'Sign in to Hermes gateway',
+        title: silent ? 'Connecting to Hebri Cloud agent…' : 'Sign in to Hebri gateway',
         autoHideMenuBar: true,
         // Silent cascade: start HIDDEN. The auto-SSO 302 chain completes in
         // well under a second, so the window normally never needs to show. We
@@ -8677,10 +8677,10 @@ async function freshGatewayWsUrl(profile) {
   return connection.wsUrl
 }
 
-// --- Hermes Cloud discovery + silent per-agent sign-in (cloud-auto-discovery
+// --- Hebri Cloud discovery + silent per-agent sign-in (cloud-auto-discovery
 // Phase 3) ---------------------------------------------------------------
 //
-// The "cloud" connection mode lets a user sign in to the Nous portal ONCE in
+// The "cloud" connection mode lets a user sign in to the configured Hebri portal ONCE in
 // the OAuth session partition, then (a) discover their hosted agents and (b)
 // connect to any of them with no second interactive sign-in. Both ride the one
 // portal session cookie living in `persist:hermes-remote-oauth`:
@@ -8691,28 +8691,37 @@ async function freshGatewayWsUrl(profile) {
 //     with that agent's session cookie — no prompt. Each agent still completes
 //     its own PKCE exchange; SSO removes the human click, not a security check.
 
-// Canonical Nous portal base URL, overridable for staging/dev. Mirrors the CLI
-// convention (hermes_cli/auth.py DEFAULT_NOUS_PORTAL_URL + the same env names)
-// so a single override flips every Hermes surface to the same portal.
-const DEFAULT_NOUS_PORTAL_URL = 'https://portal.nousresearch.com'
-
 function resolvePortalBaseUrl() {
-  const raw = process.env.HERMES_PORTAL_BASE_URL || process.env.NOUS_PORTAL_BASE_URL || DEFAULT_NOUS_PORTAL_URL
+  // Hebri builds must never silently authenticate against the upstream Nous
+  // service. The legacy names remain explicit compatibility overrides for
+  // self-managed installs, but there is deliberately no Nous default.
+  const raw =
+    process.env.HEBRI_PORTAL_BASE_URL || process.env.HERMES_PORTAL_BASE_URL || process.env.NOUS_PORTAL_BASE_URL || ''
 
   return String(raw).trim().replace(/\/+$/, '')
+}
+
+function requirePortalBaseUrl() {
+  const portalBaseUrl = resolvePortalBaseUrl()
+
+  if (!portalBaseUrl) {
+    throw new Error('Hebri Cloud is not configured for this build. Set HEBRI_PORTAL_BASE_URL to your Synapsek portal.')
+  }
+
+  return portalBaseUrl
 }
 
 const { hasLivePortalSession, hasPortalAccessToken, renewPortalAccessSilently, openPortalLoginWindow } =
   createPortalSession({
     isReady: () => app.isReady(),
     getOauthSession,
-    resolvePortalBaseUrl,
+    resolvePortalBaseUrl: requirePortalBaseUrl,
     warmOauthCookieStore,
     createWindow: options => new BrowserWindow(options),
     rememberLog
   })
 
-// Discover the hosted (Hermes Cloud) agents the signed-in user can see. Calls
+// Discover the hosted Hebri Cloud agents the signed-in user can see. Calls
 // the NAS trimmed-summary endpoint over the partition-bound net, so the portal
 // session cookie is attached automatically (no bearer needed — NAS accepts the
 // cookie). Returns { agents } on success, or { needsOrgSelection: true, orgs }
@@ -8721,11 +8730,11 @@ const { hasLivePortalSession, hasPortalAccessToken, renewPortalAccessSilently, o
 // scope discovery to that org. Throws a needsCloudLogin-tagged error when no
 // portal session is present.
 async function discoverCloudAgents(org?: string) {
-  const portalBaseUrl = resolvePortalBaseUrl()
+  const portalBaseUrl = requirePortalBaseUrl()
 
   if (!(await hasLivePortalSession())) {
     const err = new Error(
-      'You are not signed in to Hermes Cloud. Open Settings → Gateway, choose Hermes Cloud, and sign in.'
+      'You are not signed in to Hebri Cloud. Open Settings → Gateways, choose Hebri Cloud, and sign in.'
     ) as any
 
     err.needsCloudLogin = true
@@ -8776,7 +8785,7 @@ async function discoverCloudAgents(org?: string) {
       // recover it) — surface it as a re-login, not a generic failure.
       if (error && error.statusCode === 401) {
         const err = new Error(
-          'Your Hermes Cloud session has expired. Open Settings → Gateway and sign in again.'
+          'Your Hebri Cloud session has expired. Open Settings → Gateways and sign in again.'
         ) as any
 
         err.needsCloudLogin = true
@@ -8865,13 +8874,14 @@ function trimCloudAgents(body) {
 // login, which the discovery gate already prevents). Returns once the agent's
 // gateway session cookie is present.
 async function cloudAgentSilentSignIn(dashboardUrl) {
+  requirePortalBaseUrl()
   const baseUrl = normalizeRemoteBaseUrl(dashboardUrl)
 
   // Pre-req: a live portal session must exist, or this would surface an
   // interactive prompt rather than a silent cascade. Discovery already gates on
   // this, but a selection can arrive after the session lapsed.
   if (!(await hasLivePortalSession())) {
-    const err = new Error('Your Hermes Cloud session has expired. Sign in to Hermes Cloud again.') as any
+    const err = new Error('Your Hebri Cloud session has expired. Sign in to Hebri Cloud again.') as any
     err.needsCloudLogin = true
     throw err
   }
@@ -13214,7 +13224,7 @@ function reportPrimaryRecoveryCrashLoop(code: number | null, signal: string | nu
   }
 
   const message =
-    'Hermes backend keeps crashing right after it restarts; not restarting it again. Relaunch Hermes Desktop.'
+    'Hebri backend keeps crashing right after it restarts; not restarting it again. Relaunch Hebri Desktop.'
 
   rememberLog(`[supervisor] ${message}`)
   sendBackendExit({ code, signal, error: message })
@@ -13297,7 +13307,7 @@ async function runHermesStart({ supervisorRecovery = false }: { supervisorRecove
   // otherwise SIGTERMs the running instance's live backend (#87295).
   if (!isPrimaryInstance) {
     rememberLog('[boot] non-primary instance: skipping backend machinery')
-    throw new Error('Hermes Desktop is already running in another window.')
+    throw new Error('Hebri Desktop is already running in another window.')
   }
 
   await reapOrphanedBackendsOnce()
@@ -16827,22 +16837,29 @@ ipcMain.handle('hermes:connection-config:oauth-logout', async (_event, rawUrl) =
   return { ok: true, connected }
 })
 
-// --- Hermes Cloud (cloud-auto-discovery Phase 3) ---
+// --- Hebri Cloud (cloud-auto-discovery Phase 3) ---
 // One portal login in the OAuth partition powers both discovery and the silent
 // per-agent cascade. See the discovery/cascade helpers above.
-ipcMain.handle('hermes:cloud:status', async () => ({
-  portalBaseUrl: resolvePortalBaseUrl(),
-  signedIn: await hasLivePortalSession()
-}))
+ipcMain.handle('hermes:cloud:status', async () => {
+  const portalBaseUrl = resolvePortalBaseUrl()
+
+  return {
+    configured: Boolean(portalBaseUrl),
+    portalBaseUrl,
+    signedIn: portalBaseUrl ? await hasLivePortalSession() : false
+  }
+})
 ipcMain.handle('hermes:cloud:login', async () => {
+  requirePortalBaseUrl()
   await openPortalLoginWindow()
 
-  return { ok: true, signedIn: await hasLivePortalSession() }
+  return { configured: true, ok: true, portalBaseUrl: requirePortalBaseUrl(), signedIn: await hasLivePortalSession() }
 })
 ipcMain.handle('hermes:cloud:logout', async () => {
-  await clearOauthSession(resolvePortalBaseUrl())
+  const portalBaseUrl = requirePortalBaseUrl()
+  await clearOauthSession(portalBaseUrl)
 
-  return { ok: true, signedIn: await hasLivePortalSession() }
+  return { configured: true, ok: true, portalBaseUrl, signedIn: await hasLivePortalSession() }
 })
 ipcMain.handle('hermes:cloud:discover', async (_event, org) => {
   // Returns { agents } or { needsOrgSelection: true, orgs }. `org` (optional)

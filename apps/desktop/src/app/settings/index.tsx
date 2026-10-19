@@ -46,6 +46,7 @@ import { AboutSettings } from './about-settings'
 import { AppearanceSettings } from './appearance-settings'
 import { BILLING_VIEWS, BillingSettings, type BillingSubView } from './billing'
 import { deriveBillingView, useBillingState, useSubscriptionState } from './billing/use-billing-state'
+import { ComputerControlSettings } from './computer-control-settings'
 import { ConfigSettings } from './config-settings'
 import { SECTIONS } from './constants'
 import { GatewaySettings } from './gateway-settings'
@@ -68,6 +69,7 @@ const SETTINGS_VIEWS: readonly SettingsViewId[] = [
   // Legacy alias: the Connections page merged into Gateways. Kept in the enum
   // so saved `?tab=connections` deep links still resolve (redirected below).
   'connections',
+  'computer-control',
   'keybinds',
   'keys',
   'vault',
@@ -241,6 +243,19 @@ export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: Set
               id: view,
               label: t.settings.sections[s.id] ?? s.label,
               onSelect: () => setActiveView(view)
+            }
+
+            if (s.id === 'safety') {
+              return [
+                entry,
+                {
+                  active: activeView === 'computer-control',
+                  icon: Cpu,
+                  id: 'computer-control',
+                  label: t.settings.nav.computerControl,
+                  onSelect: () => setActiveView('computer-control')
+                }
+              ]
             }
 
             // Credential Vault lives beside the Browser section: it feeds the
@@ -521,6 +536,8 @@ export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: Set
       // 'connections' renders the unified page too so the frame before
       // the alias redirect lands doesn't flash the fallback view.
       <GatewaySettings subpage={subpage} />
+    ) : activeView === 'computer-control' ? (
+      <ComputerControlSettings />
     ) : activeView === 'keybinds' ? (
       <KeybindSettings subpage={subpage} />
     ) : activeView.startsWith('config:') ? (

@@ -437,12 +437,12 @@ export const en: Translations = {
         `Signs out of the saved remote browser session, then opens ${signInLabel}. Use local gateway to switch to the bundled backend instead.`,
       signOutAndSignIn: 'Sign out & sign in',
       remoteFailureHint: 'Check the gateway URL and sign-in under Gateway settings, or switch to the local gateway.',
-      cloudDownTitle: 'Nous Cloud agent is down',
+      cloudDownTitle: 'Managed cloud agent is down',
       cloudDownDescription:
-        'The Nous-managed cloud agent this gateway connects to is returning a server error. It cannot be restarted from here — check its status, switch to the local gateway, or get support.',
+        'The managed cloud agent this gateway connects to is returning a server error. It cannot be restarted from here — check Hebri support or switch to the local gateway.',
       cloudDownHint:
-        'The buttons below open the Nous Portal (instance status and controls) and our Discord for support.',
-      cloudDownCheckPortal: 'Check Portal status',
+        'Open Hebri support, switch to the local gateway, or retry. Desktop cannot restart a managed instance locally.',
+      cloudDownCheckPortal: 'Open Hebri support',
       cloudDownDiscord: 'Get help on Discord',
       hideRecentLogs: 'Hide recent logs',
       showRecentLogs: 'Show recent logs',
@@ -568,9 +568,9 @@ export const en: Translations = {
   },
 
   sendDiagnostics: {
-    title: 'Send diagnostics to Nous',
+    title: 'Diagnostics stay local',
     privacyNotice:
-      'This uploads a debug bundle to Nous-internal storage (not a public paste). It includes system info (OS, versions, provider, which API keys are configured — never the keys themselves) and full agent, gateway, and desktop logs (up to 512 KB each), which likely contain conversation content, tool outputs, and file paths. Secrets are redacted before upload. The bundle is viewable only by Nous staff and allowlisted Discord moderators, and auto-deletes after 14 days.',
+      'Hebri has disabled the inherited Nous diagnostics upload. No logs or conversation data will be sent to the upstream service. If Synapsek support asks for diagnostics, run `hermes debug share --local` and review the redacted output before sharing it manually.',
     upload: 'Upload',
     uploading: 'Uploading…',
     cancel: 'Cancel',
@@ -582,11 +582,11 @@ export const en: Translations = {
       'Your bundle was uploaded privately. Share the link below in your support thread so the team can see your logs.',
     failedTitle: 'Upload failed',
     failedHint:
-      'You can also run `hermes debug share --nous` from a terminal, or `hermes debug share --local` to print the report without uploading.',
+      'Run `hermes debug share --local` to print the redacted report without uploading it.',
     handoffLead: 'Pick up the discussion in:',
     links: {
       github: 'GitHub Issues',
-      portal: 'Nous Portal Support',
+      portal: 'Synapsek Support',
       discord: 'Discord'
     }
   },
@@ -603,6 +603,7 @@ export const en: Translations = {
     muteHaptics: 'Mute haptics',
     unmuteHaptics: 'Unmute haptics',
     openSettings: 'Open settings',
+    openWeb: 'Open Web',
     openStarmap: 'Open memory graph',
     enterHud: 'HUD mode',
     exitHud: 'Exit HUD mode',
@@ -806,6 +807,7 @@ export const en: Translations = {
       providerCustomEndpoints: 'Custom Endpoints',
       providerLocalModels: 'Local Models',
       gateway: 'Gateways',
+      computerControl: 'Computer Control',
       apiKeys: 'Tools & Keys',
       keybinds: 'Keyboard Shortcuts',
       keysTools: 'Tools',
@@ -1061,7 +1063,7 @@ export const en: Translations = {
       tabStripAlways: 'Always',
       tabStripNever: 'Never',
       appActionsTitle: 'App Actions',
-      appActionsDesc: 'Where Settings, Layout, and HUD sit in the titlebar. Right leaves room for tabs on the left.',
+      appActionsDesc: 'Where Settings, Web, Layout, and HUD sit in the titlebar. Right leaves room for tabs on the left.',
       appActionsLeft: 'Left',
       appActionsRight: 'Right',
       terminalFontTitle: 'Terminal Font',
@@ -1268,6 +1270,15 @@ export const en: Translations = {
       contextPlaceholder: 'Auto'
     },
     computerUse: {
+      title: 'Computer Control',
+      intro:
+        'Let Hebri inspect and operate desktop apps when you explicitly ask it to. This is local machine access, separate from browser automation and external messaging gateways.',
+      consentTitle: 'You stay in control',
+      consentDesc:
+        'Installing the driver does not start autonomous control. Hebri can use it only during an agent run that invokes Computer Use, and operating-system permission prompts still apply.',
+      readinessTitle: 'Permission and driver status',
+      backendTitle: 'Computer Use backend',
+      backendDesc: 'Install or select the local driver that performs screenshots, clicks, and keystrokes.',
       accessibility: 'Accessibility',
       screenRecording: 'Screen Recording',
       driverHealth: 'Driver health'
@@ -1520,6 +1531,10 @@ export const en: Translations = {
       cloudSignIn: 'Sign in to Hebri Cloud',
       cloudSignedIn: 'Signed in to Hebri Cloud',
       cloudNeedsSignIn: 'Sign in to Hebri Cloud to discover the agents on your account.',
+      cloudUnavailableTitle: 'Hebri Cloud is not configured',
+      cloudUnavailableDesc:
+        'This build has no Synapsek cloud endpoint. Local, remote, and SSH gateways still work. Deployments can enable Hebri Cloud with HEBRI_PORTAL_BASE_URL; Hebri will not silently sign in to the upstream Hermes/Nous portal.',
+      cloudUnavailableAction: 'Synapsek website',
       cloudSignedInDesc: 'You are signed in. Pick an agent below; the session refreshes automatically.',
       cloudAgentsTitle: 'Your agents',
       cloudOrgPickerTitle: 'Choose an organization',
@@ -1529,7 +1544,7 @@ export const en: Translations = {
       cloudLoadingAgents: 'Loading your agents…',
       cloudNoAgents: {
         before: 'No agents found on this account. Create one in the ',
-        linkText: 'Nous portal',
+        linkText: 'Hebri portal',
         after: ', then refresh.'
       },
       cloudRefresh: 'Refresh',
@@ -2812,6 +2827,8 @@ export const en: Translations = {
 
   messaging: {
     search: 'Search messaging...',
+    ownershipIntro:
+      'Connect external messaging apps to this Synapsek Hebri gateway. Platform credentials and pairing approvals belong to the selected Hebri profile; they are separate from Team conversations and Bots.',
     loading: 'Loading messaging platforms...',
     loadFailed: 'Messaging platforms failed to load',
     states: {
@@ -5411,7 +5428,7 @@ export const en: Translations = {
     boundaryTitle: 'Something broke in the interface',
     boundaryDesc: 'The view hit an unexpected error. Your chats and settings are safe.',
     boundaryDetails: 'Details',
-    sendDiagnostics: 'Send diagnostics',
+    sendDiagnostics: 'Diagnostics options',
     reloadWindow: 'Reload window',
     openLogs: 'Open logs'
   },
