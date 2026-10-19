@@ -32,14 +32,29 @@ const EXCLUDE_TOP = new Set([
   "evals",
   "node_modules",
   ".venv",
+  "venv",
+  ".hermes-runtime",
+  ".npm-cache",
+  "bin",
   "__pycache__",
   ".pytest_cache",
+  ".test-tmp",
   ".git",
   "release2",
 ]);
 
 // Directory names skipped anywhere in the tree.
-const EXCLUDE_DIRS = new Set(["node_modules", "__pycache__", ".pytest_cache", ".venv", ".git"]);
+const EXCLUDE_DIRS = new Set([
+  "node_modules",
+  "__pycache__",
+  ".pytest_cache",
+  ".test-tmp",
+  ".venv",
+  "venv",
+  ".hermes-runtime",
+  ".npm-cache",
+  ".git",
+]);
 
 // apps/desktop-specific build artifacts (the packaged app already ships its
 // own renderer; the installed agent rebuilds on demand if ever needed).
@@ -54,7 +69,7 @@ function isExcluded(relParts) {
     relParts[0] === "apps" &&
     relParts[1] === "desktop" &&
     relParts.length > 2 &&
-    DESKTOP_EXCLUDE.has(relParts[2])
+    (DESKTOP_EXCLUDE.has(relParts[2]) || /^release\d+$/.test(relParts[2]))
   ) {
     return true
   }

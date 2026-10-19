@@ -262,7 +262,7 @@ _GATEWAY_SERVICE_REMOVERS = {
 
 
 def _hermes_path_markers(hermes_home: Path, *, include_managed_bin: bool = False) -> list[str]:
-    """Prefixes identifying Hermes-owned User-PATH entries (prefix match sweeps git\cmd, git\bin,
+    r"""Prefixes identifying Hermes-owned User-PATH entries (prefix match sweeps git\cmd, git\bin,
     node...). ``include_managed_bin`` adds ``<root>\bin`` (launchers + managed uv) — only when that
     dir is about to be deleted, so a keep-data uninstall keeps the working uv resolvable."""
     root = str(hermes_home).rstrip("\\/")
@@ -702,8 +702,8 @@ def _perform_uninstall(
 
 
 _REINSTALL_HINT = {
-    True: "  iex (irm https://hermes-agent.nousresearch.com/install.ps1)",
-    False: "  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash"}
+    True: "  iex (irm https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.ps1)",
+    False: "  curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | bash"}
 # windows -> [(line, color or None)]
 _RELOAD_HINT = {
     True: [("Open a new terminal (PowerShell / Windows Terminal) to pick up", Colors.YELLOW),

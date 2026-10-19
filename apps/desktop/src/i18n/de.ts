@@ -1980,7 +1980,7 @@ export const de = defineLocale({
       sshErrHostKey:
         'Der Host-Key hat sich seit Ihrer letzten Verbindung GEÄNDERT. Prüfen Sie, ob das erwartet ist, führen Sie dann ssh-keygen -R <host> aus und verbinden Sie sich erneut.',
       sshErrNotInstalled:
-        'Hebri ist auf dem Remote-Host nicht installiert. Installieren Sie es dort (curl -fsSL https://hermes-agent.nousresearch.com/install.sh | sh) oder legen Sie den Hebri-Pfad fest.',
+        'Hebri ist auf dem Remote-Host nicht installiert. Installieren Sie es dort (curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | sh) oder legen Sie den Hebri-Pfad fest.',
       sshErrPlatform:
         'Nicht unterstützte Remote-Plattform. Der Desktop-SSH-Modus von Hebri unterstützt Linux-, macOS- und Windows-Remote-Hosts.',
       sshErrTimeout: 'SSH-Verbindung ist ausgelaufen. Der Host ist möglicherweise nicht erreichbar oder schläft.',

@@ -5,7 +5,7 @@
 # Uses uv for fast Python provisioning and package management.
 #
 # Usage:
-#   iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+#   iex (irm https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.ps1)
 #
 # Or download and run with options:
 #   .\install.ps1 -NoVenv -SkipSetup
@@ -352,7 +352,7 @@ if ($PSBoundParameters.ContainsKey('HermesHome')) {
     $HermesHome = ConvertTo-LongPath $HermesHome
 } else {
     $HermesHome = ConvertTo-LongPath $(
-        if ($env:HERMES_HOME) { $env:HERMES_HOME } else { "$env:LOCALAPPDATA\hermes" }
+        if ($env:HERMES_HOME) { $env:HERMES_HOME } else { "$env:LOCALAPPDATA\hebri" }
     )
 }
 if ($PSBoundParameters.ContainsKey('InstallDir')) {
@@ -390,8 +390,8 @@ $script:ResolvedPathReport = @{
 # Configuration
 # ============================================================================
 
-$RepoUrlSsh = "git@github.com:NousResearch/hermes-agent.git"
-$RepoUrlHttps = "https://github.com/NousResearch/hermes-agent.git"
+$RepoUrlSsh = "git@github.com:satoshilove/hebri.git"
+$RepoUrlHttps = "https://github.com/satoshilove/hebri.git"
 $PythonVersion = "3.11"
 # Minor versions the installer accepts when the requested $PythonVersion isn't
 # available, in preference order. Only checkout-private uv-managed interpreters
@@ -1652,7 +1652,7 @@ function Install-Git {
       1. Existing ``git`` on PATH -- use it as-is (the common fast path).
       2. Download **PortableGit** from the official git-for-windows GitHub
          release (self-extracting 7z.exe) and unpack it to
-         ``%LOCALAPPDATA%\hermes\git`` -- never touches system Git, never
+         ``%LOCALAPPDATA%\hebri\git`` -- never touches system Git, never
          requires admin, works even on locked-down machines and machines
          with a broken system Git install.
 
@@ -1666,7 +1666,7 @@ function Install-Git {
     We deliberately skip winget because it fails badly when the system Git
     install is in a half-installed state (partially registered, or uninstall-
     blocked).  Owning the Hermes copy of Git ourselves is predictable and
-    recoverable: if it ever breaks, ``Remove-Item %LOCALAPPDATA%\hermes\git``
+    recoverable: if it ever breaks, ``Remove-Item %LOCALAPPDATA%\hebri\git``
     and re-running this installer fully recovers.
 
     After install we locate ``bash.exe`` and persist the path in
@@ -2706,7 +2706,12 @@ function Install-Repository {
                     git -c windows.appendAtomically=false add -A 2>$null | Out-Null
                     git -c windows.appendAtomically=false commit -q -m "Hebri: local bundle install" 2>$null | Out-Null
                     if ($LASTEXITCODE -eq 0) {
-                        Write-Success "Local source checkout committed (HEAD resolvable)"
+                        git -c windows.appendAtomically=false remote add origin $RepoUrlHttps 2>$null
+                        if ($LASTEXITCODE -eq 0) {
+                            Write-Success "Local source checkout committed and linked to $RepoUrlHttps"
+                        } else {
+                            Write-Warn "Local source committed, but adding the Hebri update remote failed"
+                        }
                     } else {
                         Write-Warn "Local source copied; git commit failed (marker will fall back to the install pin)"
                     }
@@ -2761,13 +2766,13 @@ function Install-Repository {
                 # for.  GitHub supports archive URLs for commits, tags, and
                 # branches; we honour Commit > Tag > Branch.
                 if ($Commit) {
-                    $zipUrl = "https://github.com/NousResearch/hermes-agent/archive/$Commit.zip"
+                    $zipUrl = "https://github.com/satoshilove/hebri/archive/$Commit.zip"
                     $zipLabel = $Commit
                 } elseif ($Tag) {
-                    $zipUrl = "https://github.com/NousResearch/hermes-agent/archive/refs/tags/$Tag.zip"
+                    $zipUrl = "https://github.com/satoshilove/hebri/archive/refs/tags/$Tag.zip"
                     $zipLabel = $Tag
                 } else {
-                    $zipUrl = "https://github.com/NousResearch/hermes-agent/archive/refs/heads/$Branch.zip"
+                    $zipUrl = "https://github.com/satoshilove/hebri/archive/refs/heads/$Branch.zip"
                     $zipLabel = $Branch
                 }
                 $zipPath = "$env:TEMP\hermes-agent-$zipLabel.zip"
@@ -3614,8 +3619,8 @@ function Set-PathVariable {
     }
     
     # Set HERMES_HOME so the Python code finds config/data in the right place.
-    # Only needed on Windows where we install to %LOCALAPPDATA%\hermes instead
-    # of the Unix default ~/.hermes
+    # Only needed on Windows where we install to %LOCALAPPDATA%\hebri instead
+    # of the Unix default ~/.hebri
     $currentHermesHome = [Environment]::GetEnvironmentVariable("HERMES_HOME", "User")
     if (-not $currentHermesHome -or $currentHermesHome -ne $HermesHome) {
         [Environment]::SetEnvironmentVariable("HERMES_HOME", $HermesHome, "User")
@@ -3709,7 +3714,7 @@ function Write-BootstrapMarker {
 function Copy-ConfigTemplates {
     Write-Info "Setting up configuration files..."
     
-    # Create the HERMES_HOME directory structure ($HermesHome, default %LOCALAPPDATA%\hermes)
+    # Create the HERMES_HOME directory structure ($HermesHome, default %LOCALAPPDATA%\hebri)
     New-Item -ItemType Directory -Force -Path "$HermesHome\cron" | Out-Null
     New-Item -ItemType Directory -Force -Path "$HermesHome\sessions" | Out-Null
     New-Item -ItemType Directory -Force -Path "$HermesHome\logs" | Out-Null
@@ -4646,6 +4651,8 @@ function Install-Desktop {
     # 3. Sanity-check the produced binary. Probe both arches so this works
     # on x64 and arm64 build machines.
     $exeCandidates = @(
+        "$desktopDir\release\win-unpacked\Hebri.exe",
+        "$desktopDir\release\win-arm64-unpacked\Hebri.exe",
         "$desktopDir\release\win-unpacked\Hermes.exe",
         "$desktopDir\release\win-arm64-unpacked\Hermes.exe"
     )
@@ -4660,7 +4667,7 @@ function Install-Desktop {
         }
     }
     if (-not $found) {
-        throw "Desktop build completed but no Hermes.exe was found under $desktopDir\release\*-unpacked\"
+        throw "Desktop build completed but no Hebri.exe was found under $desktopDir\release\*-unpacked\"
     }
 
     # 3b. The Hermes icon + identity are stamped onto Hermes.exe by the
@@ -5432,7 +5439,7 @@ try {
     Write-Err "Installation failed: $_"
     Write-Host ""
     Write-Info "If the error is unclear, try downloading and running the script directly:"
-    Write-Host "  Invoke-WebRequest -Uri 'https://hermes-agent.nousresearch.com/install.ps1' -OutFile install.ps1" -ForegroundColor Yellow
+    Write-Host "  Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.ps1' -OutFile install.ps1" -ForegroundColor Yellow
     Write-Host "  .\install.ps1" -ForegroundColor Yellow
     Write-Host ""
 }

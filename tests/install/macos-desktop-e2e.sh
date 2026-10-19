@@ -69,8 +69,8 @@ esac
 [ "$(uname -s)" = "Darwin" ] || { echo "error: this driver runs on macOS only" >&2; exit 1; }
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-REPO_URL_SSH="git@github.com:NousResearch/hermes-agent.git"
-REPO_URL_HTTPS="https://github.com/NousResearch/hermes-agent.git"
+REPO_URL_SSH="git@github.com:satoshilove/hebri.git"
+REPO_URL_HTTPS="https://github.com/satoshilove/hebri.git"
 ASSETS="$REPO_ROOT/tests/install/e2e-assets"
 
 WORK_ROOT="${HERMES_E2E_WORKROOT:-${RUNNER_TEMP:-${TMPDIR:-/tmp}}/hermes-macos-desktop-e2e}"

@@ -23,8 +23,8 @@ import { SETTING_IDS, settingElementId } from './settings-manifest'
 import { UninstallSection } from './uninstall-section'
 import { useSettingDeepLink } from './use-setting-deep-link'
 
-const RELEASE_NOTES_URL = 'https://github.com/NousResearch/hermes-agent/releases'
-const INSTALLER_URL = 'https://hermes-agent.nousresearch.com/'
+const RELEASE_NOTES_URL = 'https://github.com/satoshilove/hebri/releases'
+const INSTALLER_URL = 'https://github.com/satoshilove/hebri/releases/latest'
 
 function relativeTime(ms: number | undefined, a: Translations['settings']['about']) {
   if (!ms) {

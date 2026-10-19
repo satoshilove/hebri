@@ -59,8 +59,8 @@ function modeRemovesUserData(mode) {
  * Resolve the on-disk app bundle/dir to remove for the running desktop app,
  * given the path to the running executable (`process.execPath`) and platform.
  *
- *   macOS:   …/Hermes.app/Contents/MacOS/Hermes  → …/Hermes.app
- *   Windows: …\Hermes\Hermes.exe                 → …\Hermes  (install dir)
+ *   macOS:   …/Hebri.app/Contents/MacOS/Hebri  → …/Hebri.app
+ *   Windows: …\Hebri\Hebri.exe                 → …\Hebri  (install dir)
  *   Linux:   AppImage → the APPIMAGE env path; unpacked → the *-unpacked dir
  *
  * Returns null when we can't confidently identify a removable bundle (e.g.
@@ -79,10 +79,10 @@ function resolveRemovableAppPath(execPath, platform, env: any = {}) {
   const p = platform === 'win32' ? path.win32 : path.posix
 
   if (platform === 'darwin') {
-    // …/Hermes.app/Contents/MacOS/Hermes → strip 3 segments to the .app
+    // …/Hebri.app/Contents/MacOS/Hebri → strip 3 segments to the .app
     const macOsDir = p.dirname(exe) // …/Contents/MacOS
     const contents = p.dirname(macOsDir) // …/Contents
-    const appBundle = p.dirname(contents) // …/Hermes.app
+    const appBundle = p.dirname(contents) // …/Hebri.app
 
     if (appBundle.endsWith('.app')) {
       return appBundle
@@ -92,10 +92,11 @@ function resolveRemovableAppPath(execPath, platform, env: any = {}) {
   }
 
   if (platform === 'win32') {
-    // NSIS per-user installs Hermes.exe directly in the install dir.
+    // NSIS per-user installs Hebri.exe directly in the install dir. Keep the
+    // old Hermes names removable so upgrades from pre-Hebri builds are safe.
     const dir = p.dirname(exe)
 
-    if (/[\\/]Hermes$/i.test(dir) || /[\\/]hermes-desktop$/i.test(dir)) {
+    if (/[\\/](Hebri|Hermes)$/i.test(dir) || /[\\/](hebri|hermes)-desktop$/i.test(dir)) {
       return dir
     }
 

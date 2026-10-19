@@ -855,14 +855,14 @@ if (INSTALL_STAMP) {
 //   Windows: %LOCALAPPDATA%\hebri (matches install.ps1)
 //   macOS / Linux: ~/.hebri (matches install.sh)
 //
-// Special case for Windows: if the user has a legacy ~/.hermes directory
-// (e.g., from a prior pip install or a manual setup) AND no
-// %LOCALAPPDATA%\hermes yet, prefer the legacy path so we don't orphan their
-// existing config / sessions / .env. New installs go to %LOCALAPPDATA%.
+// Special case for Windows: if the user has an existing ~/.hebri or upstream
+// ~/.hermes directory (e.g. from a prior pip/manual setup) AND no
+// %LOCALAPPDATA%\hebri yet, prefer it so an upgrade does not orphan config,
+// sessions, or .env. New installs go to %LOCALAPPDATA%\hebri.
 //
 // HERMES_DESKTOP_USER_DATA_DIR (used by test:desktop:fresh) puts the sandbox
 // HERMES_HOME beneath the throwaway userData dir so a fresh-install run never
-// touches the user's real ~/.hermes / %LOCALAPPDATA%\hermes.
+// touches the user's real ~/.hebri / %LOCALAPPDATA%\hebri.
 function resolveHermesHome() {
   if (process.env.HERMES_HOME) {
     return normalizeHermesHomeRoot(process.env.HERMES_HOME)
@@ -876,7 +876,7 @@ function resolveHermesHome() {
     // A GUI app launched from Explorer inherits the environment block captured
     // at login, so a HERMES_HOME set via `setx` AFTER login is invisible in
     // process.env even though the CLI (a fresh shell) sees it. Without this the
-    // backend silently falls back to %LOCALAPPDATA%\hermes and reports "No
+    // backend silently falls back to %LOCALAPPDATA%\hebri and reports "No
     // inference provider configured" despite a valid configured home (#45471).
     // Consult the live User-scoped registry value before the default below.
     const fromRegistry = readWindowsUserEnvVar('HERMES_HOME')
@@ -888,10 +888,13 @@ function resolveHermesHome() {
 
   if (IS_WINDOWS && process.env.LOCALAPPDATA) {
     const localappdata = path.join(process.env.LOCALAPPDATA, 'hebri')
-    const legacy = path.join(app.getPath('home'), '.hebri')
+    const hebriHome = path.join(app.getPath('home'), '.hebri')
+    const upstreamHome = path.join(app.getPath('home'), '.hermes')
+    const legacy = directoryExists(hebriHome) ? hebriHome : upstreamHome
 
     // Migrate transparently to LOCALAPPDATA, but honour an existing legacy
-    // ~/.hermes setup (no LOCALAPPDATA install yet) so users don't lose state.
+    // ~/.hebri or upstream ~/.hermes setup (no LOCALAPPDATA install yet) so
+    // users don't lose state.
     if (!directoryExists(localappdata) && directoryExists(legacy)) {
       return legacy
     }
@@ -3024,7 +3027,7 @@ function makeDashboardReadyFile() {
 }
 
 // resolveGitBinary — locate git.exe on Windows. A fresh installer-driven
-// install only has PortableGit under %LOCALAPPDATA%\hermes\git (never on
+// install only has PortableGit under %LOCALAPPDATA%\hebri\git (never on
 // PATH), so a bare spawn('git') ENOENTs and self-update checks fail with
 // "Couldn't check for updates". Mirror findGitBash: PortableGit first, then
 // standard Git-for-Windows locations, then PATH. Cached after first probe.
@@ -3091,6 +3094,9 @@ function resolveGitBinary() {
   const candidates = []
 
   if (localAppData) {
+    candidates.push(path.join(localAppData, 'hebri', 'git', 'cmd', 'git.exe'))
+    candidates.push(path.join(localAppData, 'hebri', 'git', 'bin', 'git.exe'))
+    // Legacy Hermes install location.
     candidates.push(path.join(localAppData, 'hermes', 'git', 'cmd', 'git.exe'))
     candidates.push(path.join(localAppData, 'hermes', 'git', 'bin', 'git.exe'))
   }
@@ -5420,7 +5426,7 @@ async function resolveHermesBackend(backendArgs) {
     // backend hands the spawn step a guaranteed ModuleNotFoundError.
     // Verify the import works before trusting the candidate; on
     // failure, fall through to step 6 so the bootstrap runner pulls
-    // a uv-managed 3.11 into %LOCALAPPDATA%\hermes\hermes-agent\venv.
+    // a uv-managed 3.11 into %LOCALAPPDATA%\hebri\hebri-agent\venv.
     if (await canImportHermesCli(python)) {
       return {
         kind: 'python',
@@ -5597,7 +5603,7 @@ async function runEnsureRuntime(backend: any, assertStillOwned: () => void): Pro
   // On Windows, preflight Git Bash. Hermes' terminal tool calls bash.exe
   // directly (tools/environments/local.py); without it the agent can't run
   // terminal commands. install.ps1's Stage-Git puts PortableGit at
-  // %LOCALAPPDATA%\hermes\git\, which findGitBash() picks up, so for any
+  // %LOCALAPPDATA%\hebri\git\, which findGitBash() picks up, so for any
   // user who completed the bootstrap this is a no-op. For users who got
   // here via an external `hermes` on PATH, this check still helps.
   if (IS_WINDOWS && !findGitBash()) {

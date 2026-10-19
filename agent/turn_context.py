@@ -1090,8 +1090,10 @@ def build_turn_context(
     # gate as the protocol section); gate is session-stable, so cache-safe.
     try:
         from tools.bot_mode_dm import ensure_message_agent_tool
+        from tools.bot_mode_team_context import ensure_team_context_tool
 
         ensure_message_agent_tool(agent)
+        ensure_team_context_tool(agent)
     except Exception:
         logger.debug("message_agent injection skipped", exc_info=True)
 

@@ -120,6 +120,7 @@ export function ComputerModePane({ botName, onStartTask, tasks }: ComputerModePr
           value={newTask}
         />
         <Button
+          disabled={!newTask.trim()}
           onClick={() => {
             if (newTask.trim()) {
               onStartTask(newTask.trim())
@@ -127,8 +128,7 @@ export function ComputerModePane({ botName, onStartTask, tasks }: ComputerModePr
             }
           }}
           size="sm"
-          variant="primary"
-          disabled={!newTask.trim()}
+          variant="default"
         >
           Run Task
         </Button>
@@ -147,8 +147,8 @@ export function ComputerModePane({ botName, onStartTask, tasks }: ComputerModePr
         ) : (
           tasks.map(task => (
             <div
-              key={task.id}
               className="px-3 py-2 border-b border-(--ui-border) text-[0.8125rem]"
+              key={task.id}
             >
               <div className="flex items-center gap-2">
                 <span

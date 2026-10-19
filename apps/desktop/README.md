@@ -1,19 +1,19 @@
-# Hermes Desktop ☤
+# Hebri Desktop ☤
 
 <p align="center">
-  <a href="https://github.com/NousResearch/hermes-agent/releases"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
-  <a href="https://hermes-agent.nousresearch.com/docs/"><img src="https://img.shields.io/badge/Docs-hermes--agent.nousresearch.com-FFD700?style=for-the-badge" alt="Documentation"></a>
-  <a href="https://discord.gg/NousResearch"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
-  <a href="https://github.com/NousResearch/hermes-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
+  <a href="https://github.com/satoshilove/hebri/releases"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/satoshilove/hebri"><img src="https://img.shields.io/badge/Project-Hebri-FFD700?style=for-the-badge" alt="Hebri project"></a>
+  <a href="https://github.com/satoshilove/hebri/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
 </p>
 
-**The native desktop app for [Hermes Agent](../../README.md) — the self-improving AI agent from [Nous Research](https://nousresearch.com).** Same agent, same skills, same memory as the CLI and gateway, in a polished native window — chat with streaming tool output, side-by-side previews, a file browser, voice, and settings, no terminal required. Available for **macOS, Windows, and Linux**.
+**Hebri Desktop is the native app built on the original MIT-licensed [Hermes Agent](https://github.com/NousResearch/hermes-agent).** It keeps the Hermes agent, skills, memory, CLI, and gateway while adding Hebri's desktop experience and a separate human Team workspace. Available for **Windows, Linux (including Omarchy), and macOS on Apple Silicon and Intel**.
 
 <table>
 <tr><td><b>Chat with the full agent</b></td><td>Streaming responses, live tool activity, structured tool summaries, and the same conversation history as every other Hermes surface.</td></tr>
 <tr><td><b>Side-by-side previews</b></td><td>Render web pages, files, and tool outputs in a right-hand pane while you keep chatting.</td></tr>
 <tr><td><b>File browser</b></td><td>Explore and preview the working directory without leaving the app.</td></tr>
 <tr><td><b>Voice</b></td><td>Talk to Hermes and hear it back.</td></tr>
+<tr><td><b>Human Team workspace</b></td><td>Share messages, presence, and a work board with teammates. Managed Bot Chats can read a bounded Team snapshot to follow the work, but cannot edit human Team state.</td></tr>
 <tr><td><b>Settings & onboarding</b></td><td>Manage providers, models, tools, and credentials from a real UI. First-run setup gets you to your first message in seconds.</td></tr>
 <tr><td><b>Stays current</b></td><td>Built-in updates pull the latest agent and rebuild the app in place.</td></tr>
 </table>
@@ -22,7 +22,7 @@
 
 ## Install
 
-### Install with Hermes (recommended)
+### Install with the Hermes CLI
 
 Already have the Hermes CLI? Just run:
 
@@ -34,7 +34,8 @@ It builds and launches the GUI against your existing install — same config, ke
 
 ### Prebuilt installers
 
-Prebuilt installers are built and distributed via [the Hermes Desktop website.](https://hermes-agent.nousresearch.com/).
+Prebuilt installers are built by the release workflows and published on the
+[Hebri releases page](https://github.com/satoshilove/hebri/releases).
 
 ---
 
@@ -86,7 +87,7 @@ Point the app at a specific source checkout, or sandbox it away from your real c
 # throwaway HERMES_HOME, separate Electron userData, distinct app name to avoid the single-instance lock
 ../scripts/dev-sandbox.sh npm run dev
 HERMES_DESKTOP_HERMES_ROOT=/path/to/clone npm run dev
-HERMES_HOME=$HOME/.hermes/cache/scratch/throwaway npm run dev
+HERMES_HOME=$HOME/.hebri/cache/scratch/throwaway npm run dev
 npm run dev:fake-boot   # exercise the startup overlay with deterministic delays
 ```
 
@@ -99,13 +100,17 @@ npm run dist:linux   # AppImage + deb + rpm
 npm run pack         # unpacked app under release/ (no installer)
 ```
 
-Installers are built and uploaded to GitHub Releases manually. macOS/Windows signing & notarization happen automatically when the relevant credentials are present in the environment (`CSC_LINK` / `CSC_KEY_PASSWORD` / `APPLE_*` for macOS, `WIN_CSC_*` for Windows).
+Installers are built by the release workflows. macOS notarization runs when
+`APPLE_API_KEY`, `APPLE_API_KEY_ID`, and `APPLE_API_ISSUER` (or an
+`APPLE_NOTARY_PROFILE`) are configured. Windows packages are currently
+unsigned and will show the normal SmartScreen warning until release signing is
+configured; do not describe an unsigned artifact as signed.
 
 ### How it works
 
 The packaged app ships the Electron shell and a native React chat surface. On
 first launch it can install the Hermes Agent runtime into `HERMES_HOME`
-(`~/.hermes`, or `%LOCALAPPDATA%\hermes` on Windows), using the same layout as a
+(`~/.hebri`, or `%LOCALAPPDATA%\hebri` on Windows), using the same layout as a
 CLI install.
 
 The app has three boundaries:
@@ -225,23 +230,23 @@ Boot logs land in `HERMES_HOME/logs/desktop.log` (includes backend output and re
 
 ```bash
 # Force a clean first-launch setup
-rm "$HOME/.hermes/hermes-agent/.hermes-bootstrap-complete"
+rm "$HOME/.hebri/hebri-agent/.hermes-bootstrap-complete"
 # Rebuild a broken Python venv
-rm -rf "$HOME/.hermes/hermes-agent/venv"
+rm -rf "$HOME/.hebri/hebri-agent/venv"
 # Reset a stuck macOS microphone prompt (macOS only)
-tccutil reset Microphone com.nousresearch.hermes
+tccutil reset Microphone com.synapsek.hebri
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
 # Force a clean first-launch setup
-Remove-Item "$env:LOCALAPPDATA\hermes\hermes-agent\.hermes-bootstrap-complete"
+Remove-Item "$env:LOCALAPPDATA\hebri\hebri-agent\.hermes-bootstrap-complete"
 # Rebuild a broken Python venv
-Remove-Item -Recurse -Force "$env:LOCALAPPDATA\hermes\hermes-agent\venv"
+Remove-Item -Recurse -Force "$env:LOCALAPPDATA\hebri\hebri-agent\venv"
 ```
 
-> The default Hermes home on Windows is `%LOCALAPPDATA%\hermes`. Set the `HERMES_HOME` env var if you've relocated it.
+> The default Hebri home on Windows is `%LOCALAPPDATA%\hebri`. Set the `HERMES_HOME` env var if you've relocated it.
 
 ---
 
@@ -249,7 +254,7 @@ Remove-Item -Recurse -Force "$env:LOCALAPPDATA\hermes\hermes-agent\venv"
 
 - 💬 [Discord](https://discord.gg/NousResearch)
 - 📖 [Documentation](https://hermes-agent.nousresearch.com/docs/)
-- 🐛 [Issues](https://github.com/NousResearch/hermes-agent/issues)
+- 🐛 [Issues](https://github.com/satoshilove/hebri/issues)
 
 ---
 

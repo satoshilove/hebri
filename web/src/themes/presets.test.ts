@@ -1,7 +1,16 @@
 import { contrastRatio, THEME_PRESET_PALETTES, type ThemePresetPalette } from "@hermes/shared";
 import { describe, expect, it } from "vitest";
 
-import { BUILTIN_THEMES, webPresetFromShared } from "./presets";
+import { BUILTIN_THEMES, defaultTheme, webPresetFromShared } from "./presets";
+
+it("uses the shared Synapsek palette for the fresh dashboard", () => {
+  const synapsek = THEME_PRESET_PALETTES.synapsek.darkColors!;
+
+  expect(defaultTheme.palette.background.hex).toBe(synapsek.background);
+  expect(defaultTheme.palette.midground.hex).toBe(synapsek.primary);
+  expect(defaultTheme.terminalBackground).toBe("#0e0e14");
+  expect(contrastRatio(defaultTheme.palette.midground.hex, defaultTheme.palette.background.hex)).toBeGreaterThanOrEqual(3);
+});
 
 // Every preset the dashboard shares with the desktop must render the shared
 // table's palette, not a private copy — that is the whole point of the table.

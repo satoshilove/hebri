@@ -64,6 +64,69 @@ const nousAltTint = (pct: number) => `color-mix(in srgb, ${NOUS_ALT_BLUE} ${pct}
 const nousAltTintTransparent = (pct: number) => `color-mix(in srgb, ${NOUS_ALT_BLUE} ${pct}%, transparent)`
 
 export const THEME_PRESET_PALETTES = {
+  /**
+   * Synapsek — terminal-first, Tokyo Night-derived neutrals with an Omarchy
+   * green signal colour. The semantic slots intentionally stay independent:
+   * green marks active work, blue marks focus, and rose remains destructive.
+   */
+  synapsek: {
+    colors: {
+      background: '#f4f6f3',
+      foreground: '#20251f',
+      card: '#ffffff',
+      cardForeground: '#20251f',
+      muted: '#e8ede6',
+      mutedForeground: '#626b60',
+      popover: '#ffffff',
+      popoverForeground: '#20251f',
+      primary: '#477b2f',
+      primaryForeground: '#ffffff',
+      secondary: '#e2ebde',
+      secondaryForeground: '#20251f',
+      accent: '#e3eaf3',
+      accentForeground: '#20251f',
+      border: '#cfd8cc',
+      input: '#ffffff',
+      ring: '#315f91',
+      midground: '#477b2f',
+      midgroundForeground: '#ffffff',
+      composerRing: '#477b2f',
+      destructive: '#b6384f',
+      destructiveForeground: '#ffffff',
+      sidebarBackground: '#edf1eb',
+      sidebarBorder: '#cfd8cc',
+      userBubble: '#e3ecdf',
+      userBubbleBorder: '#cad5c6'
+    },
+    darkColors: {
+      background: '#1a1b26',
+      foreground: '#c0caf5',
+      card: '#171820',
+      cardForeground: '#c0caf5',
+      muted: '#202331',
+      mutedForeground: '#7f849c',
+      popover: '#202330',
+      popoverForeground: '#c0caf5',
+      primary: '#9ece6a',
+      primaryForeground: '#10120f',
+      secondary: '#253046',
+      secondaryForeground: '#c0caf5',
+      accent: '#242d3d',
+      accentForeground: '#c0caf5',
+      border: '#30364a',
+      input: '#15161e',
+      ring: '#7aa2f7',
+      midground: '#9ece6a',
+      midgroundForeground: '#10120f',
+      composerRing: '#9ece6a',
+      destructive: '#f7768e',
+      destructiveForeground: '#16161e',
+      sidebarBackground: '#13141c',
+      sidebarBorder: '#2a3042',
+      userBubble: '#1d291f',
+      userBubbleBorder: '#354331'
+    }
+  },
   github: {
     colors: {
       background: '#ffffff',

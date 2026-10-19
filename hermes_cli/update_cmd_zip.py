@@ -367,7 +367,7 @@ def _download_and_swap_zip(branch: str, zip_url: str) -> None:
         print(f"✗ ZIP update failed: {e}")
         # Two-phase replace commits all or rolls all back, so no mixed tree here — don't push a needless reinstall.
         print("  Your existing install was left in place.")
-        print("  Re-run `hermes update` to retry; if the agent won't start, reinstall from https://hermes-agent.nousresearch.com")
+        print("  Re-run `hermes update` to retry; if the agent won't start, reinstall from https://github.com/satoshilove/hebri/releases/latest")
         _m().sys.exit(1)
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -435,7 +435,7 @@ def _update_via_zip(args, *, had_desktop_app_before_update: bool = False, _windo
         )
         _m().sys.exit(1)
     _abort_zip_update_if_dirty_tree()
-    _download_and_swap_zip(branch, f"https://github.com/NousResearch/hermes-agent/archive/refs/heads/{branch}.zip")
+    _download_and_swap_zip(branch, f"https://github.com/satoshilove/hebri/archive/refs/heads/{branch}.zip")
     _sweep_bytecode_after_update(branch)
     from dataclasses import replace as _replace
     _hand_off_post_swap(

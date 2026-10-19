@@ -1367,7 +1367,7 @@ export const ru = defineLocale({
       sshErrHostKey:
         'Ключ хоста ИЗМЕНИЛСЯ с последнего подключения. Убедитесь, что это ожидаемо, затем выполните ssh-keygen -R <host> и переподключитесь.',
       sshErrNotInstalled:
-        'Hebri не установлен на удалённой машине. Установите его там (curl -fsSL https://hermes-agent.nousresearch.com/install.sh | sh) или задайте путь к Hebri.',
+        'Hebri не установлен на удалённой машине. Установите его там (curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | sh) или задайте путь к Hebri.',
       sshErrPlatform:
         'Неподдерживаемая удалённая платформа. SSH-режим Hebri Desktop поддерживает удалённые хосты Linux, macOS и Windows.',
       sshErrTimeout: 'SSH-соединение истекло. Хост может быть недоступен или «спит».',

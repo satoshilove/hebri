@@ -143,8 +143,8 @@ _last_target_rev: Optional[str] = None
 # Returned when an update is known to exist but commits can't be counted (e.g. nix builds).
 UPDATE_AVAILABLE_NO_COUNT = -1
 
-_UPSTREAM_REPO_URL = "https://github.com/NousResearch/hermes-agent.git"
-_OFFICIAL_REPO_CANONICAL = "github.com/nousresearch/hermes-agent"
+_UPSTREAM_REPO_URL = "https://github.com/satoshilove/hebri.git"
+_OFFICIAL_REPO_CANONICAL = "github.com/satoshilove/hebri"
 
 
 def _canonical_github_remote(url: str | None) -> str:
@@ -236,7 +236,7 @@ def _github_compare(current_rev: str, target_rev: str) -> Optional[dict]:
     key = (current_rev, target_rev)
     if key in _compare_payload_cache:
         return _compare_payload_cache[key]
-    url = f"https://api.github.com/repos/nousresearch/hermes-agent/compare/{current_rev}...{target_rev}"
+    url = f"https://api.github.com/repos/satoshilove/hebri/compare/{current_rev}...{target_rev}"
 
     def _fetch():
         import urllib.request
@@ -468,13 +468,13 @@ def _compute_git_banner_state(repo_dir: Optional[Path] = None) -> Optional[dict]
     return {"upstream": upstream, "local": local, "ahead": max(ahead, 0)}
 
 
-_RELEASE_URL_BASE = "https://github.com/NousResearch/hermes-agent/releases/tag"
+_RELEASE_URL_BASE = "https://github.com/satoshilove/hebri/releases/tag"
 
 
 def get_latest_release_tag(repo_dir: Optional[Path] = None) -> Optional[tuple]:
     """Return ``(tag, release_url)`` for the latest local git tag, or None (a miss is cached too).
 
-    Release URL always points at the canonical NousResearch/hermes-agent repo (forks get no link).
+    Release URL always points at the canonical satoshilove/hebri repo (forks get no link).
     """
     def _compute():
         rd = repo_dir or _resolve_repo_dir()

@@ -1,12 +1,12 @@
 #!/bin/bash
 # ============================================================================
-# Hermes Agent Installer
+# Hebri Installer
 # ============================================================================
 # Installation script for Linux, macOS, and Android/Termux.
 # Uses uv for desktop/server installs and Python's stdlib venv + pip on Termux.
 #
 # Usage:
-#   curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | bash
 #
 # Or with options:
 #   curl -fsSL ... | bash -s -- --no-venv --skip-setup
@@ -43,8 +43,8 @@ NC='\033[0m' # No Color
 BOLD='\033[1m'
 
 # Configuration
-REPO_URL_SSH="git@github.com:NousResearch/hermes-agent.git"
-REPO_URL_HTTPS="https://github.com/NousResearch/hermes-agent.git"
+REPO_URL_SSH="git@github.com:satoshilove/hebri.git"
+REPO_URL_HTTPS="https://github.com/satoshilove/hebri.git"
 HERMES_HOME="${HERMES_HOME:-$HOME/.hebri}"
 # INSTALL_DIR is resolved AFTER arg parsing and OS detection so we can pick an
 # FHS-style layout for root installs.  Track whether the user gave us an
@@ -172,7 +172,7 @@ while [[ $# -gt 0 ]]; do
             ;;
 
         -h|--help)
-            echo "Hermes Agent Installer"
+            echo "Hebri Installer"
             echo ""
             echo "Usage: install.sh [OPTIONS]"
             echo ""
@@ -192,7 +192,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --stage NAME   Run one desktop bootstrap stage"
             echo "  --json         Print a JSON result frame for --stage"
             echo "  --non-interactive  Skip stages that require user input"
-            echo "  --include-desktop  Also build the desktop app (apps/desktop -> Hermes.app)"
+            echo "  --include-desktop  Also build the desktop app (apps/desktop -> Hebri.app)"
             echo "  --dir PATH     Installation directory"
             echo "                   default (non-root):  ~/.hebri/hebri-agent"
             echo "                   default (root, Linux): /usr/local/lib/hebri-agent"
@@ -228,9 +228,9 @@ print_banner() {
     echo ""
     echo -e "${MAGENTA}${BOLD}"
     echo "┌─────────────────────────────────────────────────────────┐"
-    echo "│             ☤ Hermes Agent Installer                    │"
+    echo "│               ☤ Hebri Installer                         │"
     echo "├─────────────────────────────────────────────────────────┤"
-    echo "│  An open source AI agent by Nous Research.              │"
+    echo "│  Synapsek's desktop agent, built on Hermes Agent.       │"
     echo "└─────────────────────────────────────────────────────────┘"
     echo -e "${NC}"
 }
@@ -556,7 +556,22 @@ detect_os() {
                 OS="linux"
                 if [ -f /etc/os-release ]; then
                     . /etc/os-release
+                    DISTRO_ID="$ID"
                     DISTRO="$ID"
+                    DISTRO_LIKE="${ID_LIKE:-}"
+                    # Omarchy and other derivatives identify themselves with
+                    # a distinct ID. Use ID_LIKE to select their compatible
+                    # package-manager family for all later dependency stages.
+                    case "$DISTRO" in
+                        ubuntu|debian|fedora|arch|termux) ;;
+                        *)
+                            case " $DISTRO_LIKE " in
+                                *" arch "*) DISTRO="arch" ;;
+                                *" debian "*) DISTRO="debian" ;;
+                                *" fedora "*|*" rhel "*) DISTRO="fedora" ;;
+                            esac
+                            ;;
+                    esac
                     # VERSION_ID (e.g. "26.04", "14") lets us tell whether the
                     # apt release is newer than the newest one Playwright's
                     # platform resolver recognizes — the #35166 hang condition.
@@ -575,7 +590,7 @@ detect_os() {
             OS="windows"
             DISTRO="windows"
             log_error "Windows detected. Please use the PowerShell installer:"
-            log_info "  iex (irm https://hermes-agent.nousresearch.com/install.ps1)"
+            log_info "  iex (irm https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.ps1)"
             exit 1
             ;;
         *)
@@ -585,7 +600,11 @@ detect_os() {
             ;;
     esac
 
-    log_success "Detected: $OS ($DISTRO)"
+    if [ -n "${DISTRO_ID:-}" ] && [ "$DISTRO_ID" != "$DISTRO" ]; then
+        log_success "Detected: $OS ($DISTRO_ID; $DISTRO-compatible)"
+    else
+        log_success "Detected: $OS ($DISTRO)"
+    fi
 }
 
 # ============================================================================
@@ -807,7 +826,12 @@ attempt_install_git() {
                     ;;
                 arch)
                     log_info "Installing Git via pacman..."
-                    $sudo_cmd pacman -S --noconfirm git >/dev/null 2>&1 || true
+                    # A pristine Arch/Omarchy install (and the official Arch
+                    # container) may not have downloaded the sync databases
+                    # yet.  `pacman -S` then fails with "database not found".
+                    # Refresh once while installing the required package; the
+                    # --needed guard avoids reinstalling it on normal systems.
+                    $sudo_cmd pacman -Sy --needed --noconfirm git >/dev/null 2>&1 || true
                     ;;
                 *)
                     return 1
@@ -944,7 +968,7 @@ check_cxx_compiler() {
                     ;;
                 arch)
                     log_info "Installing base-devel via pacman..."
-                    $sudo_cmd pacman -S --noconfirm base-devel >/dev/null 2>&1 || true
+                    $sudo_cmd pacman -Sy --needed --noconfirm base-devel >/dev/null 2>&1 || true
                     ;;
             esac
             if command -v g++ &> /dev/null || command -v clang++ &> /dev/null; then
@@ -1077,7 +1101,7 @@ check_node() {
     install_node
 }
 
-# Download and adopt one Node release line (e.g. 26) into ~/.hermes/node/.
+# Download and adopt one Node release line (e.g. 26) into ~/.hebri/node/.
 #
 # Split out of install_node() so the caller can walk a list of candidate lines.
 # A line is rejected — and the caller should try an older one — when nodejs.org
@@ -1128,7 +1152,7 @@ install_node_line() {
         return 1
     fi
 
-    log_info "Extracting to ~/.hermes/node/..."
+    log_info "Extracting to ~/.hebri/node/..."
     if [[ "$tarball_name" == *.tar.xz ]]; then
         tar xf "$tmp_dir/$tarball_name" -C "$tmp_dir"
     else
@@ -1157,7 +1181,7 @@ install_node_line() {
         return 1
     fi
 
-    # Place into ~/.hermes/node/ and symlink binaries into the same bin dir
+    # Place into ~/.hebri/node/ and symlink binaries into the same bin dir
     # the hermes command uses (get_command_link_dir): /usr/local/bin for root
     # FHS installs, $PREFIX/bin on Termux, ~/.local/bin otherwise.
     rm -rf "$HERMES_HOME/node"
@@ -1205,7 +1229,7 @@ install_node_line() {
         rm -f "$node_link_dir/node" "$node_link_dir/npm" "$node_link_dir/npx"
         return 1
     fi
-    log_success "Node.js $installed_ver installed to ~/.hermes/node/"
+    log_success "Node.js $installed_ver installed to ~/.hebri/node/"
     HAS_NODE=true
     return 0
 }
@@ -1561,6 +1585,7 @@ clone_repo() {
                 (cd "$INSTALL_DIR" && git add -A \
                     && git -c user.email=hebri@synapsek.local -c user.name="Hebri Installer" commit -q --allow-empty -m "Hebri: bundle refresh") || true
                 log_success "Bundle install refreshed from local source"
+                cd "$INSTALL_DIR"
                 return 0
             fi
 
@@ -1696,11 +1721,13 @@ EOF
                 # Give the checkout a resolvable HEAD so the bootstrap marker,
                 # stamps, and update bookkeeping work (mirrors install.ps1).
                 if (cd "$INSTALL_DIR" && git init -q && git checkout -q -b main && git add -A \
-                    && git -c user.email=hebri@synapsek.local -c user.name="Hebri Installer" commit -q -m "Hebri: local bundle install"); then
-                    log_success "Local source checkout committed (HEAD resolvable)"
+                    && git -c user.email=hebri@synapsek.local -c user.name="Hebri Installer" commit -q -m "Hebri: local bundle install" \
+                    && git remote add origin "$REPO_URL_HTTPS"); then
+                    log_success "Local source checkout committed and linked to $REPO_URL_HTTPS"
                 else
                     log_warn "Local source copied; git commit failed (marker will fall back to the install pin)"
                 fi
+                cd "$INSTALL_DIR"
                 return 0
             else
                 log_warn "SOURCE_DIR '$SOURCE_DIR' not found or missing pyproject.toml; falling through to GitHub."
@@ -2391,20 +2418,20 @@ EOF
 copy_config_templates() {
     log_info "Setting up configuration files..."
 
-    # Create ~/.hermes directory structure (config at top level, code in subdir)
+    # Create ~/.hebri directory structure (config at top level, code in subdir)
     mkdir -p "$HERMES_HOME"/{cron,sessions,logs,pairing,hooks,image_cache,audio_cache,memories,skills}
 
-    # Create .env at ~/.hermes/.env (top level, easy to find)
+    # Create .env at ~/.hebri/.env (top level, easy to find)
     if [ ! -f "$HERMES_HOME/.env" ]; then
         if [ -f "$INSTALL_DIR/.env.example" ]; then
             cp "$INSTALL_DIR/.env.example" "$HERMES_HOME/.env"
-            log_success "Created ~/.hermes/.env from template"
+            log_success "Created ~/.hebri/.env from template"
         else
             touch "$HERMES_HOME/.env"
-            log_success "Created ~/.hermes/.env"
+            log_success "Created ~/.hebri/.env"
         fi
     else
-        log_info "~/.hermes/.env already exists, keeping it"
+        log_info "~/.hebri/.env already exists, keeping it"
     fi
     # Restrict .env permissions — this file holds API keys and tokens.
     # 0600 ensures only the file owner can read/write, matching standard
@@ -2412,14 +2439,14 @@ copy_config_templates() {
     chmod 600 "$HERMES_HOME/.env"
     configure_browser_env_from_system_browser
 
-    # Create config.yaml at ~/.hermes/config.yaml (top level, easy to find)
+    # Create config.yaml at ~/.hebri/config.yaml (top level, easy to find)
     if [ ! -f "$HERMES_HOME/config.yaml" ]; then
         if [ -f "$INSTALL_DIR/cli-config.yaml.example" ]; then
             cp "$INSTALL_DIR/cli-config.yaml.example" "$HERMES_HOME/config.yaml"
-            log_success "Created ~/.hermes/config.yaml from template"
+            log_success "Created ~/.hebri/config.yaml from template"
         fi
     else
-        log_info "~/.hermes/config.yaml already exists, keeping it"
+        log_info "~/.hebri/config.yaml already exists, keeping it"
     fi
 
     # Create SOUL.md if it doesn't exist (global persona file).
@@ -2431,12 +2458,12 @@ copy_config_templates() {
         cat > "$HERMES_HOME/SOUL.md" << 'SOUL_EOF'
 You are Hermes Agent, built by Nous Research. Be direct: match the length of your reply to the weight of the ask — a one-line question gets a one-line answer, and finished work gets a short report of what changed, what's verified, and what's left, never a replay of the process. No filler ("Great question," "I'd be happy to"), no restating the request back, no re-summarizing what you already said, no narrating tool calls the user can see. Plain claims over adjectives; when unsure, say so plainly. Agree because it's right, not because the user said it. Depth is earned — give it when the user asks for detail, teaches, or the stakes demand it, not by default.
 SOUL_EOF
-        log_success "Created ~/.hermes/SOUL.md (edit to customize personality)"
+        log_success "Created ~/.hebri/SOUL.md (edit to customize personality)"
     fi
 
-    log_success "Configuration directory ready: ~/.hermes/"
+    log_success "Configuration directory ready: ~/.hebri/"
 
-    # Seed bundled skills into ~/.hermes/skills/ (manifest-based, one-time per skill)
+    # Seed bundled skills into ~/.hebri/skills/ (manifest-based, one-time per skill)
     if [ "$NO_SKILLS" = true ]; then
         # Blank-slate install: write the opt-out marker and skip seeding.
         # skills_sync.py and `hermes update` both honor this marker, so the
@@ -2448,14 +2475,14 @@ SOUL_EOF
         log_info "Skipping bundled skills (--no-skills). Wrote $HERMES_HOME/.no-bundled-skills"
         log_info "  Future 'hermes update' runs will not inject bundled skills. Delete the marker to opt back in."
     else
-        log_info "Syncing bundled skills to ~/.hermes/skills/ ..."
+        log_info "Syncing bundled skills to ~/.hebri/skills/ ..."
         if "$INSTALL_DIR/venv/bin/python" "$INSTALL_DIR/tools/skills_sync.py" 2>/dev/null; then
-            log_success "Skills synced to ~/.hermes/skills/"
+            log_success "Skills synced to ~/.hebri/skills/"
         else
             # Fallback: simple directory copy if Python sync fails
             if [ -d "$INSTALL_DIR/skills" ] && [ ! "$(ls -A "$HERMES_HOME/skills/" 2>/dev/null | grep -v '.bundled_manifest')" ]; then
                 cp -r "$INSTALL_DIR/skills/"* "$HERMES_HOME/skills/" 2>/dev/null || true
-                log_success "Skills copied to ~/.hermes/skills/"
+                log_success "Skills copied to ~/.hebri/skills/"
             fi
         fi
     fi
@@ -3171,7 +3198,7 @@ maybe_start_gateway() {
             fi
             nohup $HERMES_CMD gateway > "$HERMES_HOME/logs/gateway.log" 2>&1 &
             GATEWAY_PID=$!
-            log_success "Gateway started (PID $GATEWAY_PID). Logs: ~/.hermes/logs/gateway.log"
+            log_success "Gateway started (PID $GATEWAY_PID). Logs: ~/.hebri/logs/gateway.log"
             log_info "To stop: kill $GATEWAY_PID"
             log_info "To restart later: hermes gateway"
             if [ "$DISTRO" = "termux" ]; then
@@ -3584,6 +3611,72 @@ install_desktop_voice_deps() {
     return 0
 }
 
+# Install the shared libraries required by the packaged Electron executable.
+# These are runtime dependencies, not merely Playwright/browser dependencies:
+# --skip-browser must still leave a launchable desktop app.  Keep this step in
+# the desktop stage so CLI-only installs do not need GUI libraries.
+install_desktop_linux_runtime_deps() {
+    [ "$OS" = "linux" ] || return 0
+
+    local -a elevate=()
+    if [ "$(id -u)" -ne 0 ]; then
+        if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+            elevate=(sudo)
+        else
+            log_error "Cannot install required desktop runtime libraries without root or passwordless sudo"
+            case "$DISTRO" in
+                arch)
+                    log_info "Run: sudo pacman -Sy --needed nss gtk3 at-spi2-core cups libdrm libxkbcommon mesa pango cairo alsa-lib libxcomposite libxdamage libxrandr libxss libxtst libsecret xdg-utils"
+                    ;;
+                ubuntu|debian)
+                    log_info "Run: sudo apt-get update && sudo apt-get install libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0 libasound2 libgbm1"
+                    ;;
+            esac
+            return 1
+        fi
+    fi
+
+    log_info "Installing Linux desktop runtime libraries..."
+    case "$DISTRO" in
+        arch)
+            "${elevate[@]}" pacman -Sy --needed --noconfirm \
+                nss gtk3 at-spi2-core cups libdrm libxkbcommon mesa pango cairo alsa-lib \
+                libxcomposite libxdamage libxrandr libxss libxtst libsecret xdg-utils \
+                >/dev/null || {
+                    log_error "Failed to install required Arch/Omarchy desktop runtime libraries"
+                    return 1
+                }
+            ;;
+        ubuntu|debian)
+            "${elevate[@]}" env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+                apt-get update -qq >/dev/null || {
+                    log_error "Failed to refresh apt package metadata for desktop dependencies"
+                    return 1
+                }
+            "${elevate[@]}" env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+                apt-get install -y -qq \
+                libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils \
+                libatspi2.0-0 libuuid1 libsecret-1-0 libasound2 libgbm1 \
+                >/dev/null || {
+                    log_error "Failed to install required Debian/Ubuntu desktop runtime libraries"
+                    return 1
+                }
+            ;;
+        fedora)
+            "${elevate[@]}" dnf install -y \
+                gtk3 libnotify nss libXScrnSaver libXtst xdg-utils at-spi2-core \
+                libuuid libsecret alsa-lib mesa-libgbm >/dev/null || {
+                    log_error "Failed to install required Fedora desktop runtime libraries"
+                    return 1
+                }
+            ;;
+        *)
+            log_warn "Automatic desktop runtime dependency installation is not available for $DISTRO"
+            log_info "Install your distribution's Electron/Chromium runtime libraries before launching Hebri."
+            ;;
+    esac
+}
+
 install_desktop() {
     local desktop_dir="$INSTALL_DIR/apps/desktop"
 
@@ -3606,6 +3699,8 @@ install_desktop() {
         log_warn "Skipping desktop build (apps/desktop not present in checkout)"
         return 0
     fi
+
+    install_desktop_linux_runtime_deps || return 1
 
     # 1. Root workspace install so apps/desktop's deps (Electron, Vite,
     #    node-pty prebuilds) resolve. The browser-tools install runs in the
@@ -3713,7 +3808,11 @@ install_desktop() {
 
     local app=""
     if [ "$OS" = "linux" ]; then
-        if [ -x "$desktop_dir/release/linux-unpacked/Hermes" ]; then
+        if [ -x "$desktop_dir/release/linux-unpacked/Hebri" ]; then
+            app="$desktop_dir/release/linux-unpacked/Hebri"
+        elif [ -x "$desktop_dir/release/linux-unpacked/hebri" ]; then
+            app="$desktop_dir/release/linux-unpacked/hebri"
+        elif [ -x "$desktop_dir/release/linux-unpacked/Hermes" ]; then
             app="$desktop_dir/release/linux-unpacked/Hermes"
         elif [ -x "$desktop_dir/release/linux-unpacked/hermes" ]; then
             app="$desktop_dir/release/linux-unpacked/hermes"
@@ -3721,6 +3820,8 @@ install_desktop() {
     else
         local cand
         for cand in \
+            "$desktop_dir/release/mac-arm64/Hebri.app" \
+            "$desktop_dir/release/mac/Hebri.app" \
             "$desktop_dir/release/mac-arm64/Hermes.app" \
             "$desktop_dir/release/mac/Hermes.app"; do
             if [ -d "$cand" ]; then

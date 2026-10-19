@@ -43,22 +43,20 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Hermes Agent — Nous DS with the LENS_0 (Hermes teal) palette applied
-   statically as the default dashboard theme. */
+/* Synapsek Night — the pre-paint defaults match the runtime default theme so
+   first load never flashes the legacy teal canvas before React hydrates. */
 /* ------------------------------------------------------------------ */
 
 :root {
-  /* LENS_0 — from design-language/src/ui/components/overlays/index.tsx.
-     These are the defaults for the `default` (Hermes Teal) dashboard theme;
-     ThemeProvider rewrites them as inline styles when a user switches themes. */
+  /* ThemeProvider rewrites these when the user switches themes. */
   --foreground: color-mix(in srgb, #ffffff 0%, transparent);
   --foreground-base: #ffffff;
   --foreground-alpha: 0;
-  --midground: color-mix(in srgb, #ffe6cb 100%, transparent);
-  --midground-base: #ffe6cb;
+  --midground: color-mix(in srgb, #9ece6a 100%, transparent);
+  --midground-base: #9ece6a;
   --midground-alpha: 1;
-  --background: color-mix(in srgb, #041c1c 100%, transparent);
-  --background-base: #041c1c;
+  --background: color-mix(in srgb, #1a1b26 100%, transparent);
+  --background-base: #1a1b26;
   --background-alpha: 1;
 
   /* Typography tokens — rewritten by ThemeProvider. Defaults match the
@@ -106,6 +104,26 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
+  background:
+    radial-gradient(circle at 78% -10%, color-mix(in srgb, var(--color-ring) 14%, transparent), transparent 34rem),
+    radial-gradient(circle at 12% 110%, color-mix(in srgb, var(--midground-base) 9%, transparent), transparent 30rem),
+    var(--background-base);
+}
+
+/* A faint desktop-grid gives the dashboard the same terminal workspace feel
+   as the native shell without competing with page content. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--midground-base) 13%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--midground-base) 13%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
 }
 
 code, kbd, pre, samp, .font-mono, .font-mono-ui {
@@ -127,6 +145,53 @@ code, kbd, pre, samp, .font-mono, .font-mono-ui {
   height: 100%;
   max-height: 100%;
   overflow: hidden;
+}
+
+.dashboard-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-ring) 7%, transparent), transparent 32%),
+    linear-gradient(315deg, color-mix(in srgb, var(--midground-base) 6%, transparent), transparent 28%);
+}
+
+.synapsek-sigil {
+  display: inline-grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--midground-base) 48%, transparent);
+  border-radius: 0.42rem;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--midground-base) 18%, transparent), transparent),
+    color-mix(in srgb, var(--background-base) 88%, transparent);
+  color: var(--midground-base);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-ring) 10%, transparent),
+    0 0 1.25rem color-mix(in srgb, var(--midground-base) 14%, transparent);
+  font-family: var(--theme-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: -0.08em;
+}
+
+.dashboard-sidebar,
+.dashboard-main {
+  border-color: color-mix(in srgb, var(--midground-base) 16%, transparent);
+}
+
+.dashboard-main {
+  background-image:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-ring) 2.5%, transparent), transparent 14rem);
+}
+
+.dashboard-nav {
+  scrollbar-color: color-mix(in srgb, var(--midground-base) 28%, transparent) transparent;
+  scrollbar-width: thin;
 }
 
 @media (max-width: 768px) {

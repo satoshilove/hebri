@@ -770,6 +770,40 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Fresh installs open in Synapsek: terminal-first dark chrome, a quiet
+     workstation grid, green activity, and blue focus. Existing users keep
+     their saved skin, so the treatment is scoped to the Synapsek preset. */
+  :root[data-hermes-theme='synapsek'] body {
+    background:
+      radial-gradient(circle at 80% -12%, color-mix(in srgb, var(--dt-ring) 13%, transparent), transparent 32rem),
+      radial-gradient(circle at 8% 108%, color-mix(in srgb, var(--dt-midground) 9%, transparent), transparent 28rem),
+      var(--ui-chat-surface-background);
+  }
+
+  :root[data-hermes-theme='synapsek'] .synapsek-desktop-shell {
+    background-color: color-mix(in srgb, var(--ui-bg-chrome) 94%, transparent);
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--dt-midground) 3.5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--dt-midground) 3.5%, transparent) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-slot='sidebar-inner'] {
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--dt-ring) 5%, transparent), transparent 12rem),
+      var(--sidebar);
+    border-color: color-mix(in srgb, var(--dt-midground) 18%, var(--sidebar-border));
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-panel-header] {
+    border-color: color-mix(in srgb, var(--dt-midground) 15%, var(--ui-stroke-tertiary));
+    background-image: linear-gradient(90deg, color-mix(in srgb, var(--dt-midground) 5%, transparent), transparent 38%);
+  }
+
+  :root[data-hermes-theme='synapsek'] [data-slot='statusbar'] {
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--dt-midground) 18%, transparent);
+  }
+
   button,
   textarea {
     font: inherit;

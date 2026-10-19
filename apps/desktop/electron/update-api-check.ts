@@ -34,15 +34,11 @@ export function githubRepoSlug(originUrl: string): string | null {
   const canonical = canonicalGitHubRemote(originUrl)
   const match = /^github\.com\/([^/]+\/[^/]+)$/.exec(canonical)
 
-  if (!match) return null
+  if (!match) {return null}
 
-  // Private repos return 404/403 to anonymous API calls — fall back
-  // to git ls-remote which works with cached Git credentials.
-  // The official Nous repo is public; forks and private deployments
-  // skip the API path entirely.
-  const OFFICIAL_PUBLIC_SLUGS = ['nousresearch/hermes-agent']
-  const slug = match[1].toLowerCase()
-  return OFFICIAL_PUBLIC_SLUGS.includes(slug) ? match[1] : null
+  // Public repositories use the low-cost API path. Private repositories
+  // return 404/403 and the caller falls back to git with cached credentials.
+  return match[1]
 }
 
 export function branchTipApiUrl(slug: string, branch: string): string {

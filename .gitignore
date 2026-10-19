@@ -305,3 +305,9 @@ native/fts5_cjk/*.so
 
 # Disposable profile created by scripts/probe_active_session_exclusivity.py
 .probe-home/
+
+# Local desktop packaging output and one-off build logs. Release artifacts are
+# produced by CI and attached to GitHub Releases, never committed to source.
+/apps/desktop/release[0-9]*/
+/web_build.log
+/web_npm_install.log

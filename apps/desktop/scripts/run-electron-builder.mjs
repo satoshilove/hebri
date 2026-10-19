@@ -55,7 +55,21 @@ if (dist && fs.existsSync(distBinary(dist))) {
       "via @electron/get (electronVersion + ELECTRON_MIRROR)."
   )
 }
-args.push(...process.argv.slice(2))
+// The wrapper owns publish policy. Strip duplicate or conflicting publish
+// flags supplied by older scripts/callers; electron-builder 26.17 can treat
+// repeated --publish options as a request to enter the GitHub publish path.
+const forwardedArgs = []
+const rawArgs = process.argv.slice(2)
+for (let i = 0; i < rawArgs.length; i += 1) {
+  const arg = rawArgs[i]
+  if (arg === "--publish") {
+    i += 1
+    continue
+  }
+  if (arg.startsWith("--publish=")) continue
+  forwardedArgs.push(arg)
+}
+args.push(...forwardedArgs)
 
 const result = spawnSync(process.execPath, [electronBuilderCli(), ...args], {
   stdio: "inherit",

@@ -2,21 +2,21 @@
   <img src="assets/banner.png" alt="Hebri" width="100%">
 </p>
 
-# Hermes Agent ☤
+# Hebri
 <p align="center">
-  <a href="https://hermes-agent.nousresearch.com/">Hermes Agent</a> | <a href="https://hermes-agent.nousresearch.com/">Hermes Desktop</a>
+  Desktop agent + human team workspace, built on Hermes Agent
 </p>
 <p align="center">
-  <a href="https://hermes-agent.nousresearch.com/docs/"><img src="https://img.shields.io/badge/Docs-hermes--agent.nousresearch.com-FFD700?style=for-the-badge" alt="Documentation"></a>
-  <a href="https://discord.gg/NousResearch"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
-  <a href="https://github.com/NousResearch/hermes-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
-  <a href="https://nousresearch.com"><img src="https://img.shields.io/badge/Built%20by-Nous%20Research-blueviolet?style=for-the-badge" alt="Built by Nous Research"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
+  <a href="https://github.com/satoshilove/hebri/issues"><img src="https://img.shields.io/badge/Issues-GitHub-181717?style=for-the-badge&logo=github" alt="GitHub issues"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
   <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Español-orange?style=for-the-badge" alt="Español"></a>
 </p>
 
-**The self-improving AI agent built by [Nous Research](https://nousresearch.com).** It's the only agent with a built-in learning loop — it creates skills from experience, improves them during use, nudges itself to persist knowledge, searches its own past conversations, and builds a deepening model of who you are across sessions. Run it on a $5 VPS, a GPU cluster, or serverless infrastructure that costs nearly nothing when idle. It's not tied to your laptop — talk to it from Telegram while it works on a cloud VM.
+**Hebri is a derivative of the original MIT-licensed [Hermes Agent](https://github.com/NousResearch/hermes-agent).** It keeps the Hermes agent and `hermes` CLI while adding a Hebri desktop application, a separate human Team workspace, and read-only team context for managed bots. Upstream attribution and the MIT license are preserved in [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+Team rooms, presence, and the work board are human-owned features—not bot identities. Managed Bot Chats can read a bounded Team snapshot so they can follow current work and messages, but they cannot silently edit the human work board.
 
 Use any model you want — [Nous Portal](https://portal.nousresearch.com), OpenRouter, OpenAI, your own endpoint, and [many others](https://hermes-agent.nousresearch.com/docs/integrations/providers). Switch with `hermes model` — no code changes, no lock-in.
 
@@ -37,26 +37,39 @@ Use any model you want — [Nous Portal](https://portal.nousresearch.com), OpenR
 ### Linux, macOS, WSL2, Termux
 
 ```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | bash
+```
+
+To build and install the desktop app as part of the same setup (including
+Omarchy and other Arch-compatible distributions):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | bash -s -- --include-desktop
 ```
 
 ### Windows (native, PowerShell)
 
-> **Heads up:** Native Windows runs Hermes without WSL — CLI, gateway, TUI, and tools all work natively. If you'd rather use WSL2, the Linux/macOS one-liner above works there too. Found a bug? Please [file issues](https://github.com/NousResearch/hermes-agent/issues).
+> **Heads up:** Native Windows runs Hebri without WSL. If you'd rather use WSL2, the Linux/macOS one-liner above works there too. Found a bug? Please [file an issue](https://github.com/satoshilove/hebri/issues).
 
 Run this in PowerShell:
 
 ```powershell
-iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+iex (irm https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.ps1)
 ```
 
-The installer handles everything: uv, Python 3.11, Node.js, ripgrep, ffmpeg, **and a portable Git Bash** (MinGit, unpacked to `%LOCALAPPDATA%\hermes\git` — no admin required, completely isolated from any system Git install). Hermes uses this bundled Git Bash to run shell commands.
+To include the Windows desktop app:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.ps1))) -IncludeDesktop
+```
+
+The installer handles everything: uv, Python 3.11, Node.js, ripgrep, ffmpeg, **and a portable Git Bash** (unpacked to `%LOCALAPPDATA%\hebri\git` — no admin required and isolated from any system Git install). Hebri uses this bundled Git Bash to run shell commands.
 
 If you already have Git installed, the installer detects it and uses that instead. Otherwise a ~45MB MinGit download is all you need — it won't touch or interfere with any system Git.
 
 > **Android / Termux:** The tested manual path is documented in the [Termux guide](https://hermes-agent.nousresearch.com/docs/getting-started/termux). On Termux, Hermes installs a curated `.[termux]` extra because the full `.[all]` extra currently pulls Android-incompatible voice dependencies.
 >
-> **Windows:** Native Windows is fully supported — the PowerShell one-liner above installs everything. If you'd rather use WSL2, the Linux command works there too. Native Windows install lives under `%LOCALAPPDATA%\hermes`; WSL2 installs under `~/.hermes` as on Linux.
+> **Windows:** Native Windows is fully supported — the PowerShell one-liner above installs everything. If you'd rather use WSL2, the Linux command works there too. Native Windows data lives under `%LOCALAPPDATA%\hebri`; WSL2, Linux, macOS, and Omarchy use `~/.hebri` by default.
 
 After installation:
 
@@ -69,7 +82,7 @@ hermes              # start chatting!
 
 #### Windows Defender or antivirus flags `uv.exe` as malware
 
-If your antivirus (Bitdefender, Windows Defender, etc.) quarantines `uv.exe` from the Hermes `bin` folder (`%LOCALAPPDATA%\hermes\bin\uv.exe`), this is a **false positive**. The file is Astral's `uv` — the Rust Python package manager Hermes bundles to manage its Python environment. ML-based antivirus engines commonly flag unsigned Rust binaries that download and install packages.
+If your antivirus (Bitdefender, Windows Defender, etc.) quarantines `uv.exe` from the Hebri `bin` folder (`%LOCALAPPDATA%\hebri\bin\uv.exe`), this is commonly a false positive. The file is Astral's `uv` — the Rust Python package manager Hebri bundles to manage its Python environment. Verify the file before adding an exception.
 
 **To verify your copy is authentic:**
 
@@ -81,7 +94,7 @@ winget install --id GitHub.cli
 gh auth login
 
 # Run verification
-$uv = "$env:LOCALAPPDATA\hermes\bin\uv.exe"
+$uv = "$env:LOCALAPPDATA\hebri\bin\uv.exe"
 $ver = (& $uv --version).Split(' ')[1]
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $zip = "$env:TEMP\uv.zip"
@@ -94,7 +107,7 @@ Expand-Archive $zip "$env:TEMP\uv_x" -Force
 If attestation says "Verification succeeded" and the last line prints `True`, you're good.
 
 **To whitelist Hermes:**
-- **Windows Defender:** Run PowerShell as Admin → `Add-MpPreference -ExclusionPath "$env:LOCALAPPDATA\hermes\bin"`
+- **Windows Defender:** After verification, run PowerShell as Admin → `Add-MpPreference -ExclusionPath "$env:LOCALAPPDATA\hebri\bin"`
 - **Bitdefender:** Add an exception in the Bitdefender console (Protection > Antivirus > Settings > Manage Exceptions)
 - Whitelist the **folder**, not the file hash — Hermes updates `uv` and the hash changes every version
 
@@ -203,7 +216,7 @@ What gets imported:
 
 - **SOUL.md** — persona file
 - **Memories** — MEMORY.md and USER.md entries
-- **Skills** — user-created skills → `~/.hermes/skills/openclaw-imports/`
+- **Skills** — user-created skills → `~/.hebri/skills/openclaw-imports/`
 - **Command allowlist** — approval patterns
 - **Messaging settings** — platform configs, allowed users, working directory
 - **API keys** — allowlisted secrets (Telegram, OpenRouter, OpenAI, Anthropic, ElevenLabs)
@@ -219,13 +232,13 @@ See `hermes claw migrate --help` for all options, or use the `openclaw-migration
 We welcome contributions! See the [Contributing Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/contributing) for development setup, code style, and PR process.
 
 Quick start for contributors — use the standard installer, then work from the
-full git checkout it creates at `$HERMES_HOME/hermes-agent` (usually
-`~/.hermes/hermes-agent`). This matches the layout used by `hermes update`, the
+full git checkout it creates at `$HERMES_HOME/hebri-agent` (usually
+`~/.hebri/hebri-agent`). This matches the layout used by `hermes update`, the
 managed venv, lazy dependencies, gateway, and docs tooling.
 
 ```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
-cd "${HERMES_HOME:-$HOME/.hermes}/hermes-agent"
+curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | bash
+cd "${HERMES_HOME:-$HOME/.hebri}/hebri-agent"
 uv pip install -e ".[all,dev]"
 scripts/run_tests.sh
 ```
@@ -239,8 +252,8 @@ against its own checkout, destroying the running runtime mid-session.
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-uv venv ~/.hermes/venvs/hermes-dev --python 3.11
-source ~/.hermes/venvs/hermes-dev/bin/activate
+uv venv ~/.hebri/venvs/hebri-dev --python 3.11
+source ~/.hebri/venvs/hebri-dev/bin/activate
 uv pip install -e ".[all,dev]"
 scripts/run_tests.sh
 ```
@@ -251,7 +264,7 @@ scripts/run_tests.sh
 
 - 💬 [Discord](https://discord.gg/NousResearch)
 - 📚 [Skills Hub](https://agentskills.io)
-- 🐛 [Issues](https://github.com/NousResearch/hermes-agent/issues)
+- 🐛 [Hebri issues](https://github.com/satoshilove/hebri/issues)
 - 🔌 [computer-use-linux](https://github.com/avifenesh/computer-use-linux) — Linux desktop-control MCP server for Hermes and other MCP hosts, with AT-SPI accessibility trees, Wayland/X11 input, screenshots, and compositor window targeting.
 - 🔌 [HermesClaw](https://github.com/AaronWong1999/hermesclaw) — Community WeChat bridge: Run Hermes Agent and OpenClaw on the same WeChat account.
 
@@ -261,4 +274,4 @@ scripts/run_tests.sh
 
 MIT — see [LICENSE](LICENSE).
 
-Built by [Nous Research](https://nousresearch.com).
+Hebri is maintained by Synapsek and built on the original Hermes Agent by [Nous Research](https://nousresearch.com).

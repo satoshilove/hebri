@@ -1,13 +1,14 @@
-# Hermes Agent Security Policy
+# Hebri Security Policy
 
-This document describes Hermes Agent's trust model, names the one
+Hebri is built on the MIT-licensed Hermes Agent. This document describes
+the inherited agent trust model plus Hebri's desktop and Team surfaces, names the one
 security boundary the project treats as load-bearing, and defines the
 scope for vulnerability reports.
 
 ## 1. Reporting a Vulnerability
 
-Report privately via [GitHub Security Advisories](https://github.com/NousResearch/hermes-agent/security/advisories/new)
-or **security@nousresearch.com**. Do not open public issues for
+Report privately via [GitHub Security Advisories](https://github.com/satoshilove/hebri/security/advisories/new).
+Do not open public issues for
 security vulnerabilities. **Hermes Agent does not operate a bug
 bounty program.**
 
@@ -31,7 +32,9 @@ through the private security channel.
 
 ## 2. Trust Model
 
-Hermes Agent is a single-tenant personal agent. Its posture is
+The underlying Hermes agent runtime is a single-tenant personal agent. Hebri's
+Team feature adds authenticated human collaboration but does not turn one agent
+process into a multi-tenant security boundary. Its posture is
 layered, and the layers are not equally load-bearing. Reporters and
 operators should reason about them in the same terms.
 
@@ -221,6 +224,24 @@ authorization model, but the rules below apply uniformly.
    `--host 0.0.0.0` or equivalent makes public-exposure hardening
    (§4) the operator's responsibility.
 
+### 2.7 Hebri Team Rooms
+
+Team is a human collaboration surface separate from Bot Mode and messaging
+platform agents. Local Team routes inherit dashboard authentication. A shared
+room uses a high-entropy invite to mint a short-lived, HMAC-signed peer grant;
+the grant is sent in the `Authorization` header and is bound to the room and
+the peer name. Re-sharing a room rotates the invite.
+
+Remote Team traffic must use HTTPS unless both ends are loopback. Team data is
+not end-to-end encrypted: the host stores room messages, presence, and work
+items under the install's Hebri data directory and is therefore trusted. Use a
+VPN or similarly authenticated private network before exposing the dashboard,
+and treat room invites and peer grants as credentials.
+
+Managed Bot Chats receive only a bounded, read-only Team snapshot so bots can
+follow current human work and messages. That tool does not authorize bots to
+write messages, presence, or work-board state.
+
 ---
 
 ## 3. Scope
@@ -329,7 +350,6 @@ that:
 
 - **Coordinated disclosure window:** 90 days from report, or until a
   fix is released, whichever comes first.
-- **Channel:** the GHSA thread or email correspondence with
-  security@nousresearch.com.
+- **Channel:** the GitHub Security Advisory thread linked in §1.
 - **Credit:** reporters are credited in release notes unless
   anonymity is requested.

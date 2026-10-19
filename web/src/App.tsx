@@ -518,7 +518,7 @@ export default function App() {
     <ProfileProvider>
     <div
       data-layout-variant={layoutVariant}
-      className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-background-base text-text-primary antialiased"
+      className="dashboard-shell relative isolate flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-transparent text-text-primary antialiased"
     >
       <SelectionSwitcher />
 
@@ -534,7 +534,7 @@ export default function App() {
           "lg:hidden fixed top-0 left-0 right-0 z-40 min-h-14",
           "flex items-center gap-2 px-4 py-2",
           "border-b border-current/20",
-          "bg-background-base",
+          "bg-background-base/90 backdrop-blur-xl",
         )}
         style={{
           background:
@@ -555,9 +555,15 @@ export default function App() {
           <Menu />
         </Button>
 
-        <Typography className="font-bold text-[0.95rem] leading-[0.95] tracking-[0.05em] text-midground">
-          {t.app.brand}
-        </Typography>
+        <span aria-hidden className="synapsek-sigil">S</span>
+        <div className="flex min-w-0 flex-col leading-none">
+          <Typography className="font-bold text-[0.95rem] leading-[0.95] tracking-[0.05em] text-midground">
+            {t.app.brand}
+          </Typography>
+          <span className="mt-1 text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-text-tertiary">
+            Synapsek workspace
+          </span>
+        </div>
       </header>
 
       {mobileOpen && (
@@ -588,13 +594,13 @@ export default function App() {
             id="app-sidebar"
             aria-label={t.app.navigation}
             className={cn(
-              "fixed top-0 left-0 z-50 flex h-dvh max-h-dvh w-64 min-h-0 flex-col font-sans",
-              "border-r border-current/20",
-              "bg-background-base",
+              "dashboard-sidebar fixed top-0 left-0 z-50 flex h-dvh max-h-dvh w-64 min-h-0 flex-col font-sans",
+              "border-r border-current/20 bg-background-base/92 backdrop-blur-xl",
               "transition-[transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
               mobileOpen ? "translate-x-0" : "-translate-x-full",
               "lg:sticky lg:top-0 lg:translate-x-0 lg:shrink-0 lg:overflow-hidden",
               "lg:transition-[width] lg:duration-300 lg:ease-[cubic-bezier(0.23,1,0.32,1)]",
+              "lg:my-2 lg:ml-2 lg:h-[calc(100dvh-1rem)] lg:rounded-xl lg:border lg:shadow-2xl",
               collapsed && "lg:w-14",
             )}
             style={{
@@ -618,10 +624,15 @@ export default function App() {
                 )}
               >
                 <PluginSlot name="header-left" />
-
-                <Typography className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground uppercase">
-                  Hebri
-                </Typography>
+                <span aria-hidden className="synapsek-sigil">S</span>
+                <div className="flex min-w-0 flex-col leading-none">
+                  <Typography className="font-bold text-[1.05rem] leading-[0.95] tracking-[0.08em] text-midground uppercase">
+                    Hebri
+                  </Typography>
+                  <span className="mt-1 text-[0.5rem] font-semibold uppercase tracking-[0.22em] text-text-tertiary">
+                    by Synapsek
+                  </span>
+                </div>
               </div>
 
               <Button
@@ -654,7 +665,7 @@ export default function App() {
             <ProfileSwitcher collapsed={isDesktopCollapsed} />
 
             <nav
-              className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 py-2"
+              className="dashboard-nav min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 px-2 py-2"
               aria-label={t.app.navigation}
             >
               <ul className="flex flex-col">
@@ -760,8 +771,9 @@ export default function App() {
           <PageHeaderProvider pluginTabs={pluginTabMeta}>
             <div
               className={cn(
-                "relative z-2 flex min-w-0 min-h-0 flex-1 flex-col",
+                "dashboard-main relative z-2 flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden",
                 "px-3 sm:px-6",
+                "lg:my-2 lg:mr-2 lg:ml-3 lg:rounded-xl lg:border lg:border-current/10 lg:bg-background-base/80 lg:shadow-2xl lg:backdrop-blur-sm",
                 isChatRoute
                   ? "pb-0 pt-1 sm:pt-2 lg:pt-4"
                   : "pt-2 sm:pt-4 lg:pt-6",
@@ -888,13 +900,13 @@ function SidebarNavLink({
         className={({ isActive }) =>
           cn(
             "group/nav relative flex items-center gap-3",
-            "px-5 py-2.5",
-            "font-sans text-display uppercase text-sm tracking-[0.12em]",
+            "rounded-md px-3 py-2.5",
+            "font-sans text-display uppercase text-[0.78rem] tracking-[0.12em]",
             "whitespace-nowrap transition-colors cursor-pointer",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
             isActive
-              ? "text-midground"
-              : "text-text-secondary hover:text-midground",
+              ? "bg-midground/10 text-midground shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--midground-base)_22%,transparent)]"
+              : "text-text-secondary hover:bg-midground/5 hover:text-midground",
           )
         }
         style={{
@@ -916,13 +928,13 @@ function SidebarNavLink({
 
             <span
               aria-hidden
-              className="absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/nav:opacity-5"
+                className="absolute inset-y-0.5 left-1.5 right-1.5 rounded-md bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/nav:opacity-5"
             />
 
             {isActive && (
               <span
                 aria-hidden
-                className="absolute left-0 top-0 bottom-0 w-px bg-midground"
+                className="absolute bottom-2 left-0 top-2 w-0.5 rounded-full bg-midground shadow-[0_0_12px_var(--midground-base)]"
               />
             )}
           </>

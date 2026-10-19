@@ -67,18 +67,36 @@ export function webPresetFromShared(
 
 export const defaultTheme: DashboardTheme = {
   name: "default",
-  label: "Hebri Teal",
-  description: "Classic dark teal — the canonical Hebri look",
+  label: "Synapsek Night",
+  description: "Terminal-first charcoal with Omarchy signal colours",
   palette: {
-    background: { hex: "#041c1c", alpha: 1 },
-    midground: { hex: "#ffe6cb", alpha: 1 },
+    ...webPresetFromShared(THEME_PRESET_PALETTES.synapsek),
     foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(255, 189, 56, 0.35)",
-    noiseOpacity: 1,
+    warmGlow: "rgba(122, 162, 247, 0.22)",
+    noiseOpacity: 0.7,
   },
-  typography: DEFAULT_TYPOGRAPHY,
-  layout: DEFAULT_LAYOUT,
-  terminalBackground: "#000000",
+  typography: {
+    ...DEFAULT_TYPOGRAPHY,
+    fontMono: `"JetBrains Mono", ${SYSTEM_MONO}`,
+    letterSpacing: "-0.005em",
+  },
+  layout: {
+    ...DEFAULT_LAYOUT,
+    radius: "0.625rem",
+  },
+  terminalBackground: "#0e0e14",
+  terminalForeground: "#c0caf5",
+  colorOverrides: {
+    success: "#9ece6a",
+    warning: "#e0af68",
+    destructive: "#f7768e",
+    ring: "#7aa2f7",
+  },
+  seriesColors: {
+    inputTokenAccent: "#7aa2f7",
+    outputTokenAccent: "#9ece6a",
+  },
+  swatchColors: ["#1a1b26", "#7aa2f7", "#9ece6a"],
 };
 
 export const midnightTheme: DashboardTheme = {
@@ -229,8 +247,8 @@ export const nousBlueTheme: DashboardTheme = {
  */
 export const defaultLargeTheme: DashboardTheme = {
   name: "default-large",
-  label: "Hebri Teal (Large)",
-  description: "Hebri Teal with bigger fonts and roomier spacing",
+  label: "Synapsek Night (Large)",
+  description: "Synapsek Night with bigger fonts and roomier spacing",
   palette: defaultTheme.palette,
   typography: {
     ...DEFAULT_TYPOGRAPHY,

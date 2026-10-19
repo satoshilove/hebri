@@ -243,6 +243,10 @@ INLINE_TOOL_EXECUTORS: Dict[str, InlineToolExecutor] = {
         "tools.bot_mode_dm", "message_agent_tool", ("target", "target", ""), ("message", "message", ""),
         task_id=lambda agent, ctx: ctx.effective_task_id, agent=lambda agent, ctx: agent,
     ),
+    "team_context": _tool(
+        "tools.bot_mode_team_context", "team_context_tool", ("room", "room", ""),
+        ("max_messages", "max_messages", 40), agent=lambda agent, ctx: agent,
+    ),
     "session_search": _session_search,
     "memory": _memory,
     "clarify": _tool(
@@ -296,6 +300,6 @@ def resolve_invoke_tool_executor(agent, function_name: str) -> Optional[InlineTo
     memory_manager = agent._memory_manager
     if memory_manager and memory_manager.has_tool(function_name):
         return lambda agent, args, ctx: agent._memory_manager.handle_tool_call(function_name, args)
-    if function_name == "message_agent":
+    if function_name in {"message_agent", "team_context"}:
         return None
     return INLINE_TOOL_EXECUTORS.get(function_name)

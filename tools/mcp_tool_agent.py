@@ -265,7 +265,7 @@ def _merge_preserving_prefix(current_defs: list, new_defs: list, registered_name
 
 
 def _reinject_authorized_dynamic_tools(agent, tools_list: list, name_set: set) -> None:
-    """``message_agent`` is injected by an auth gate, never registered, so a registry-derived
+    """Bot Mode tools are injected by auth gates, never registered, so a registry-derived
     rebuild drops it. Scrub any stale copy from the STAGED pair and re-add it only when the live
     gate re-authorizes, so the publisher exposes a coherent ``(tools, valid_tool_names)``."""
     from tools.bot_mode_dm import MESSAGE_AGENT_TOOL_NAME, message_agent_authorized, message_agent_tool_schema
@@ -275,6 +275,14 @@ def _reinject_authorized_dynamic_tools(agent, tools_list: list, name_set: set) -
     if message_agent_authorized(agent):
         tools_list.append(message_agent_tool_schema())
         name_set.add(MESSAGE_AGENT_TOOL_NAME)
+    from tools.bot_mode_team_context import (
+        TEAM_CONTEXT_TOOL_NAME, team_context_authorized, team_context_tool_schema,
+    )
+    tools_list[:] = [entry for entry in tools_list if _def_name(entry) != TEAM_CONTEXT_TOOL_NAME]
+    name_set.discard(TEAM_CONTEXT_TOOL_NAME)
+    if team_context_authorized(agent):
+        tools_list.append(team_context_tool_schema())
+        name_set.add(TEAM_CONTEXT_TOOL_NAME)
 
 
 def _reinject_post_build_tools(agent, tools_list: list, name_set: set) -> set:

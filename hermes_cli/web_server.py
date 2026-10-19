@@ -703,8 +703,8 @@ async def _team_relay_cors(request: Request, call_next):
             status_code=204,
             headers={
                 "Access-Control-Allow-Origin": origin or "*",
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
+                "Access-Control-Allow-Headers": "Authorization, Content-Type",
                 "Access-Control-Max-Age": "172800",
                 "Vary": "Origin",
             },

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { BUILTIN_THEME_LIST, DEFAULT_TYPOGRAPHY } from './presets'
+import { BUILTIN_THEME_LIST, BUILTIN_THEMES, DEFAULT_SKIN_NAME, DEFAULT_TYPOGRAPHY } from './presets'
+
+it('uses the Synapsek workspace skin for fresh installs', () => {
+  expect(DEFAULT_SKIN_NAME).toBe('synapsek')
+  expect(BUILTIN_THEMES[DEFAULT_SKIN_NAME]?.label).toBe('Synapsek')
+})
 
 // #40364: none of the UI text/mono fonts carry emoji glyphs, so every font
 // stack must end with a color-emoji fallback or emoji render as tofu on
