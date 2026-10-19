@@ -274,13 +274,15 @@ registry.registerMany([
   {
     id: 'team',
     area: 'panes',
-    // Hebri team chat: local rooms + presence, visible by default on the
-    // right like the file browser; collapsible, re-adopts beside main.
+    // Hebri Team is human collaboration, not a Bot/agent identity. Keep it as
+    // a standing tab in the right workspace so saved layouts cannot strand it
+    // after the old Bots-hosted Team Chat pane disappears.
     title: 'Team',
     data: {
       placement: 'right',
       collapsible: true,
-      dock: { pane: 'workspace', pos: 'right' },
+      hideOnly: true,
+      dock: { pane: 'files', pos: 'center', before: 'files', enforce: true },
       revealAliases: ['team-chat'],
       width: FILE_BROWSER_DEFAULT_WIDTH,
       minWidth: FILE_BROWSER_MIN_WIDTH,
