@@ -1,4 +1,4 @@
-"""Install and remove the Linux desktop entry (``hermes.desktop``).
+"""Install and remove the Linux desktop entry (``hebri.desktop``).
 
 The entry must be launch-context independent: ``Exec=`` is an absolute launcher that survives the
 venv (no ``#!/usr/bin/env python3`` escapes, no checkout-internal argv[0]), and ``Icon=`` is the
@@ -21,7 +21,8 @@ import time
 from pathlib import Path
 from typing import Callable, Mapping, Optional
 
-DESKTOP_ENTRY_NAME = "hermes.desktop"
+DESKTOP_ENTRY_NAME = "hebri.desktop"
+LEGACY_DESKTOP_ENTRY_NAME = "hermes.desktop"
 
 # XDG startup notification: set by an app-grid / menu launch, absent for terminal and detached
 # (updater relaunch) launches. See launched_from_shell().
@@ -45,6 +46,11 @@ def _xdg_data_home() -> Path:
 
 def desktop_entry_path() -> Path:
     return _xdg_data_home() / "applications" / DESKTOP_ENTRY_NAME
+
+
+def legacy_desktop_entry_path() -> Path:
+    """Pre-Hebri launcher path, removed during a successful branded install."""
+    return _xdg_data_home() / "applications" / LEGACY_DESKTOP_ENTRY_NAME
 
 
 def icon_path(project_root: Path) -> Path:
@@ -416,15 +422,15 @@ def render_desktop_entry(exec_command: str, icon: str) -> str:
     return (
         "[Desktop Entry]\n"
         "Type=Application\n"
-        "Name=Hermes\n"
-        "GenericName=Hermes Desktop\n"
-        "Comment=Launch Hermes Desktop\n"
+        "Name=Hebri\n"
+        "GenericName=Hebri Desktop\n"
+        "Comment=Launch Hebri Desktop\n"
         f"Exec={exec_command}\n"
         f"Icon={icon}\n"
         "Terminal=false\n"
         "Categories=Utility;\n"
         "StartupNotify=true\n"
-        "StartupWMClass=Hermes\n"
+        "StartupWMClass=Hebri\n"
     )
 
 
@@ -491,12 +497,12 @@ def _hicolor_subdir(dimensions: Optional[tuple[int, int]]) -> str:
     return f"{nearest}x{nearest}"
 
 
-def _hicolor_icon_dest(subdir: str) -> Path:
-    return _xdg_data_home() / "icons" / "hicolor" / subdir / "apps" / "hermes.png"
+def _hicolor_icon_dest(subdir: str, *, icon_name: str = "hebri") -> Path:
+    return _xdg_data_home() / "icons" / "hicolor" / subdir / "apps" / f"{icon_name}.png"
 
 
 def _remove_stale_scalable_icon() -> bool:
-    """Drop a leftover PNG from ``scalable/`` (the pre-fix install path); True if removed."""
+    """Drop a leftover Hebri PNG from ``scalable/``; True if removed."""
     stale = _hicolor_icon_dest("scalable")
     try:
         removed = stale.is_file()
@@ -505,6 +511,23 @@ def _remove_stale_scalable_icon() -> bool:
         return removed
     except OSError:
         return False
+
+
+def _remove_legacy_branding() -> bool:
+    """Remove pre-Hebri launcher/icon artifacts after the new entry is ready."""
+    stale_paths = [legacy_desktop_entry_path(), _hicolor_icon_dest("scalable", icon_name="hermes")]
+    for size in _HICOLOR_INSTALL_SIZES:
+        stale_paths.append(_hicolor_icon_dest(f"{size}x{size}", icon_name="hermes"))
+
+    removed = False
+    for stale in stale_paths:
+        try:
+            if stale.is_file():
+                stale.unlink()
+                removed = True
+        except OSError:
+            continue
+    return removed
 
 
 def _refresh_hicolor_cache() -> None:
@@ -576,7 +599,7 @@ def _launcher_entry_management_enabled() -> bool:
     """Whether config.yaml allows rewriting an EXISTING launcher entry.
 
     ``desktop.manage_launcher_entry: false`` opts out of the every-launch
-    rewrite: a hand-edited ``hermes.desktop`` is then left alone instead
+    rewrite: a hand-edited ``hebri.desktop`` is then left alone instead
     of silently reverting (#101097's clobber complaint). A MISSING entry
     is still created regardless — the opt-out protects user edits, not
     first-run presence. Any config error reads as enabled (default).
@@ -615,15 +638,18 @@ def install_desktop_entry(project_root: Path) -> Optional[Path]:
     # Prefer the themed name: the icon is COPIED into the hicolor tree, so the entry outlives the
     # checkout (an absolute Icon= path breaks when the checkout moves). Absolute path only when
     # the copy is impossible (read-only tree); themed name when the checkout has no icon at all.
-    icon_value = str(icon) if icon.is_file() else "hermes"
+    icon_value = str(icon) if icon.is_file() else "hebri"
     if icon.is_file() and _install_icon_to_hicolor(icon):
-        icon_value = "hermes"
+        icon_value = "hebri"
     contents = render_desktop_entry(resolve_exec_command(project_root), icon_value)
 
     try:
         entry_path.parent.mkdir(parents=True, exist_ok=True)
         # Unchanged → skip the rewrite so a launch doesn't churn the menu caches.
         if entry_path.is_file() and entry_path.read_text(encoding="utf-8") == contents:
+            if _remove_legacy_branding():
+                refresh_desktop_databases(entry_path.parent)
+                _refresh_hicolor_cache()
             return entry_path
         # Atomic replace: an interrupted plain write leaves a zero-byte entry, which permanently
         # breaks the taskbar pin (nothing later rewrites a file that exists at the right path).
@@ -637,7 +663,9 @@ def install_desktop_entry(project_root: Path) -> Optional[Path]:
     except OSError:
         return None
 
+    _remove_legacy_branding()
     refresh_desktop_databases(entry_path.parent)
+    _refresh_hicolor_cache()
     return entry_path
 
 

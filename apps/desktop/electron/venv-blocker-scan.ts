@@ -298,7 +298,7 @@ export function resolveVenvPython(updateRoot: string): string | null {
  */
 export function formatBlockerMessage(result: VenvBlockerScanResult): string {
   const lines = [
-    'Update aborted: another Hermes process is using this installation.',
+    'Update aborted: another Hebri process is using this installation.',
     '',
     'These processes must be stopped before updating:',
     ''
@@ -331,10 +331,10 @@ export function formatProbeFailedMessage(error?: string): string {
     : ''
 
   return (
-    'Update aborted: Desktop could not verify the Hermes installation is free.' +
+    'Update aborted: Desktop could not verify the Hebri installation is free.' +
     timeoutDetail +
     '\n\n' +
-    'Close other Hermes windows and terminals, then retry.  If the problem\n' +
+    'Close other Hebri windows and terminals, then retry.  If the problem\n' +
     'persists, run `hermes update` in a terminal for detailed diagnostics.'
   )
 }

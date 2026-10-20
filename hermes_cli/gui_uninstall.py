@@ -1,4 +1,4 @@
-"""Hermes Desktop (Chat GUI) uninstaller: removes only GUI state — built Electron artifacts, the packaged
+"""Hebri Desktop uninstaller: removes only GUI state — built Electron artifacts, the packaged
 app, and the desktop's own ``userData`` — never agent source, venv, config, sessions or .env."""
 
 import os
@@ -25,13 +25,23 @@ def _env_dir(var: str, fallback: Path) -> Path:
 
 
 def desktop_userdata_dir() -> Path:
-    """Electron ``app.getPath('userData')`` for an app named "Hermes" on each platform (GUI-only state)."""
+    """Electron ``app.getPath('userData')`` for the current Hebri product."""
     home = Path.home()
     if sys.platform == "darwin":
-        return home / "Library" / "Application Support" / "Hermes"
+        return home / "Library" / "Application Support" / "Hebri"
     if sys.platform == "win32":
-        return _env_dir("APPDATA", home / "AppData" / "Roaming") / "Hermes"
-    return _env_dir("XDG_CONFIG_HOME", home / ".config") / "Hermes"
+        return _env_dir("APPDATA", home / "AppData" / "Roaming") / "Hebri"
+    return _env_dir("XDG_CONFIG_HOME", home / ".config") / "Hebri"
+
+
+def legacy_desktop_userdata_dirs() -> "list[Path]":
+    """Pre-Hebri Electron state locations retained only for migration cleanup."""
+    home = Path.home()
+    if sys.platform == "darwin":
+        return [home / "Library" / "Application Support" / "Hermes"]
+    if sys.platform == "win32":
+        return [_env_dir("APPDATA", home / "AppData" / "Roaming") / "Hermes"]
+    return [_env_dir("XDG_CONFIG_HOME", home / ".config") / "Hermes"]
 
 
 def source_built_gui_artifacts(hermes_home: Path) -> "list[Path]":
@@ -47,25 +57,31 @@ def source_built_gui_artifacts(hermes_home: Path) -> "list[Path]":
 def packaged_gui_app_paths() -> "list[Path]":
     """Standard install locations of the packaged desktop distributable for the current OS. Every candidate
     is returned; the caller filters to those that exist. Never globs system-wide — only the well-known
-    electron-builder output locations for the "Hermes" product."""
+    electron-builder output locations for Hebri, plus legacy Hermes locations for cleanup."""
     home = Path.home()
     if sys.platform == "darwin":
-        return [Path("/Applications/Hermes.app"), home / "Applications" / "Hermes.app"]
+        return [Path("/Applications/Hebri.app"), home / "Applications" / "Hebri.app",
+                Path("/Applications/Hermes.app"), home / "Applications" / "Hermes.app"]
     if sys.platform == "win32":
         local_base = _env_dir("LOCALAPPDATA", home / "AppData" / "Local")
         # NSIS per-user install (perMachine=false), an older/alternate layout, NSIS per-machine (needs admin).
         program_files = os.environ.get("ProgramFiles")
-        return [local_base / "Programs" / "Hermes", local_base / "hermes-desktop"] + (
-            [Path(program_files) / "Hermes"] if program_files else [])
+        paths = [local_base / "Programs" / "Hebri", local_base / "hebri-desktop",
+                 local_base / "Programs" / "Hermes", local_base / "hermes-desktop"]
+        if program_files:
+            paths.extend([Path(program_files) / "Hebri", Path(program_files) / "Hermes"])
+        return paths
     # Linux: an AppImage lives wherever the user put it and deb/rpm files belong to the package manager
     # (see the hint in ``uninstall_gui``), so only the desktop entry + hicolor icons are cleaned here.
-    from hermes_cli.linux_desktop_entry import desktop_entry_path
+    from hermes_cli.linux_desktop_entry import desktop_entry_path, legacy_desktop_entry_path
     data_base = _env_dir("XDG_DATA_HOME", home / ".local" / "share")
     icons = data_base / "icons" / "hicolor"
     # "scalable" plus every fixed-size dir the installer may have written (panel sizes + older native copies).
-    return [desktop_entry_path(), data_base / "applications" / "Hermes.desktop"] + [
-        icons / size / "apps" / "hermes.png"
-        for size in ("scalable", "24x24", "32x32", "48x48", "256x256", "512x512", "1024x1024")]
+    sizes = ("scalable", "24x24", "32x32", "48x48", "256x256", "512x512", "1024x1024")
+    return [desktop_entry_path(), legacy_desktop_entry_path(), data_base / "applications" / "Hermes.desktop"] + [
+        icons / size / "apps" / name
+        for size in sizes
+        for name in ("hebri.png", "hermes.png")]
 
 
 def agent_is_installed(hermes_home: Path) -> bool:
@@ -76,7 +92,8 @@ def agent_is_installed(hermes_home: Path) -> bool:
 
 def gui_is_installed(hermes_home: Path) -> bool:
     """Return True when any desktop GUI artifact exists (built or packaged)."""
-    return any(p.exists() for p in (*source_built_gui_artifacts(hermes_home), *packaged_gui_app_paths(), desktop_userdata_dir()))
+    return any(p.exists() for p in (*source_built_gui_artifacts(hermes_home), *packaged_gui_app_paths(),
+                                    desktop_userdata_dir(), *legacy_desktop_userdata_dirs()))
 
 
 def gui_install_summary(hermes_home: "Path | None" = None) -> dict:
@@ -124,13 +141,14 @@ def uninstall_gui(hermes_home: "Path | None" = None, *, remove_userdata: bool = 
     log_info("Removing installed desktop app...")
     if not _remove_existing(packaged_gui_app_paths()):
         log_info("No packaged desktop app found in standard locations")
-    if remove_userdata and (userdata := desktop_userdata_dir()).exists():
+    userdata_paths = [desktop_userdata_dir(), *legacy_desktop_userdata_dirs()]
+    if remove_userdata and any(path.exists() for path in userdata_paths):
         log_info("Removing desktop app data (Electron userData)...")
-        _remove_existing([userdata])
+        _remove_existing(userdata_paths)
     if not removed:
         log_info("No desktop GUI artifacts found to remove")
     if sys.platform.startswith("linux"):
-        # The desktop entry was removed above but the menu caches still list it; reindex so Hermes
+        # The desktop entry was removed above but the menu caches still list it; reindex so Hebri
         # disappears from the launcher.
         try:
             from hermes_cli.linux_desktop_entry import desktop_entry_path, refresh_desktop_databases
@@ -141,6 +159,6 @@ def uninstall_gui(hermes_home: "Path | None" = None, *, remove_userdata: bool = 
         except Exception as e:
             log_warn(f"Could not refresh the application menu cache: {e}")
         log_info("If you installed the desktop via a .deb / .rpm package, remove it with your package manager "
-                 "(e.g. 'sudo apt remove hermes' or 'sudo dnf remove hermes'). AppImage builds are a single "
+                 "(e.g. 'sudo apt remove hebri' or 'sudo dnf remove hebri'). AppImage builds are a single "
                  "file you can delete from wherever you saved it.")
     return removed

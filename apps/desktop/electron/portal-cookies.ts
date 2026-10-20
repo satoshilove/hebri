@@ -3,9 +3,19 @@ export interface PortalCookie {
   value: string
 }
 
-// NAS accepts either credential during migration. Provider-routing hints and
-// WorkOS logout identifiers are not credentials; gateway cookies are unrelated.
-const ACCESS_COOKIES = ['nas-session', '__Host-privy-token', '__Secure-privy-token', 'privy-token']
+// Synapsek's server-managed session is a host-only opaque credential. Legacy
+// NAS/Privy names remain readable for self-managed/upstream compatibility, but
+// new Hebri releases use the Synapsek cookie when the portal cutover is enabled.
+// Provider-routing hints and logout identifiers are not credentials; gateway
+// cookies are unrelated.
+const ACCESS_COOKIES = [
+  '__Host-synapsek_session',
+  'nas-session',
+  '__Host-privy-token',
+  '__Secure-privy-token',
+  'privy-token'
+]
+
 const REFRESH_COOKIES = ['nas-refresh', 'privy-session', 'privy-refresh-token']
 
 export function portalAccessCookies(cookies: PortalCookie[]): PortalCookie[] {

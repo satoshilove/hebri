@@ -166,9 +166,22 @@ jobs:
           path: artifacts
       - name: Show collected artifacts
         run: ls -lh artifacts/
+      - name: Generate SHA-256 checksums
+        shell: bash
+        run: |
+          cd artifacts
+          shopt -s nullglob
+          files=(Hebri-* latest*.yml)
+          test "${#files[@]}" -gt 0 || {
+            echo "No release artifacts found for checksumming" >&2
+            exit 1
+          }
+          sha256sum "${files[@]}" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
       - uses: softprops/action-gh-release@278a202770e73151112f8a970e8ad7e0c6d4ca14 # v2
         with:
           files: |
             artifacts/Hebri-*
             artifacts/latest*.yml
+            artifacts/SHA256SUMS.txt
           generate_notes: true

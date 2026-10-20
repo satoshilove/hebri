@@ -49,9 +49,11 @@ else:
 AUTH_STORE_VERSION = 1
 AUTH_LOCK_TIMEOUT_SECONDS = 15.0
 
-# Nous Portal defaults
+# Nous Portal defaults. Keep the upstream provider isolated from Hebri's own
+# account portal: selecting a Synapsek URL must never silently redirect Nous
+# OAuth/device-flow traffic to a different issuer.
 import os as _os
-DEFAULT_NOUS_PORTAL_URL = _os.environ.get("HEBRI_PORTAL_URL", "https://portal.nousresearch.com")
+DEFAULT_NOUS_PORTAL_URL = _os.environ.get("NOUS_PORTAL_URL", "https://portal.nousresearch.com")
 DEFAULT_NOUS_INFERENCE_URL = "https://inference-api.nousresearch.com/v1"
 # The free tier's (anonymous account) inference host. NAS hands it to the client on every token
 # exchange (``inference_base_url``); this literal is the fallback when that field is absent or fails

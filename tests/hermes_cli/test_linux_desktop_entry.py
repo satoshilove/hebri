@@ -80,7 +80,7 @@ def test_install_writes_entry_with_absolute_exec_and_icon(
 
     entry = lde.install_desktop_entry(root)
 
-    assert entry == xdg_home / "applications" / "hermes.desktop"
+    assert entry == xdg_home / "applications" / "hebri.desktop"
     values = _parse(entry.read_text(encoding="utf-8"))
 
     # Exec must be the absolute path of the resolved binary. The launcher
@@ -113,12 +113,12 @@ def test_install_prefers_themed_icon_from_hicolor(tmp_path, xdg_home, monkeypatc
     entry = lde.install_desktop_entry(root)
 
     values = _parse(entry.read_text(encoding="utf-8"))
-    assert values["Icon"] == "hermes"
+    assert values["Icon"] == "hebri"
 
     # And the icon really landed in the hicolor tree: the fixture icon is
     # a fake PNG (no valid IHDR), so the size is unknown and the icon
     # lands under 256x256/ (indexed; never scalable, which is SVG-only).
-    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hermes.png"
+    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hebri.png"
     assert dest.is_file()
     assert dest.read_bytes() == lde.icon_path(root).read_bytes()
 
@@ -148,7 +148,7 @@ def test_install_icon_copy_failure_falls_back_to_absolute(
     assert values["Icon"] == str(lde.icon_path(root))
 
     assert values["Type"] == "Application"
-    assert values["Name"] == "Hermes"
+    assert values["Name"] == "Hebri"
     assert values["Terminal"] == "false"
 
 
@@ -432,7 +432,7 @@ def test_exec_never_persists_a_checkout_internal_path_hit(tmp_path, xdg_home, mo
     persisting the venv form; the next DE launch re-resolves to the durable
     wrapper and flips the bytes back. Alternating writers alternate the
     file content (captured: wrapper -> venv -> wrapper inside one update
-    cycle), and every flip rewrites hermes.desktop. A rewrite landing
+    cycle), and every flip rewrites hebri.desktop. A rewrite landing
     inside a grid launch's STARTING window is the arm for the gnome-shell
     50.x crash this module already guards against. A PATH hit inside the
     checkout must fall through to the durable probe.
@@ -486,7 +486,7 @@ def test_exec_finds_known_wrapper_when_resolver_has_no_candidate(
     None outright. The early `return primary` that used to fire here skipped
     the durable-wrapper probe, so the persisted Exec flipped to the bare
     `<python> -m hermes_cli.main desktop` module form. Each flip between the
-    wrapper and module forms rewrites hermes.desktop on the next launch; any
+    wrapper and module forms rewrites hebri.desktop on the next launch; any
     rewrite that lands while gnome-shell's ShellApp for the entry is still
     STARTING crashes the shell (shell_app_dispose `state == STOPPED`
     assertion, gnome-shell 50.4). The entry must converge on the durable
@@ -669,7 +669,7 @@ def test_install_without_source_icon_uses_themed_name(tmp_path, xdg_home, monkey
 
     # A broken absolute path renders as no icon. The themed name resolves
     # when Hermes is installed some other way.
-    assert _parse(entry.read_text(encoding="utf-8"))["Icon"] == "hermes"
+    assert _parse(entry.read_text(encoding="utf-8"))["Icon"] == "hebri"
 
 
 @pytest.mark.macos_only
@@ -1058,8 +1058,8 @@ def test_install_icon_handles_truncated_png_header(tmp_path, xdg_home, monkeypat
     entry = lde.install_desktop_entry(root)
 
     values = _parse(entry.read_text(encoding="utf-8"))
-    assert values["Icon"] == "hermes"
-    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hermes.png"
+    assert values["Icon"] == "hebri"
+    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hebri.png"
     assert dest.is_file()
 
 
@@ -1086,9 +1086,9 @@ def test_install_places_1024_png_in_256x256_not_scalable(
     entry = lde.install_desktop_entry(root)
     values = _parse(entry.read_text(encoding="utf-8"))
 
-    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hermes.png"
-    stale = xdg_home / "icons" / "hicolor" / "scalable" / "apps" / "hermes.png"
-    assert values["Icon"] == "hermes"
+    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hebri.png"
+    stale = xdg_home / "icons" / "hicolor" / "scalable" / "apps" / "hebri.png"
+    assert values["Icon"] == "hebri"
     assert dest.is_file()
     assert dest.read_bytes() == lde.icon_path(root).read_bytes()
     assert not stale.exists()
@@ -1107,7 +1107,7 @@ def test_install_removes_stale_scalable_png(tmp_path, xdg_home, monkeypatch):
 
     lde.install_desktop_entry(root)
 
-    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hermes.png"
+    dest = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hebri.png"
     assert dest.is_file()
     assert not stale.exists()
 
@@ -1119,10 +1119,10 @@ def test_install_exact_48_png_uses_48x48_dir(tmp_path, xdg_home, monkeypatch):
 
     lde.install_desktop_entry(root)
 
-    dest = xdg_home / "icons" / "hicolor" / "48x48" / "apps" / "hermes.png"
+    dest = xdg_home / "icons" / "hicolor" / "48x48" / "apps" / "hebri.png"
     assert dest.is_file()
     assert not (
-        xdg_home / "icons" / "hicolor" / "scalable" / "apps" / "hermes.png"
+        xdg_home / "icons" / "hicolor" / "scalable" / "apps" / "hebri.png"
     ).exists()
 
 
@@ -1144,9 +1144,9 @@ def test_install_resizes_decodable_png_to_panel_sizes(
 
     lde.install_desktop_entry(root)
 
-    dest_24 = xdg_home / "icons" / "hicolor" / "24x24" / "apps" / "hermes.png"
-    dest_256 = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hermes.png"
-    stale = xdg_home / "icons" / "hicolor" / "scalable" / "apps" / "hermes.png"
+    dest_24 = xdg_home / "icons" / "hicolor" / "24x24" / "apps" / "hebri.png"
+    dest_256 = xdg_home / "icons" / "hicolor" / "256x256" / "apps" / "hebri.png"
+    stale = xdg_home / "icons" / "hicolor" / "scalable" / "apps" / "hebri.png"
     assert dest_24.is_file()
     assert dest_256.is_file()
     assert not stale.exists()

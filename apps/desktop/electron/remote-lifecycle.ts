@@ -198,7 +198,7 @@ async function locateHermes(ssh, remoteHermesPath) {
     }
 
     const err: any = new Error(
-      `The Hermes path you set is not an executable on the remote host: "${remoteHermesPath}". ` +
+      `The Hebri path you set is not an executable on the remote host: "${remoteHermesPath}". ` +
         'Check the path (it must be the full path to the `hermes` binary on the remote, e.g. ' +
         '~/hermes-agent/.venv/bin/hermes), or clear it to auto-detect.'
     )
@@ -236,9 +236,9 @@ async function locateHermes(ssh, remoteHermesPath) {
   }
 
   const err: any = new Error(
-    'Hermes is not installed on the remote host (could not find a `hermes` executable). ' +
+    'Hebri is not installed on the remote host (could not find a `hebri` or legacy `hermes` executable). ' +
       'Install it on the remote with:  curl -fsSL https://raw.githubusercontent.com/satoshilove/hebri/main/scripts/install.sh | sh  ' +
-      '— or set the Hermes path explicitly in the SSH connection settings.'
+      '— or set the Hebri path explicitly in the SSH connection settings.'
   )
 
   err.kind = 'hermes-not-found'
@@ -286,7 +286,7 @@ async function probeRemoteHermesHome(ssh) {
 
     return out || '~/.hebri'
   } catch (cause) {
-    const error: any = new Error('Could not resolve the remote Hermes home.')
+    const error: any = new Error('Could not resolve the remote Hebri home.')
     error.kind = 'transient-transport-error'
     error.cause = cause
     throw error
@@ -350,7 +350,7 @@ async function assertRemoteInstallUpdateClear(ssh, hermesHome) {
         .split(/\r?\n/)
         .pop() || ''
   } catch (cause) {
-    const error: any = new Error('Could not prove that the remote Hermes install is clear for SSH startup.')
+    const error: any = new Error('Could not prove that the remote Hebri install is clear for SSH startup.')
     error.kind = 'update-in-progress'
     error.cause = cause
     throw error
@@ -364,8 +364,8 @@ async function assertRemoteInstallUpdateClear(ssh, hermesHome) {
 
   const error: any = new Error(
     live
-      ? `Remote Hermes update process ${live[1]} is still running; SSH startup is paused.`
-      : 'The remote Hermes update marker is unreadable or malformed; refusing SSH startup.'
+      ? `Remote Hebri update process ${live[1]} is still running; SSH startup is paused.`
+      : 'The remote Hebri update marker is unreadable or malformed; refusing SSH startup.'
   )
 
   error.kind = 'update-in-progress'
@@ -380,7 +380,7 @@ async function listRemoteHermesProfiles(ssh) {
   try {
     listing = await ssh.exec(`if [ -d ${dir} ]; then ls -1 ${dir}; fi`)
   } catch (cause) {
-    const error: any = new Error('Could not list remote Hermes profiles.')
+    const error: any = new Error('Could not list remote Hebri profiles.')
     error.kind = 'transient-transport-error'
     error.cause = cause
     throw error
@@ -402,7 +402,7 @@ async function readRemoteInstallId(ssh) {
   try {
     out = await ssh.exec(`if [ -f ${file} ]; then cat ${file}; fi`)
   } catch (cause) {
-    const error: any = new Error('Could not read the remote Hermes install id.')
+    const error: any = new Error('Could not read the remote Hebri install id.')
     error.kind = 'transient-transport-error'
     error.cause = cause
     throw error
@@ -424,7 +424,7 @@ function assertSafeRemoteHome(home) {
   const value = String(home || '').trim()
 
   if (!/^(\/|~\/)[A-Za-z0-9._/+-]+$/.test(value) || value.includes('..')) {
-    const error: any = new Error('Unsafe remote Hermes home.')
+    const error: any = new Error('Unsafe remote Hebri home.')
     error.kind = 'unsafe-path'
     throw error
   }
@@ -1254,8 +1254,8 @@ async function spawnRemoteDashboard(
 ) {
   if (!(await remoteSupportsSshOwnership(ssh, hermesPath))) {
     const err: any = new Error(
-      'The remote Hermes install does not support --ssh-session-token-file and --ssh-owner-nonce. ' +
-        'Update Hermes on the remote host to continue using Desktop SSH mode.'
+      'The remote Hebri install does not support --ssh-session-token-file and --ssh-owner-nonce. ' +
+        'Update Hebri on the remote host to continue using Desktop SSH mode.'
     )
 
     err.kind = 'update-required'

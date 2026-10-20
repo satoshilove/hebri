@@ -411,17 +411,17 @@ export const en: Translations = {
     // Plain causes for a local backend boot failure (`classifyBootFailure`);
     // the raw output stays behind "Show recent logs".
     causes: {
-      exitedEarly: "Hebri' background service stopped right after starting.",
-      timedOut: "Hebri' background service didn't answer in time.",
+      exitedEarly: "Hebri's background service stopped right after starting.",
+      timedOut: "Hebri's background service didn't answer in time.",
       permission: "Hebri couldn't write to its data folder (permission problem).",
       diskFull: 'The disk is full, so Hebri could not start.',
       portInUse: 'Another program is using the network port Hebri needs.',
-      installMissing: "Part of Hebri' installation is missing. Choose Repair install to put it back."
+      installMissing: "Part of Hebri's installation is missing. Choose Repair install to put it back."
     },
     failure: {
       title: "Hebri couldn't start",
       description:
-        "Hebri' background service didn't come up. Try one of the recovery steps below. Nothing here deletes your chats or settings.",
+        "Hebri's background service didn't come up. Try one of the recovery steps below. Nothing here deletes your chats or settings.",
       details: 'Details',
       remoteTitle: 'Remote gateway sign-in required',
       remoteDescription:
@@ -495,7 +495,7 @@ export const en: Translations = {
       gatewayAuthFailed:
         'This Hebri no longer accepts your saved sign-in. Open Gateways and sign in again (or paste a new access token), then retry.',
       methodNotAllowed:
-        "Hebri' background service is out of step with the app, probably after an update. Restart it to fix this.",
+        "Hebri's background service is out of step with the app, probably after an update. Restart it to fix this.",
       microphonePermission: 'Microphone permission was denied.',
       openaiRejectedApiKey: "OpenAI didn't accept your API key. Update it in Settings → Keys, then try again.",
       openaiTtsNeedsKey: 'Voice needs an OpenAI key. Add one in Settings → Keys.',
@@ -1533,7 +1533,7 @@ export const en: Translations = {
       cloudNeedsSignIn: 'Sign in to Hebri Cloud to discover the agents on your account.',
       cloudUnavailableTitle: 'Hebri Cloud is not configured',
       cloudUnavailableDesc:
-        'This build has no Synapsek cloud endpoint. Local, remote, and SSH gateways still work. Deployments can enable Hebri Cloud with HEBRI_PORTAL_BASE_URL; Hebri will not silently sign in to the upstream Hermes/Nous portal.',
+        'This build has no Synapsek cloud endpoint. Local, remote, and SSH gateways still work. Deployments can enable Hebri Cloud with HEBRI_PORTAL_BASE_URL; Hebri will not silently sign in to an upstream service.',
       cloudUnavailableAction: 'Synapsek website',
       cloudSignedInDesc: 'You are signed in. Pick an agent below; the session refreshes automatically.',
       cloudAgentsTitle: 'Your agents',
@@ -1640,7 +1640,7 @@ export const en: Translations = {
       sshKeyTitle: 'Identity file',
       sshKeyDesc: 'Private key path. Blank = ssh-agent or ~/.ssh/config.',
       sshHermesPathTitle: 'Hebri path (optional)',
-      sshHermesPathDesc: 'Full path to the remote hermes binary. Blank = auto-detect.',
+      sshHermesPathDesc: 'Full path to the remote hebri binary (legacy hermes command is also supported). Blank = auto-detect.',
       sshHermesPathPlaceholder: 'auto-detect',
       sshTestConnection: 'Test SSH',
       sshConnect: 'Connect',

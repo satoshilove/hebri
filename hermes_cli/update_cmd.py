@@ -340,11 +340,11 @@ def _refuse_update_for_contended_shims(exc: BaseException) -> None:
 
     See #87331.
     """
-    print("✗ Cannot continue the update: live Hermes launcher(s) could not be")
+    print("✗ Cannot continue the update: live Hebri launcher(s) could not be")
     print("  moved aside:")
     for name in getattr(exc, "failed_shims", []) or ["hermes.exe"]:
         print(f"    {name}")
-    print("  Another process is holding this install's venv — typically Hermes")
+    print("  Another process is holding this install's venv — typically Hebri")
     print("  Desktop, a gateway, or another hermes REPL — and mutating the venv")
     print("  now would strand it half-updated.")
     print("  The dependency install has been deferred: close the process(es)")
@@ -421,7 +421,7 @@ def _format_concurrent_instances_message(matches: list[tuple[int, str]], scripts
         f"  Updating now would fail to overwrite {shim} because",
         "  Windows blocks REPLACE on a running executable.",
         "",
-        "  Close Hermes Desktop, exit any open `hermes` REPLs, and",
+        "  Close Hebri Desktop, exit any open `hebri` REPLs, and",
         "  stop the gateway (`hermes gateway stop`) before retrying.",
         ""]
     if matches:
@@ -663,7 +663,7 @@ def _repair_venv_on_current_checkout(
     healthy_after, detail_after = _venv_core_imports_healthy()
     if not healthy_after:
         print(f"⚠ Venv still unhealthy after repair: {detail_after}")
-        print("  Close all Hermes windows/gateways and re-run: hermes update")
+        print("  Close all Hebri windows/gateways and re-run: hebri update")
         return False
     print("✓ Dependencies repaired!")
     # The hand-off child never reaches the commits-pulled Node/web/Desktop
@@ -768,7 +768,7 @@ def _repair_current_checkout(
         print()
         print("⚠ Restart required to finish the managed Python runtime repair.")
         print(
-            "  Any running Hermes gateways, Desktop backends, or other "
+            "  Any running Hebri gateways, Desktop backends, or other "
             "long-lived processes still use the previous runtime.")
         print("  Restart each of them to pick up the repaired runtime.")
     return current_checkout_complete
@@ -1256,7 +1256,7 @@ def _handle_update_called_process_error(
             print(f"✗ {stage} (the code update itself succeeded).")
             _print_called_process_error_tail(e)
             print()
-            print("  Hermes may not start until the dependencies are installed. Fix the error above")
+            print("  Hebri may not start until the dependencies are installed. Fix the error above")
             print("  (usually network or disk space), then run `hermes update` again.")
             if _m()._is_windows():
                 print("  If `hermes update` itself will not start, retry through the venv interpreter:")
@@ -1592,7 +1592,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
         _run_post_swap_phase(args, gateway_mode)
         return
 
-    print("☤ Updating Hermes Agent...")
+    print("☤ Updating Hebri...")
     print()
 
     _pre_update_plan = _begin_update_receipt_and_plan(args)

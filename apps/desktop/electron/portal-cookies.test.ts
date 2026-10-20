@@ -8,6 +8,10 @@ import { cookiesHavePortalAccessToken, cookiesHavePortalSession } from './portal
 // the Desktop must read both, and must tell renewable-only jars (signed in,
 // discovery would 401) apart from jars that can pass /api/agents right now.
 test('either portal credential family signs in, and refresh-only material is a session without access', () => {
+  const synapsekJar = [{ name: '__Host-synapsek_session', value: 'encrypted-session' }]
+  assert.equal(cookiesHavePortalSession(synapsekJar), true)
+  assert.equal(cookiesHavePortalAccessToken(synapsekJar), true)
+
   for (const [access, refresh] of [
     ['privy-token', 'privy-refresh-token'],
     // Secured-prefix forms and the legacy `privy-session` renewal cookie (#73495).
@@ -20,7 +24,7 @@ test('either portal credential family signs in, and refresh-only material is a s
 
     assert.equal(cookiesHavePortalSession(accessJar), true)
     assert.equal(cookiesHavePortalAccessToken(accessJar), true)
-    assert.equal(cookiesHavePortalSession(refreshJar), true)
+    assert.equal(cookiesHavePortalSession(refreshJar), Boolean(refresh))
     assert.equal(cookiesHavePortalAccessToken(refreshJar), false)
   }
 })
