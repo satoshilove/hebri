@@ -22,6 +22,7 @@ export function SynapsekAccountSettings() {
   const { locale } = useI18n()
   const copy = accountCopy[locale]
   const [view, setView] = useState<SynapsekAccountView>({ state: 'signed_out' })
+  const [available, setAvailable] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const bridge = window.hermesDesktop?.synapsekAccount
@@ -33,11 +34,19 @@ export function SynapsekAccountSettings() {
         .then(result => {
           if (!alive) {return}
 
-          if (result.ok && result.value) {setView(result.value)}
-          else if (!result.ok) {setError(result.code)}
+          if (result.ok && result.value) {
+            setAvailable(true)
+            setView(result.value)
+          } else if (!result.ok && result.code !== 'not_available') {
+            setAvailable(true)
+            setError(result.code)
+          }
         })
         .catch(() => {
-          if (alive) {setError('account_operation_failed')}
+          if (alive) {
+            setAvailable(true)
+            setError('account_operation_failed')
+          }
         })}
 
     return () => {
@@ -45,7 +54,7 @@ export function SynapsekAccountSettings() {
     }
   }, [bridge])
 
-  if (!bridge) {return null}
+  if (!bridge || !available) {return null}
 
   async function run(operation: 'status' | 'signIn' | 'signOut' | 'openBilling' | 'forgetLocal') {
     setBusy(true)
@@ -54,7 +63,8 @@ export function SynapsekAccountSettings() {
     try {
       const result = await bridge!(operation)
 
-      if (!result.ok) {setError(result.code)}
+      if (!result.ok && result.code === 'not_available') {setAvailable(false)}
+      else if (!result.ok) {setError(result.code)}
       else if (result.value) {setView(result.value)}
     } catch {
       setError('account_operation_failed')

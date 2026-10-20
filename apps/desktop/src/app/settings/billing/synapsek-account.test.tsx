@@ -54,4 +54,11 @@ describe('Synapsek account controls', () => {
     fireEvent.click(screen.getByText(accountCopy.en.remove))
     await waitFor(() => expect(bridge).toHaveBeenCalledWith('forgetLocal'))
   })
+  it('stays hidden when the production account capability is disabled', async () => {
+    const bridge = vi.fn(async () => ({ ok: false as const, code: 'not_available' }))
+    window.hermesDesktop = { ...previous, synapsekAccount: bridge } as NonNullable<typeof window.hermesDesktop>
+    const { container } = render(<SynapsekAccountSettings />)
+    await waitFor(() => expect(bridge).toHaveBeenCalledWith('status'))
+    expect(container.childElementCount).toBe(0)
+  })
 })
