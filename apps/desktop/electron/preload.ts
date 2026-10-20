@@ -17,6 +17,8 @@ const hudNativeDrag = hudWindowing?.nativeDrag === true
 const launchFlags = ipcRenderer.sendSync('hermes:launch-flags')
 
 contextBridge.exposeInMainWorld('hermesDesktop', {
+  synapsekAccount: (operation: 'status' | 'signIn' | 'signOut' | 'openBilling' | 'forgetLocal') =>
+    ipcRenderer.invoke('hebri:synapsek-account', operation),
   glassSupported: translucencySupport?.glass === true,
   translucencySupported: translucencySupport?.translucency === true,
   // Launch-flag fact: the app was started with --local, so the renderer may

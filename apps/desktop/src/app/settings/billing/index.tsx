@@ -31,6 +31,7 @@ import { StepUpInlineAction } from './inline-feedback'
 import { openExternal } from './open-external'
 import { BillingPlansView } from './plans-view'
 import { createSimulatedBillingApi } from './simulated-api'
+import { SynapsekAccountSettings } from './synapsek-account'
 import type { BillingStateResponse } from './types'
 import {
   type BillingAccountRowView,
@@ -606,9 +607,10 @@ function BillingSettingsWithDevFixtures() {
 }
 
 export function BillingSettings() {
-  if (import.meta.env.DEV) {
-    return <BillingSettingsWithDevFixtures />
-  }
-
-  return <BillingSettingsContent />
+  return (
+    <>
+      <SynapsekAccountSettings />
+      {import.meta.env.DEV ? <BillingSettingsWithDevFixtures /> : <BillingSettingsContent />}
+    </>
+  )
 }
