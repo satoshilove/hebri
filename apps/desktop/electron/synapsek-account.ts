@@ -3,6 +3,7 @@ import http from 'node:http'
 
 import { generatePkcePair, generateState } from './native-oauth'
 import type { AccountSnapshot, SynapsekAccountView } from './synapsek-account-types'
+import { managedInferenceJson } from './synapsek-inference-bridge'
 
 export interface AccountConfig {
   version: 1
@@ -41,19 +42,29 @@ export class AccountError extends Error {
 }
 
 export function saveAccount(saved: SavedAccount, storage: AccountStorage) {
-  if (!storage.available()) {throw new AccountError('secure_storage_unavailable')}
+  if (!storage.available()) {
+    throw new AccountError('secure_storage_unavailable')
+  }
+
   const encrypted = storage.encrypt(JSON.stringify(saved))
 
-  if (!encrypted.length) {throw new AccountError('secure_storage_unavailable')}
+  if (!encrypted.length) {
+    throw new AccountError('secure_storage_unavailable')
+  }
+
   storage.write(JSON.stringify({ version: 1, encoding: 'os-protected', value: encrypted.toString('base64') }))
 }
 
 export function loadAccount(storage: AccountStorage): SavedAccount | null {
   const text = storage.read()
 
-  if (text === null) {return null}
+  if (text === null) {
+    return null
+  }
 
-  if (!storage.available()) {throw new AccountError('secure_storage_unavailable')}
+  if (!storage.available()) {
+    throw new AccountError('secure_storage_unavailable')
+  }
 
   try {
     const blob = JSON.parse(text)
@@ -64,8 +75,9 @@ export function loadAccount(storage: AccountStorage): SavedAccount | null {
       typeof blob.value !== 'string' ||
       blob.value.length > 64_000 ||
       !/^[A-Za-z0-9+/]+={0,2}$/.test(blob.value)
-    )
-      {throw new Error()}
+    ) {
+      throw new Error()
+    }
 
     const saved = JSON.parse(storage.decrypt(Buffer.from(blob.value, 'base64')))
 
@@ -74,8 +86,9 @@ export function loadAccount(storage: AccountStorage): SavedAccount | null {
         k => typeof saved[k] === 'string' && saved[k].length > 0
       ) ||
       saved.refreshToken.length > 16_384
-    )
-      {throw new Error()}
+    ) {
+      throw new Error()
+    }
 
     return saved
   } catch {
@@ -109,8 +122,9 @@ export function parseAccountConfig(value: any, origin: string): AccountConfig {
       redirect.password ||
       redirect.search ||
       redirect.hash
-    )
-      {throw new Error()}
+    ) {
+      throw new Error()
+    }
 
     return {
       version: 1,
@@ -166,9 +180,40 @@ export function parseAccountSnapshot(value: any): AccountSnapshot {
     throw new AccountError('invalid_account_response')
   }
 
+  const usage = value.usage
+  let safeUsage: AccountSnapshot['usage']
+
+  if (usage !== undefined) {
+    const keys = [
+      'remainingIncludedCredits',
+      'reservedIncludedCredits',
+      'purchasedAvailableCredits',
+      'monthTokens',
+      'debtCredits'
+    ] as const
+
+    if (
+      !/^\d{4}-\d{2}$/.test(usage?.period || '') ||
+      keys.some(key => !Number.isSafeInteger(usage?.[key]) || usage[key] < 0)
+    ) {
+      throw new AccountError('invalid_account_response')
+    }
+
+    safeUsage = {
+      period: usage.period,
+      remainingIncludedCredits: usage.remainingIncludedCredits,
+      reservedIncludedCredits: usage.reservedIncludedCredits,
+      purchasedAvailableCredits: usage.purchasedAvailableCredits,
+      monthTokens: usage.monthTokens,
+      debtCredits: usage.debtCredits
+    }
+  }
+
   return {
     userId: value.userId,
     email: value.email,
+    managedInferenceEnabled: value.managedInferenceEnabled === true,
+    ...(safeUsage ? { usage: safeUsage } : {}),
     billing: {
       plan: b.plan,
       sku: b.sku,
@@ -182,11 +227,17 @@ export function parseAccountSnapshot(value: any): AccountSnapshot {
 export async function accountJson(url: string, init: RequestInit = {}) {
   const response = await fetch(url, { ...init, redirect: 'error', signal: AbortSignal.timeout(15_000) })
 
-  if (response.status === 404) {throw new AccountError('not_available')}
+  if (response.status === 404) {
+    throw new AccountError('not_available')
+  }
+
   // Limit actual bytes, not just the untrusted Content-Length header.
   const reader = response.body?.getReader()
 
-  if (!reader) {throw new AccountError('invalid_response')}
+  if (!reader) {
+    throw new AccountError('invalid_response')
+  }
+
   let size = 0
   const chunks: Uint8Array[] = []
 
@@ -194,23 +245,38 @@ export async function accountJson(url: string, init: RequestInit = {}) {
     for (;;) {
       const { value, done } = await reader.read()
 
-      if (done) {break}
+      if (done) {
+        break
+      }
+
       size += value.length
 
-      if (size > 65_536) {throw new AccountError('invalid_response')}
+      if (size > 65_536) {
+        throw new AccountError('invalid_response')
+      }
+
       chunks.push(value)
     }
 
     let body: any
 
-    try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')) }
-    catch { throw new AccountError('invalid_response') }
+    try {
+      body = JSON.parse(Buffer.concat(chunks).toString('utf8'))
+    } catch {
+      throw new AccountError('invalid_response')
+    }
 
-    if (response.status === 403 && body?.code === 'session_binding_required') {throw new AccountError('session_binding_required')}
+    if (response.status === 403 && body?.code === 'session_binding_required') {
+      throw new AccountError('session_binding_required')
+    }
 
-    if (response.status === 401 || response.status === 403) {throw new AccountError('reauthentication_required')}
+    if (response.status === 401 || response.status === 403) {
+      throw new AccountError('reauthentication_required')
+    }
 
-    if (!response.ok) {throw new AccountError('service_unavailable')}
+    if (!response.ok) {
+      throw new AccountError('service_unavailable')
+    }
 
     return body
   } finally {
@@ -234,7 +300,10 @@ export function synapsekBrowserLogin(
     let done = false
 
     const finish = (error?: unknown, tokens?: Tokens) => {
-      if (done) {return}
+      if (done) {
+        return
+      }
+
       done = true
       clearTimeout(timer)
       server.close()
@@ -277,7 +346,10 @@ export function synapsekBrowserLogin(
       })
       res.end('Return to Hebri to see the sign-in result.')
 
-      if (exchanging || done) {return}
+      if (exchanging || done) {
+        return
+      }
+
       exchanging = true
       const code = url.searchParams.get('code')
 
@@ -372,9 +444,12 @@ export class SynapsekAccount {
     await this.open(`${this.origin}/desktop/authorize#binding=${challenge}`)
 
     while (Date.now() < deadline) {
-      try { return await this.snapshot(tokens) }
-      catch (error) {
-        if (!(error instanceof AccountError) || error.code !== 'session_binding_required') {throw error}
+      try {
+        return await this.snapshot(tokens)
+      } catch (error) {
+        if (!(error instanceof AccountError) || error.code !== 'session_binding_required') {
+          throw error
+        }
       }
 
       await new Promise(resolve => setTimeout(resolve, 1500))
@@ -386,13 +461,19 @@ export class SynapsekAccount {
     return this.exclusive(async () => {
       const saved = loadAccount(this.storage)
 
-      if (!saved) {return { state: 'signed_out' }}
+      if (!saved) {
+        return { state: 'signed_out' }
+      }
 
-      if (saved.appOrigin !== this.origin) {throw new AccountError('reauthentication_required')}
+      if (saved.appOrigin !== this.origin) {
+        throw new AccountError('reauthentication_required')
+      }
+
       const config = await this.config()
 
-      if (saved.issuer !== config.issuer || saved.clientId !== config.clientId)
-        {throw new AccountError('reauthentication_required')}
+      if (saved.issuer !== config.issuer || saved.clientId !== config.clientId) {
+        throw new AccountError('reauthentication_required')
+      }
 
       let tokens = this.tokens
 
@@ -420,7 +501,10 @@ export class SynapsekAccount {
 
       const account = await this.snapshot(tokens)
 
-      if (account.userId !== saved.userId) {throw new AccountError('account_mismatch')}
+      if (account.userId !== saved.userId) {
+        throw new AccountError('account_mismatch')
+      }
+
       this.tokens = tokens
 
       return { state: 'signed_in', account }
@@ -428,9 +512,14 @@ export class SynapsekAccount {
   }
   signIn(): Promise<SynapsekAccountView> {
     return this.exclusive(async () => {
-      if (loadAccount(this.storage)) {throw new AccountError('sign_out_before_switching')}
+      if (loadAccount(this.storage)) {
+        throw new AccountError('sign_out_before_switching')
+      }
 
-      if (!this.storage.available()) {throw new AccountError('secure_storage_unavailable')}
+      if (!this.storage.available()) {
+        throw new AccountError('secure_storage_unavailable')
+      }
+
       const config = await this.config()
       const tokens = await this.login(config, this.open, this.json)
       let account: AccountSnapshot
@@ -466,13 +555,16 @@ export class SynapsekAccount {
     return this.exclusive(async () => {
       const saved = loadAccount(this.storage)
 
-      if (saved && saved.appOrigin !== this.origin) {throw new AccountError('reauthentication_required')}
+      if (saved && saved.appOrigin !== this.origin) {
+        throw new AccountError('reauthentication_required')
+      }
 
       if (saved && (!this.tokens || this.tokens.expiresAt <= Date.now())) {
         const config = await this.config()
 
-        if (saved.issuer !== config.issuer || saved.clientId !== config.clientId)
-          {throw new AccountError('reauthentication_required')}
+        if (saved.issuer !== config.issuer || saved.clientId !== config.clientId) {
+          throw new AccountError('reauthentication_required')
+        }
 
         // Do not require an active account snapshot to finish a previously
         // partial revocation. The revoke endpoint is deliberately idempotent.
@@ -496,7 +588,9 @@ export class SynapsekAccount {
           headers: { Authorization: `Bearer ${this.tokens.accessToken}` }
         })
 
-        if (result?.revoked !== true || result?.refreshRevoked !== true) {throw new AccountError('revocation_incomplete')}
+        if (result?.revoked !== true || result?.refreshRevoked !== true) {
+          throw new AccountError('revocation_incomplete')
+        }
       }
 
       this.storage.clear() // Authoritative failures surface; no false logout.
@@ -507,6 +601,34 @@ export class SynapsekAccount {
   }
   openBilling() {
     return this.open(`${this.origin}/billing`)
+  }
+  async managedRequest(action: 'models' | 'completion', body?: unknown, requestId?: string, expectedUserId?: string) {
+    const view = await this.status()
+
+    return this.exclusive(async () => {
+      const saved = loadAccount(this.storage)
+
+      if (
+        !saved ||
+        !this.tokens ||
+        view.state !== 'signed_in' ||
+        view.account?.userId !== saved.userId ||
+        (expectedUserId && saved.userId !== expectedUserId) ||
+        !view.account.managedInferenceEnabled
+      ) {
+        throw new AccountError('inference_not_enabled')
+      }
+
+      return managedInferenceJson(`${this.origin}/api/desktop-account?action=${action}`, {
+        method: action === 'models' ? 'GET' : 'POST',
+        headers: {
+          Authorization: `Bearer ${this.tokens.accessToken}`,
+          'Content-Type': 'application/json',
+          ...(requestId ? { 'Idempotency-Key': requestId } : {})
+        },
+        ...(action === 'completion' ? { body: JSON.stringify(body) } : {})
+      })
+    })
   }
   forgetLocal(): Promise<SynapsekAccountView> {
     return this.exclusive(async () => {

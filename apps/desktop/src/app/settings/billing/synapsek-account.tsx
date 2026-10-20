@@ -6,6 +6,7 @@ import { useI18n } from '@/i18n'
 import type { SynapsekAccountView } from '../../../../electron/synapsek-account-types'
 
 import { accountCopy } from './synapsek-account-copy'
+import { usageCopy } from './synapsek-usage-copy'
 
 const messages: Record<string, string> = {
   not_available: 'Synapsek desktop sign-in is not enabled on this server yet.',
@@ -21,6 +22,7 @@ const messages: Record<string, string> = {
 export function SynapsekAccountSettings() {
   const { locale } = useI18n()
   const copy = accountCopy[locale]
+  const usageText = usageCopy[locale]
   const [view, setView] = useState<SynapsekAccountView>({ state: 'signed_out' })
   const [available, setAvailable] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -29,10 +31,12 @@ export function SynapsekAccountSettings() {
   useEffect(() => {
     let alive = true
 
-    if (bridge)
-      {void bridge('status')
+    if (bridge) {
+      void bridge('status')
         .then(result => {
-          if (!alive) {return}
+          if (!alive) {
+            return
+          }
 
           if (result.ok && result.value) {
             setAvailable(true)
@@ -47,14 +51,17 @@ export function SynapsekAccountSettings() {
             setAvailable(true)
             setError('account_operation_failed')
           }
-        })}
+        })
+    }
 
     return () => {
       alive = false
     }
   }, [bridge])
 
-  if (!bridge || !available) {return null}
+  if (!bridge || !available) {
+    return null
+  }
 
   async function run(operation: 'status' | 'signIn' | 'signOut' | 'openBilling' | 'forgetLocal') {
     setBusy(true)
@@ -63,9 +70,13 @@ export function SynapsekAccountSettings() {
     try {
       const result = await bridge!(operation)
 
-      if (!result.ok && result.code === 'not_available') {setAvailable(false)}
-      else if (!result.ok) {setError(result.code)}
-      else if (result.value) {setView(result.value)}
+      if (!result.ok && result.code === 'not_available') {
+        setAvailable(false)
+      } else if (!result.ok) {
+        setError(result.code)
+      } else if (result.value) {
+        setView(result.value)
+      }
     } catch {
       setError('account_operation_failed')
     } finally {
@@ -84,7 +95,27 @@ export function SynapsekAccountSettings() {
           {copy.credits}: {view.account.billing.includedMonthlyCredits.toLocaleString(locale)}
         </p>
       )}
-      <p className="text-sm text-muted-foreground">{copy.preview}</p>
+      {view.account?.usage && (
+        <dl className="text-sm">
+          {(
+            [
+              ['remaining', 'remainingIncludedCredits'],
+              ['held', 'reservedIncludedCredits'],
+              ['purchased', 'purchasedAvailableCredits'],
+              ['tokens', 'monthTokens'],
+              ['debt', 'debtCredits']
+            ] as const
+          ).map(([label, key]) => (
+            <div className="flex justify-between gap-4" key={key}>
+              <dt>{usageText[label]}</dt>
+              <dd>{view.account!.usage![key].toLocaleString(locale)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      <p className="text-sm text-muted-foreground">
+        {view.account?.managedInferenceEnabled ? usageText.enabled : copy.preview}
+      </p>
       {error && (
         <p className="text-sm text-destructive" role="alert">
           {locale === 'en' ? messages[error] || copy.error : copy.error}

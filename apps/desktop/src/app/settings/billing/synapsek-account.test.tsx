@@ -19,6 +19,36 @@ afterEach(() => {
 })
 
 describe('Synapsek account controls', () => {
+  it('shows the server shared balance and funded-provider guidance only after consent', async () => {
+    const bridge = vi.fn(async () => ({
+      ok: true,
+      value: {
+        state: 'signed_in',
+        account: {
+          userId: '11111111-1111-4111-8111-111111111111',
+          email: 'a@example.com',
+          managedInferenceEnabled: true,
+          billing: { plan: 'pro', sku: 'pro', status: 'active', accessSource: 'stripe', includedMonthlyCredits: 4000 },
+          usage: {
+            period: '2026-10',
+            remainingIncludedCredits: 3150,
+            reservedIncludedCredits: 25,
+            purchasedAvailableCredits: 500,
+            monthTokens: 12345,
+            debtCredits: 0
+          }
+        }
+      }
+    }))
+
+    window.hermesDesktop = { ...previous, synapsekAccount: bridge } as unknown as NonNullable<
+      typeof window.hermesDesktop
+    >
+    render(<SynapsekAccountSettings />)
+    expect(await screen.findByText('3,150')).toBeTruthy()
+    expect(screen.getByText(/Choose Synapsek in the model picker/)).toBeTruthy()
+    expect(screen.queryByText(/not enabled in this account preview/)).toBeNull()
+  })
   it('shows verified account data and opens billing without requesting payment credentials', async () => {
     const account: SynapsekAccountView = {
       state: 'signed_in',

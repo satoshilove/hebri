@@ -1,5 +1,45 @@
 # Synapsek account and billing integration
 
+## Current candidate — 21 October 2026
+
+The account branch has incorporated main `53f2e918` (desktop 0.17.11).
+The earlier staging native sign-in/session-binding/revocation test passed.
+The new shared-spending candidate is **not yet activated or released**.
+
+It adds Synapsek to the existing model-provider plugin registry. Desktop-owned
+local backends receive an ephemeral authenticated loopback capability; OAuth
+and refresh tokens stay in Electron's protected account controller. The existing
+Hebri agent, tools and provider transport perform the work. Nous/BYOK and remote
+connections keep their existing paths.
+
+Users sign in with Synapsek, explicitly approve shared-credit inference, then
+choose Synapsek in the model picker. Personal Plus/Pro/Max use the website's
+existing included-credit and purchased-credit ledger. Every model iteration,
+including tool follow-ups, consumes that shared balance. Settings show remaining,
+reserved and purchased credits plus monthly token reporting. Browser billing
+continues through the existing Synapsek Stripe checkout/portal.
+
+A running local bridge binds to its first verified account. After switching
+the signed-in account, restart Hebri before using Synapsek inference. Old
+runtimes cannot silently spend the new account's balance. The server rechecks
+identity, native-client/session binding, revocation, plan and budget per call.
+Local history is still local profile data, not cloud account-isolated storage.
+
+Current limits: personal paid plans only; no Business workspace spending,
+free-trial pool, SSH bridge forwarding or broad production enrollment. Responses
+use the streaming wire format after the server completes receipt settlement;
+this is buffered output, not immediate token streaming. Ambiguous failures hold
+a reservation for receipt recovery/review instead of inventing a final charge.
+
+The Synapsek candidate's `docs/HEBRI_SHARED_USAGE_RELEASE.md` is the paired rollout
+runbook. Staging requires the missing purchased-wallet/refund migrations before
+the new inference migration, explicit test-account entitlements and fresh consent.
+Both draft PRs must pass review/CI, real shared-spend and Stripe test lifecycle
+checks, and signed-installer qualification before customer release.
+
+The sections below retain the original account-only design and its dated audit;
+they are not evidence that the new managed-inference release is complete.
+
 Status checked 2026-10-20 against `Synapsek-Labs/synapsek-labs` main commit
 `4756ea12b1568369a6be1105eb1cfaa577034560` and Hebri main commit
 `3b0b71f2b6c07ca7d86c31ed1acf7ca16a16f9c5` (desktop 0.17.10). Recheck both heads before

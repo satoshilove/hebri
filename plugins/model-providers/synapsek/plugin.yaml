@@ -1,0 +1,5 @@
+name: synapsek-provider
+kind: model-provider
+version: 1.0.0
+description: Synapsek shared-budget inference through the desktop account bridge
+author: Synapsek
