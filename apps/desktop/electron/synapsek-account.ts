@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import http from 'node:http'
 
 import { generatePkcePair, generateState } from './native-oauth'
@@ -181,11 +182,7 @@ export function parseAccountSnapshot(value: any): AccountSnapshot {
 export async function accountJson(url: string, init: RequestInit = {}) {
   const response = await fetch(url, { ...init, redirect: 'error', signal: AbortSignal.timeout(15_000) })
 
-  if (response.status === 401 || response.status === 403) {throw new AccountError('reauthentication_required')}
-
   if (response.status === 404) {throw new AccountError('not_available')}
-
-  if (!response.ok) {throw new AccountError('service_unavailable')}
   // Limit actual bytes, not just the untrusted Content-Length header.
   const reader = response.body?.getReader()
 
@@ -204,7 +201,18 @@ export async function accountJson(url: string, init: RequestInit = {}) {
       chunks.push(value)
     }
 
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'))
+    let body: any
+
+    try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')) }
+    catch { throw new AccountError('invalid_response') }
+
+    if (response.status === 403 && body?.code === 'session_binding_required') {throw new AccountError('session_binding_required')}
+
+    if (response.status === 401 || response.status === 403) {throw new AccountError('reauthentication_required')}
+
+    if (!response.ok) {throw new AccountError('service_unavailable')}
+
+    return body
   } finally {
     await reader.cancel()
   }
@@ -346,6 +354,34 @@ export class SynapsekAccount {
       })
     )
   }
+  private async approveSession(tokens: Tokens) {
+    const challenge = randomBytes(32).toString('hex')
+
+    const result = await this.json(`${this.origin}/api/desktop-account?action=bind`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokens.accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challenge })
+    })
+
+    const deadline = Date.parse(result?.expiresAt)
+
+    if (!Number.isFinite(deadline) || deadline <= Date.now() || deadline > Date.now() + 310_000) {
+      throw new AccountError('invalid_response')
+    }
+
+    await this.open(`${this.origin}/desktop/authorize#binding=${challenge}`)
+
+    while (Date.now() < deadline) {
+      try { return await this.snapshot(tokens) }
+      catch (error) {
+        if (!(error instanceof AccountError) || error.code !== 'session_binding_required') {throw error}
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1500))
+    }
+
+    throw new AccountError('sign_in_timed_out')
+  }
   status(): Promise<SynapsekAccountView> {
     return this.exclusive(async () => {
       const saved = loadAccount(this.storage)
@@ -400,7 +436,7 @@ export class SynapsekAccount {
       let account: AccountSnapshot
 
       try {
-        account = await this.snapshot(tokens)
+        account = await this.approveSession(tokens)
         saveAccount(
           {
             appOrigin: this.origin,

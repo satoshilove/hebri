@@ -469,6 +469,25 @@ profile names, to select the billing subject.
 
 ## Paid inference is a separate integration gate
 
+### Native session approval
+
+The staging issuer creates native OAuth sessions at `aal1` even when browser
+consent followed MFA. The desktop therefore requests a separate, one-time
+session binding after token exchange. A random 256-bit challenge opens only the
+configured Synapsek origin, with no access or refresh token in the URL. The
+server binds its hash to the verified user, client and issuer session; the same
+browser user explicitly approves with MFA when enrolled. Pending requests expire
+after five minutes, approved bindings after 30 days, and authenticator changes
+or revocation invalidate them. The desktop polls only while pending and saves
+the encrypted refresh credential only after the account endpoint accepts the
+binding. Failure attempts server revocation. This does not rewrite JWT claims
+or give native tokens access to website, workspace or provider credentials.
+
+Deploy with Synapsek's `desktop_account_binding.sql` and matching API. The native
+regression includes real HTTP pending/approved/denied transitions, alongside the
+existing real callback, encrypted file and account-switching tests. Live staging
+qualification is still required before release.
+
 A paid-plan badge does not make local Hebri model calls use Synapsek credits.
 The inspected provider registry has no Synapsek managed-inference adapter.
 Add that adapter and an authenticated server gateway which reuses Synapsek's

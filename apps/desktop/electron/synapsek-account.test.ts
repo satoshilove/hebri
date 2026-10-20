@@ -7,6 +7,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import {
+  accountJson,
   type AccountStorage,
   loadAccount,
   parseAccountConfig,
@@ -78,6 +79,73 @@ function fileStore() {
 }
 
 describe('Synapsek native account', () => {
+  it('waits for the exact browser binding before persisting and revokes rejected sessions over real HTTP', async () => {
+    for (const approve of [true, false]) {
+      const { storage } = fileStore()
+      let base = '', issuedChallenge = '', opened = false, reads = 0, revoked = false
+
+      const server = http.createServer(async (req, res) => {
+        const url = new URL(req.url!, base)
+        res.setHeader('Content-Type', 'application/json')
+
+        if (url.searchParams.get('action') === 'config') {
+          res.end(JSON.stringify({ ...config, appOrigin: base }))
+
+          return
+        }
+
+        expect(req.headers.authorization).toBe('Bearer native-test-token')
+
+        if (url.searchParams.get('action') === 'bind') {
+          const chunks = []
+
+          for await (const chunk of req) {chunks.push(chunk)}
+          issuedChallenge = JSON.parse(Buffer.concat(chunks).toString()).challenge
+          expect(issuedChallenge).toMatch(/^[a-f0-9]{64}$/)
+          res.end(JSON.stringify({ expiresAt: new Date(Date.now() + 60000).toISOString() }))
+        } else if (url.searchParams.get('action') === 'revoke') {
+          revoked = true
+          res.end(JSON.stringify({ revoked: true, refreshRevoked: true }))
+        } else {
+          expect(opened).toBe(true)
+          expect(loadAccount(storage)).toBeNull()
+          reads++
+
+          if (approve && reads > 1) {res.end(JSON.stringify(snapshot()))}
+          else {
+            res.statusCode = approve ? 403 : 401
+            res.end(JSON.stringify({ code: approve ? 'session_binding_required' : 'session_revoked' }))
+          }
+        }
+      })
+
+      await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
+      base = `http://127.0.0.1:${(server.address() as { port: number }).port}`
+
+      try {
+        const account = new SynapsekAccount(base, storage, async url => {
+          expect(url).toBe(`${base}/desktop/authorize#binding=${issuedChallenge}`)
+          expect(url).not.toContain('native-test-token')
+          opened = true
+        }, accountJson, async () => ({
+          accessToken: 'native-test-token', refreshToken: 'private-refresh', expiresAt: Date.now() + 3600000
+        }))
+
+        if (approve) {
+          expect((await account.signIn()).state).toBe('signed_in')
+          expect(reads).toBe(2)
+          expect(loadAccount(storage)?.userId).toBe(user)
+        } else {
+          await expect(account.signIn()).rejects.toThrow('reauthentication_required')
+          expect(loadAccount(storage)).toBeNull()
+          expect(revoked).toBe(true)
+        }
+      } finally {
+        server.closeAllConnections()
+        await new Promise<void>(resolve => server.close(() => resolve()))
+      }
+    }
+  })
   it('persists only protected refresh material and restores it after restart', () => {
     const { storage, file } = fileStore()
     saveAccount(saved, storage)
@@ -156,6 +224,8 @@ describe('Synapsek native account', () => {
       async url =>
         url.endsWith('action=config')
           ? config
+          : url.endsWith('action=bind')
+            ? { expiresAt: new Date(Date.now() + 60000).toISOString() }
           : url.endsWith('action=revoke')
             ? { revoked: true, refreshRevoked: true }
             : snapshot(id),
@@ -236,6 +306,8 @@ describe('Synapsek native account', () => {
       async url => {
         if (url.endsWith('action=config')) {return config}
 
+        if (url.endsWith('action=bind')) {return { expiresAt: new Date(Date.now() + 60000).toISOString() }}
+
         if (url.endsWith('action=revoke')) {return { revoked: true, refreshRevoked: ++revocations > 1 }}
 
         return snapshot()
@@ -267,6 +339,8 @@ describe('Synapsek native account', () => {
 
         return url.endsWith('action=config')
           ? config
+          : url.endsWith('action=bind')
+            ? { expiresAt: new Date(Date.now() + 60000).toISOString() }
           : url.endsWith('action=revoke')
             ? { revoked: true, refreshRevoked: true }
             : snapshot()
@@ -297,3 +371,4 @@ describe('Synapsek native account', () => {
     expect(loadAccount(storage)).toBeNull()
   })
 })
+
