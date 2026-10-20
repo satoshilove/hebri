@@ -371,4 +371,3 @@ describe('Synapsek native account', () => {
     expect(loadAccount(storage)).toBeNull()
   })
 })
-
