@@ -591,7 +591,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
     if rebuild.exit_code != Some(0) {
         let msg = format!(
             "Rebuilding the desktop app failed (exit {:?}). The update was \
-             applied but the app could not be rebuilt; run `hermes desktop` \
+             applied but the app could not be rebuilt; run `hebri desktop` \
              from a terminal to see the error.",
             rebuild.exit_code
         );

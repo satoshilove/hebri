@@ -867,7 +867,7 @@ _PROVIDERS_WITHOUT_VISION: frozenset = frozenset({"kimi-coding", "kimi-coding-cn
 
 # OpenRouter app attribution (always sent). `X-Title` is what the dashboard reads.
 _OR_HEADERS_BASE = {
-    "HTTP-Referer": "https://hermes-agent.nousresearch.com",
+    "HTTP-Referer": "https://synapseklabs.org",
     "X-Title": "Hebri",
     "X-OpenRouter-Categories": "productivity,cli-agent",
 }
@@ -935,7 +935,7 @@ def build_nvidia_nim_headers(base_url: str | None) -> dict:
 from hermes_cli import __version__ as _HERMES_VERSION
 
 _AI_GATEWAY_HEADERS = {
-    "HTTP-Referer": "https://hermes-agent.nousresearch.com",
+    "HTTP-Referer": "https://synapseklabs.org",
     "X-Title": "Hebri",
     "User-Agent": f"HermesAgent/{_HERMES_VERSION}",
 }

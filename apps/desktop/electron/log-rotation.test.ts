@@ -68,12 +68,12 @@ test('truncation really frees the file, and an append-mode writer restarts at 0'
   const file = path.join(dir, 'desktop-chromium.log')
 
   try {
+    fs.writeFileSync(file, '')
+    fs.truncateSync(file, LOG_MAX_BYTES + 1) // Grow without writing GBs.
     // Stand in for Chromium: an O_APPEND handle held across the reclaim.
     const handle = fs.openSync(file, 'a')
 
     try {
-      fs.ftruncateSync(handle, LOG_MAX_BYTES + 1) // Grow without writing GBs.
-
       assert.equal(
         reclaimActiveLogIfOversized(file, {
           size: f => fs.statSync(f).size,

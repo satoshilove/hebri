@@ -921,7 +921,7 @@ export default function PluginsPage() {
               {t.pluginsPage.catalogEmpty ?? "No catalog entries match."}{" "}
               <a
                 className="underline"
-                href="https://hermes-agent.nousresearch.com/docs/plugins"
+                href="https://github.com/satoshilove/hebri/tree/main/plugin-catalog"
                 target="_blank"
                 rel="noreferrer"
               >

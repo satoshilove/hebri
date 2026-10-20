@@ -15,8 +15,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { translateBots } from './i18n-test-helper'
 
-const HUB_ORIGIN = 'https://hermes-agent.nousresearch.com'
-
 const mocks = vi.hoisted(() => ({
   notify: vi.fn(),
   notifyError: vi.fn(),
@@ -40,7 +38,7 @@ vi.mock('@hermes/plugin-sdk', async importOriginal => {
   }
 })
 
-const { HubSkillsSection } = await import('./skills-hub')
+const { HUB_ORIGIN, HubSkillsSection } = await import('./skills-hub')
 
 interface PickMessage {
   identifier?: string

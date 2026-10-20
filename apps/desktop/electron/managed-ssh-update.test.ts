@@ -259,7 +259,7 @@ test('update-all deduplicates the same recovery scope and keeps primary preceden
   )
 })
 
-test('POSIX managed launcher executes the updater command and atomically publishes its status', async () => {
+test.skipIf(process.platform === 'win32')('POSIX managed launcher executes the updater command and atomically publishes its status', async () => {
   const home = await mkdtemp(path.join(os.tmpdir(), 'hermes-managed-launch-'))
 
   try {
@@ -338,7 +338,7 @@ test('remote observation rejects a receipt for another correlation', () => {
   )
 })
 
-test('POSIX observer reads the exact correlation receipt and terminal marker from disk', async () => {
+test.skipIf(process.platform === 'win32')('POSIX observer reads the exact correlation receipt and terminal marker from disk', async () => {
   const home = await mkdtemp(path.join(os.tmpdir(), 'hermes-managed-update-'))
 
   try {
@@ -380,7 +380,7 @@ test('POSIX observer reads the exact correlation receipt and terminal marker fro
   }
 })
 
-test('managed observer unwraps a named profile home for the install-wide marker', async () => {
+test.skipIf(process.platform === 'win32')('managed observer unwraps a named profile home for the install-wide marker', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'hermes-managed-profile-marker-'))
   const profileHome = path.join(root, 'profiles', 'research')
 

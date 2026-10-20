@@ -34,7 +34,7 @@ fireworks = FireworksProfile(
     # Attribution headers (canonical Hermes set); via default_headers so they
     # survive switch_model and credential rotation.
     default_headers={
-        "HTTP-Referer": "https://hermes-agent.nousresearch.com",
+        "HTTP-Referer": "https://synapseklabs.org",
         "X-Title": "Hebri",
         "User-Agent": f"HermesAgent/{_HERMES_VERSION}",
     },

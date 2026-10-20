@@ -81,7 +81,7 @@ export function SidebarLoadErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 const SESSION_STORAGE_RECOVERY_URL =
-  'https://github.com/satoshilove/hebri#troubleshooting'
+  'https://github.com/satoshilove/hebri/blob/main/apps/desktop/README.md#session-database-recovery'
 
 // A structurally corrupt state.db empties (or thins out) the list below it,
 // which reads as deleted history (#72046). Persistent while the backend
@@ -104,7 +104,7 @@ export function SidebarStorageCorruptNotice() {
           <p>{copy.body(profiles.join(', '))}</p>
           <p>{copy.action}</p>
           <code className="break-all text-[0.7rem]">
-            hermes sessions recover --source &lt;state.db&gt; --inspect-only
+            hebri sessions recover --source &lt;state.db&gt; --inspect-only
           </code>
           <Button
             className="-ml-1 mt-0.5 text-(--ui-text-secondary)"

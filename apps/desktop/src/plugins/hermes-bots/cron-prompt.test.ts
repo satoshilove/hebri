@@ -49,7 +49,23 @@ describe('direct vs delegated execution', () => {
 })
 
 describe('delegated arguments stay literal shell values', () => {
-  it('passes substitutions, backticks and quotes through as text', () => {
+  it('encodes substitutions, backticks and quotes as single-quoted shell arguments', () => {
+    const title = "Audit $(printf TITLE_EXPANDED) `printf TITLE_TICK` 'quoted'"
+    const instruction = "Line one $(printf TASK_EXPANDED) `printf TASK_TICK`\nLine two 'quoted'"
+    const prompt = routinePrompt('research', title, instruction, 'default')
+
+    expect(prompt).toContain(`'Routine: Audit $(printf TITLE_EXPANDED) \`printf TITLE_TICK\` '"'"'quoted'"'"''`)
+    expect(prompt).toContain(
+      `'[Scheduled routine] Line one $(printf TASK_EXPANDED) \`printf TASK_TICK\`\nLine two '"'"'quoted'"'"''`
+    )
+  })
+
+  // The executable shell integration runs on the Unix platforms that execute
+  // this prompt. Windows CI has no POSIX `sh`; the platform-neutral assertion
+  // above still locks the exact quoting contract there.
+  const shellArgvTest = process.platform === 'win32' ? it.skip : it
+
+  shellArgvTest('passes substitutions, backticks and quotes through as text', () => {
     const title = "Audit $(printf TITLE_EXPANDED) `printf TITLE_TICK` 'quoted'"
     const instruction = "Line one $(printf TASK_EXPANDED) `printf TASK_TICK`\nLine two 'quoted'"
 

@@ -36,12 +36,14 @@ describe('SidebarStorageCorruptNotice', () => {
     expect(notice.textContent).toContain('Session database is damaged')
     expect(notice.textContent).toContain('for default')
     expect(notice.textContent).toContain('were not deleted')
-    expect(notice.textContent).toContain('hermes sessions recover --source <state.db> --inspect-only')
+    expect(notice.textContent).toContain('hebri sessions recover --source <state.db> --inspect-only')
     // No blanket "run repair" advice: structural damage goes to inspect/restore first.
     expect(notice.textContent).not.toContain('sessions repair')
 
     screen.getByRole('button', { name: /recovery guide/i }).click()
-    expect(openExternalLink).toHaveBeenCalledWith(expect.stringContaining('/user-guide/session-storage-recovery'))
+    expect(openExternalLink).toHaveBeenCalledWith(
+      'https://github.com/satoshilove/hebri/blob/main/apps/desktop/README.md#session-database-recovery'
+    )
   })
 
   it('keeps atom identity when a refresh reports the same stores', () => {

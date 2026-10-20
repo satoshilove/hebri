@@ -3,7 +3,7 @@ label: LINE
 kind: platform
 version: 1.0.0
 description: >
-  LINE Messaging API gateway adapter for Hermes Agent.
+  LINE Messaging API gateway adapter for Hebri.
   Runs an aiohttp webhook server that receives LINE webhook events
   (with HMAC-SHA256 signature verification) and relays messages between
   LINE chats (1:1, groups, rooms) and the Hermes agent. Outbound replies

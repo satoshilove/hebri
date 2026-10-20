@@ -20,7 +20,7 @@ import type { RosterRow } from './types'
 // the origin, install via skills.manage, and bubble onInstalled so the
 // checklist above gains the row. Search-box fallback kept for offline use.
 
-const HUB_ORIGIN = 'https://synapseklabs.org'
+export const HUB_ORIGIN = 'https://synapseklabs.org'
 const HUB_PICKER_URL = HUB_ORIGIN + '/docs/skills?embed=picker'
 /** One `skills.manage action=search` hit. */
 interface HubSkillResult {

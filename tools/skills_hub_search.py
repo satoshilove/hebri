@@ -24,7 +24,11 @@ from tools.skills_hub_sources import BrowseShSource, LobeHubSource, UrlSource, W
 # Log-record parity with the origin module.
 logger = logging.getLogger("tools.skills_hub")
 
-HERMES_INDEX_URL = "https://hermes-agent.nousresearch.com/docs/api/skills-index.json"
+# The old upstream index must not be contacted by a Hebri build. Synapsek does
+# not publish an equivalent index yet, so the hub intentionally uses its
+# direct source adapters below. Set this to the real Synapsek endpoint only
+# when that endpoint is deployed and monitored.
+HERMES_INDEX_URL = ""
 HERMES_INDEX_TTL = 6 * 3600  # 6 hours
 
 
@@ -43,6 +47,9 @@ def _load_hermes_index() -> Optional[dict]:
     Skills Hub. gzip/deflate first; the identity retry covers proxies that
     ignore the header and return Brotli anyway.
     """
+    if not HERMES_INDEX_URL:
+        return None
+
     from tools.skills_hub import _read_json_if_fresh
     cache_file = _hermes_index_cache_file()
     cached = _read_json_if_fresh(cache_file, HERMES_INDEX_TTL)

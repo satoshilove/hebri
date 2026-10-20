@@ -15,6 +15,9 @@ import pytest
 from hermes_cli import linux_desktop_entry as lde
 
 
+pytestmark = pytest.mark.linux_only
+
+
 @pytest.fixture
 def xdg_home(tmp_path, monkeypatch) -> Path:
     data_home = tmp_path / "xdg-data"

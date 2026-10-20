@@ -61,7 +61,7 @@ MEET_JOIN_SCHEMA = _schema(
               "description": ("transcribe (default): listen-only, scrape captions. "
                               "realtime: also enable agent speech via meet_say "
                               "(requires OpenAI Realtime key + platform audio bridge).")},
-     "guest_name": _str("Display name to use when joining as guest. Defaults to 'Hermes Agent'."),
+     "guest_name": _str("Display name to use when joining as guest. Defaults to 'Hebri'."),
      "duration": _str("Optional max duration before auto-leave (e.g. '30m', "
                       "'2h', '90s'). Omit to stay until meet_leave is called."),
      "headed": {"type": "boolean",

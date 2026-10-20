@@ -10,7 +10,7 @@ from providers import register_provider
 from providers.base import OMIT_TEMPERATURE, ProviderProfile
 
 _HEADERS = {
-    "HTTP-Referer": "https://hermes-agent.nousresearch.com",
+    "HTTP-Referer": "https://synapseklabs.org",
     "X-Title": "Hebri",
     "User-Agent": f"HermesAgent/{_HERMES_VERSION}",
 }

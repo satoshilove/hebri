@@ -205,7 +205,7 @@ class CLIInfoMixin:
             self._console_print()
             self._console_print(
                 "[bold yellow]⚠  Nous Research Hermes 3 & 4 models are NOT agentic and are not "
-                "designed for use with Hermes Agent.[/]")
+                "designed for use with Hebri.[/]")
             self._console_print(
                 "[dim]   They lack tool-calling capabilities required for agent workflows. "
                 "Consider using an agentic model (Claude, GPT, Gemini, DeepSeek, etc.).[/]")

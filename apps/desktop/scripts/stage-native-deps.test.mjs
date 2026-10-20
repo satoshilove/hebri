@@ -612,7 +612,7 @@ test('staging refuses a get-windows version the lib/windows.js rewrite was not v
   }
 })
 
-test('darwin staging ships the Swift helper executable and the rewritten windows.js', () => {
+test.skipIf(process.platform === 'win32')('darwin staging ships the Swift helper executable and the rewritten windows.js', () => {
   const tmp = fs.mkdtempSync(join(os.tmpdir(), 'hermes-stage-'))
   try {
     const srcRoot = join(tmp, 'get-windows')

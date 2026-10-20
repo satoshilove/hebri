@@ -76,7 +76,7 @@ describe('removeDesktopPlugin', () => {
     expect((await removeDesktopPlugin(root, 'ghost')).ok).toBe(false)
   })
 
-  it('removes a symlinked plugin folder as the link, never following it', async () => {
+  it.skipIf(process.platform === 'win32')('removes a symlinked plugin folder as the link, never following it', async () => {
     const { home, root } = makeRoot()
     const real = path.join(home, 'elsewhere')
     write(path.join(real, 'plugin.js'), 'export default {}')

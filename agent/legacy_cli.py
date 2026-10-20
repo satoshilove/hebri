@@ -31,7 +31,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         prog="hermes-agent",
-        description="Legacy single-query Hermes Agent runner. For the full CLI use `hermes`.",
+        description="Legacy single-query Hebri runner. For the full CLI use `hermes`.",
     )
     parser.add_argument("--version", action="version", version=f"Hebri v{__version__} ({__release_date__})")
     parser.add_argument("prompt", nargs="*", help="query to run (same as --query)")

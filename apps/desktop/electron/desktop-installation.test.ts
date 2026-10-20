@@ -16,7 +16,7 @@ function withTempDir(run) {
   try {
     return run(directory)
   } finally {
-    fs.rmSync(directory, { recursive: true, force: true })
+    fs.rmSync(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 })
   }
 }
 
@@ -38,7 +38,9 @@ test('loadOrCreateInstallationId persists and reuses one installation ID', () =>
       loadOrCreateInstallationId(filePath, () => ID_B),
       ID_A
     )
-    assert.equal(fs.statSync(filePath).mode & 0o777, 0o600)
+    if (process.platform !== 'win32') {
+      assert.equal(fs.statSync(filePath).mode & 0o777, 0o600)
+    }
   }))
 
 test('loadOrCreateInstallationId tightens an existing identity file', () =>

@@ -361,7 +361,7 @@ _SECTIONS = (
 
 
 def show_status(args):
-    """Show status of all Hermes Agent components."""
+    """Show status of all Hebri components."""
     # Shared by section renderers: config, --deep, and the Nous login facts Auth Providers derives
     # for the later Nous Tool Gateway section.
     ctx = SimpleNamespace(deep=getattr(args, 'deep', False), config={}, nous_logged_in=False,

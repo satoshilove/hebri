@@ -2282,7 +2282,7 @@ def cmd_version(args):
 
 
 def cmd_uninstall(args):
-    """Uninstall Hermes Agent (or just the Chat GUI with --gui).
+    """Uninstall Hebri (or just the Chat GUI with --gui).
 
     ``--yes`` paths run from the desktop app's non-interactive cleanup scripts,
     so the TTY gate applies only when we actually need to prompt.
@@ -2350,7 +2350,7 @@ def _update_preflight_handled(args) -> bool:
     from hermes_cli.config import is_managed, managed_error
 
     if is_managed():
-        managed_error("update Hermes Agent")
+        managed_error("update Hebri")
         return True
 
     # --plan is read-only and deployment-kind aware, so it runs BEFORE the

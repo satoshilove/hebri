@@ -7,13 +7,13 @@ import { startInstall } from '../store'
  * Welcome screen.
  *
  * Mirrors the desktop's chat intro (apps/desktop/src/components/chat/intro.tsx):
- *   - HERMES AGENT wordmark rendered in Collapse Bold, uppercase, tracked
+ *   - HEBRI wordmark rendered in Collapse Bold, uppercase, tracked
  *   - mix-blend-plus-lighter so the type "glows" on the canvas
  *   - fit-text utility so the wordmark sizes itself to the column
  *
  * No install-path footer. The default install location is correct for
  * 99% of users; the rest will use the CLI installer with a -HermesHome
- * flag. Showing %LOCALAPPDATA% to grandma is developer-brain.
+ * flag. Showing %LOCALAPPDATA% here would expose an implementation detail.
  */
 export default function Welcome() {
   return (
@@ -31,9 +31,9 @@ export default function Welcome() {
           }
         >
           <span>
-            <span>HERMES AGENT</span>
+            <span>HEBRI</span>
           </span>
-          <span aria-hidden="true">HERMES AGENT</span>
+          <span aria-hidden="true">HEBRI</span>
         </p>
 
         <p className="m-0 text-center text-base leading-normal tracking-tight text-muted-foreground">

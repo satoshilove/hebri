@@ -226,6 +226,16 @@ release-path changes.
 
 Boot logs land in `HERMES_HOME/logs/desktop.log` (includes backend output and recent Python tracebacks) — check it first if the app reports a boot failure.
 
+#### Session database recovery
+
+If Hebri reports that a profile's `state.db` is damaged, do not delete the database or run a write-mode repair first. Close Hebri, copy the affected `state.db` and its adjacent backup files to a safe location, then inspect a recovery into a separate destination:
+
+```bash
+hebri sessions recover --source <state.db> --inspect-only
+```
+
+Review the command output before choosing a recovered database. Keep the original and backups unchanged until the restored sessions have been verified in Hebri.
+
 **macOS / Linux:**
 
 ```bash
