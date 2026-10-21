@@ -72,8 +72,26 @@ if (dist && fs.existsSync(distBinary(dist))) {
 }
 args.push(...forwardedArgs)
 
+// GitHub Actions expands missing signing secrets to empty strings. electron-builder
+// treats an empty CSC_LINK as a path (the current project directory), then fails
+// with "not a file" before it can produce an unsigned macOS artifact. Omit only
+// blank optional credentials; configured signing and notarization values continue
+// to pass through unchanged.
+const builderEnv = { ...process.env }
+for (const key of [
+  "CSC_LINK",
+  "CSC_KEY_PASSWORD",
+  "APPLE_API_KEY",
+  "APPLE_API_KEY_ID",
+  "APPLE_API_ISSUER",
+  "APPLE_NOTARY_PROFILE",
+]) {
+  if (!String(builderEnv[key] || "").trim()) delete builderEnv[key]
+}
+
 const result = spawnSync(process.execPath, [electronBuilderCli(), ...args], {
   stdio: "inherit",
+  env: builderEnv,
 })
 if (result.error) {
   console.error(`[run-electron-builder] spawn failed: ${result.error.message}`)
