@@ -301,7 +301,11 @@ jobs:
         working-directory: apps/desktop
         shell: bash
         run: |
-          mapfile -d '' apps < <(find release -maxdepth 2 -type d -name Hebri.app -print0)
+          # macOS /bin/bash is 3.2 and does not provide mapfile.
+          apps=()
+          while IFS= read -r -d '' candidate; do
+            apps+=("$candidate")
+          done < <(find release -maxdepth 2 -type d -name Hebri.app -print0)
           test "${#apps[@]}" -eq 1 || {
             printf 'Expected one packaged Hebri.app, found %s\n' "${#apps[@]}" >&2
             exit 1
