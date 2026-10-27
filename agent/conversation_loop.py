@@ -387,24 +387,40 @@ def _pressure_with_real_floor(compressor: Any, rough_tokens: int) -> int:
 
 
 def _ollama_context_limit_error(agent: Any, request_tokens: int) -> Optional[str]:
-    """Return a user-facing error when Ollama is loaded with too little context."""
+    """Return a user-facing error when Ollama is loaded with too little context.
+
+    "measured" mode: the floor is the measured requirement (installed on the compressor at
+    init), so a sub-64K window that actually fits is not an error. "fixed" mode: the legacy 64K.
+    """
     runtime_ctx = getattr(agent, "_ollama_num_ctx", None)
+    _compressor = getattr(agent, "context_compressor", None)
+    _measured_floor = getattr(_compressor, "threshold_floor", None)
+    _floor = _measured_floor if _measured_floor is not None else MINIMUM_CONTEXT_LENGTH
     if (
         not getattr(agent, "tools", None)
         or not isinstance(runtime_ctx, int)
-        or not 0 < runtime_ctx < MINIMUM_CONTEXT_LENGTH
+        or not 0 < runtime_ctx < _floor
     ):
         return None
 
     model = getattr(agent, "model", "") or "the selected model"
     logger.warning(
         "Ollama runtime context too small for Hermes tool use: model=%s provider=%s base_url=%s "
-        "runtime_context=%d minimum_context=%d estimated_request_tokens=%d tool_count=%d session=%s",
+        "runtime_context=%d floor=%d estimated_request_tokens=%d tool_count=%d session=%s",
         model, getattr(agent, "provider", "") or "unknown",
-        getattr(agent, "base_url", "") or "unknown base URL", runtime_ctx, MINIMUM_CONTEXT_LENGTH,
+        getattr(agent, "base_url", "") or "unknown base URL", runtime_ctx, _floor,
         request_tokens, len(getattr(agent, "tools", None) or []),
         getattr(agent, "session_id", None) or "none",
     )
+    if _measured_floor is not None:
+        return (
+            f"Ollama loaded `{model}` with only {runtime_ctx:,} tokens of runtime context, but this "
+            f"profile needs at least {_floor:,} (measured overhead + output reservation + working "
+            "window).\n\n"
+            "Increase the Ollama context for this model and restart/reload the model before trying "
+            "again, or shrink the resident tool set (agent.disabled_toolsets / platform_toolsets) "
+            "to cut the measured overhead. Set agent.context_floor: fixed to keep the old 64K rule."
+        )
     return (
         f"Ollama loaded `{model}` with only {runtime_ctx:,} tokens of runtime context, but Hermes "
         f"needs at least {MINIMUM_CONTEXT_LENGTH:,} tokens for reliable tool use.\n\n"

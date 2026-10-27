@@ -315,6 +315,132 @@ def _warn_context_length_fallback(model: str, base_url: str) -> None:
 
 # Sessions, model switches and cron jobs reject models below this (too little working memory).
 MINIMUM_CONTEXT_LENGTH = 64_000
+
+# ---------------------------------------------------------------------------
+# Measured context floor (design: DESIGN-REMOVE-64K-WALL).
+#
+# "measured" mode replaces the fixed 64K wall with a measured fit-check:
+#     window >= O + max_tokens + W
+# where O is the REAL per-profile overhead (system prompt + resident tool
+# schema + framing, the same surface `hermes prompt-size` reports),
+# max_tokens is the output reservation, and W is the minimum working window
+# the conversation needs. MINIMUM_CONTEXT_LENGTH above keeps two jobs:
+#   (1) the "fixed" mode — a one-line rollback to today's exact behaviour; and
+#   (2) the CONSERVATIVE FALLBACK whenever O cannot be measured, so the
+#       fit-check never under-provisions.
+# ---------------------------------------------------------------------------
+CONTEXT_FLOOR_FRAMING_TOKENS = 256
+CONTEXT_FLOOR_DEFAULT_WORKING_WINDOW = 8192   # W: minimum conversation headroom
+CONTEXT_FLOOR_DEFAULT_MAX_TOKENS = 4096       # output reservation when the model leaves max_tokens unset
+
+_CONTEXT_FLOOR_CONFIG_CACHE: Dict[str, Tuple[str, int, int]] = {}
+
+
+def _context_floor_config() -> Tuple[str, int, int]:
+    """Read (mode, working_window, max_tokens) from the ``agent.*`` config keys.
+    Cached per process (the config does not change mid-run). On any error the
+    safe defaults apply: measured / 8192 / 4096."""
+    if "v" in _CONTEXT_FLOOR_CONFIG_CACHE:
+        return _CONTEXT_FLOOR_CONFIG_CACHE["v"]
+    mode = "measured"
+    w = CONTEXT_FLOOR_DEFAULT_WORKING_WINDOW
+    mt = CONTEXT_FLOOR_DEFAULT_MAX_TOKENS
+    try:
+        from hermes_cli.config import load_config
+        cfg = load_config() or {}
+        raw_agent = cfg.get("agent")
+        agent_cfg: Dict[str, Any] = raw_agent if isinstance(raw_agent, dict) else {}
+        raw_mode = str(agent_cfg.get("context_floor") or "measured").strip().lower()
+        if raw_mode in ("measured", "fixed"):
+            mode = raw_mode
+        with contextlib.suppress(Exception):
+            w = int(agent_cfg.get("context_floor_working_window", w))
+        with contextlib.suppress(Exception):
+            mt = int(agent_cfg.get("context_floor_max_tokens", mt))
+    except Exception:
+        pass
+    _CONTEXT_FLOOR_CONFIG_CACHE["v"] = (mode, w, mt)
+    return _CONTEXT_FLOOR_CONFIG_CACHE["v"]
+
+
+def get_context_floor_mode() -> str:
+    """``agent.context_floor``: 'measured' (default) or 'fixed'."""
+    return _context_floor_config()[0]
+
+
+def _fitcheck_tokens(text: str) -> int:
+    """Conservative token estimate: ceil(utf-8 bytes / 4). Deliberately rounds
+    UP so O is never under-provisioned (the design's 'chars/4, round up'; using
+    bytes also covers multi-byte content). Within ~1% of the real Qwen2.5
+    tokenizer on the Hermes profile surface."""
+    if not text:
+        return 0
+    return -(-len(text.encode("utf-8")) // 4)
+
+
+def measure_overhead_tokens(agent) -> Optional[int]:
+    """O = system prompt + resident tool schema + framing, in tokens.
+
+    Measures the same real per-profile surface that ``hermes prompt-size``
+    reports (``build_system_prompt(agent)`` + the resident ``agent.tools``
+    array). Returns ``None`` when the surface cannot be measured; the caller
+    must then fall back to the fixed floor (conservative: never
+    under-provision)."""
+    try:
+        from agent.system_prompt import build_system_prompt
+        system_prompt = build_system_prompt(agent)
+        tools = list(getattr(agent, "tools", []) or [])
+        tools_json = json.dumps(tools, ensure_ascii=False) if tools else ""
+    except Exception:
+        return None
+    if not system_prompt and not tools_json:
+        return None
+    return (_fitcheck_tokens(system_prompt)
+            + _fitcheck_tokens(tools_json)
+            + CONTEXT_FLOOR_FRAMING_TOKENS)
+
+
+def effective_main_floor(agent) -> Tuple[int, Optional[dict]]:
+    """The context floor that applies to this agent's MAIN model.
+
+    Returns ``(floor_tokens, breakdown)`` where ``breakdown`` is
+    ``{"o", "max_tokens", "w", "mode"}`` in measured mode and ``None`` in
+    fixed / unmeasurable cases (where ``floor`` is the fixed 64K).
+
+    Safety invariant: the floor is never looser than what can actually be
+    measured. 'fixed' mode AND an unmeasurable O both return
+    MINIMUM_CONTEXT_LENGTH."""
+    mode, w_default, mt_default = _context_floor_config()
+    if mode == "fixed":
+        return MINIMUM_CONTEXT_LENGTH, None
+    o = measure_overhead_tokens(agent)
+    if o is None:
+        return MINIMUM_CONTEXT_LENGTH, None
+    max_tokens = getattr(agent, "max_tokens", None) or mt_default
+    floor = o + max_tokens + w_default
+    breakdown = {"o": o, "max_tokens": max_tokens, "w": w_default, "mode": "measured"}
+    return floor, breakdown
+
+
+def effective_aux_floor() -> Tuple[int, Optional[dict]]:
+    """The context floor for the compression AUX model.
+
+    The compression summariser sends ONE user prompt — no system prompt, no tool
+    schemas — and the main threshold is lowered to fit its window
+    (``_lower_threshold_to_aux_context``), so it needs far less than the main
+    agent's overhead. "fixed" mode keeps today's exact 64K floor (``breakdown``
+    None). "measured" mode requires only framing + a minimum working window, so
+    a sub-64K compression model that can summarise usefully is no longer
+    refused.
+    """
+    mode, w_default, _mt_default = _context_floor_config()
+    if mode == "fixed":
+        return MINIMUM_CONTEXT_LENGTH, None
+    floor = CONTEXT_FLOOR_FRAMING_TOKENS + w_default
+    breakdown = {
+        "o": CONTEXT_FLOOR_FRAMING_TOKENS, "max_tokens": 0, "w": w_default, "mode": "measured-aux",
+    }
+    return floor, breakdown
 # In-process (model, base_url) -> (result, monotonic_ts) memo for local probes: one
 # startup resolves the same model several times (banner, /model, compressor). Never persisted.
 _LOCAL_CTX_PROBE_TTL_SECONDS = 30.0
@@ -683,9 +809,11 @@ def _save_unless_skipped(model: str, base_url: str, ctx: int, provider: str) -> 
 
 
 def _maybe_cache_local_context_length(model: str, base_url: str, length: int) -> None:
-    """Persist a probed local window only at/above MINIMUM_CONTEXT_LENGTH: sub-minimum windows are
-    still returned so agent_init can reject them, but must not be blessed into the disk cache."""
-    if length >= MINIMUM_CONTEXT_LENGTH:
+    """Persist a probed local window. In "measured" mode the 64K floor does NOT gate caching — a
+    sub-64K window that the fit-check admits is a valid window and is blessed into the cache. In
+    "fixed" mode only at/above MINIMUM_CONTEXT_LENGTH is persisted (sub-minimum windows are still
+    returned so agent_init can reject them, but must not be blessed)."""
+    if get_context_floor_mode() == "measured" or length >= MINIMUM_CONTEXT_LENGTH:
         save_context_length(model, base_url, length)
 
 
@@ -706,13 +834,13 @@ def _reconcile_local_cached_context_length(model: str, base_url: str, cached: in
     live_ctx = _query_local_context_length(model, base_url, api_key=api_key)
     if not (live_ctx and live_ctx > 0 and live_ctx != cached):
         return cached
-    if live_ctx < MINIMUM_CONTEXT_LENGTH:
+    _measured = get_context_floor_mode() == "measured"
+    if (not _measured) and live_ctx < MINIMUM_CONTEXT_LENGTH:
         logger.info("Live local probe for %s@%s reports %s (< minimum %s); invalidating stale cache — agent init should reject", model, base_url, f"{live_ctx:,}", f"{MINIMUM_CONTEXT_LENGTH:,}")
     else:
         logger.info("Reconciling stale local cache entry %s@%s: %s -> %s (live probe)", model, base_url, f"{cached:,}", f"{live_ctx:,}")
     _invalidate_cached_context_length(model, base_url)
-    if live_ctx >= MINIMUM_CONTEXT_LENGTH:
-        _maybe_cache_local_context_length(model, base_url, live_ctx)
+    _maybe_cache_local_context_length(model, base_url, live_ctx)
     return live_ctx
 
 
