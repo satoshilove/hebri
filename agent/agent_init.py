@@ -2007,13 +2007,12 @@ def _build_context_engine(agent, _agent_cfg, cs, _custom_providers, _effective_c
 
 
 def _enforce_minimum_context(agent):
-    # Gate the main agent's window against the context floor (design:
-    # DESIGN-REMOVE-64K-WALL). "measured" mode (default) computes the real
-    # per-profile overhead O and only requires window >= O + max_tokens + W,
-    # so a sub-64K model that actually fits can start. "fixed" mode is today's
-    # exact 64K wall; an unmeasurable O falls back to the 64K floor (never
-    # under-provision). An explicit positive model.context_length on LM Studio
-    # is allowed below the floor.
+    # The default "fixed" mode preserves the existing 64K admission rule.
+    # Opt-in "measured" mode estimates per-profile overhead O and requires
+    # window >= O + max_tokens + W. An unavailable estimate uses the fixed
+    # floor. Normal request preflight still protects against estimation error.
+    # An explicit positive model.context_length on LM Studio is allowed below
+    # the floor, as before.
     _ctx = getattr(agent.context_compressor, "context_length", 0)
     # A local Ollama server serves num_ctx, not the GGUF's advertised window: a Modelfile or
     # model.ollama_num_ctx at 64K+ is a usable window even when the metadata says 40K (#100437).
@@ -2050,7 +2049,7 @@ def _enforce_minimum_context(agent):
             raise ValueError(
                 f"Model {agent.model} has a context window of {_ctx:,} tokens, "
                 f"which is below the minimum {MINIMUM_CONTEXT_LENGTH:,} required "
-                f"by Hermes Agent.  {remedy}"
+                f"by Hebri.  {remedy}"
             )
         # measured mode: refuse with the real measured numbers, not a bare "below 64K".
         _o = _breakdown["o"]
@@ -2059,7 +2058,7 @@ def _enforce_minimum_context(agent):
         _short = _floor - _ctx
         if agent.base_url and is_local_endpoint(agent.base_url):
             remedy = (
-                f"this profile's real overhead is {_o:,} tokens (system prompt + resident tool "
+                f"this profile's estimated overhead is {_o:,} tokens (system prompt + resident tool "
                 f"schema + framing); with the {_mt:,}-token output reservation and the "
                 f"{_w:,}-token working window the fit-check needs {_floor:,} tokens, "
                 f"{_short:,} more than this server serves. To fix: (1) shrink the resident tool "
