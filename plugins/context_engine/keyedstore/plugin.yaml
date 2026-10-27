@@ -1,0 +1,4 @@
+name: keyedstore
+version: 0.1.0
+kind: context-engine
+description: "Keyed-store context engine — the agent ADDRESSES its history instead of reading a summary. Summarising the transcript is lossy by measurement: 76% of numbers, 83% of code and 92% of exact values are physically absent from the digest, so no model or prompt can recover them."
