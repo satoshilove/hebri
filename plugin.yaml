@@ -1,0 +1,3 @@
+name: appendonly
+version: 0.1.0
+description: "Append-only memory — a live memory that never breaks the prompt cache. The cached block is frozen once per session; new facts arrive through the turn tail, delivered once."
