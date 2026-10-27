@@ -48,6 +48,10 @@ def automatic_compaction_status_message(engine: Any, *, phase: str, default_mess
 class ContextEngine(ABC):
     """Base class all context engines must implement."""
 
+    # Deterministic engines do not need an auxiliary model or its credentials.
+    uses_summary_model: bool = True
+    requires_tools_for_compression: bool = False
+
     @property
     @abstractmethod
     def name(self) -> str:

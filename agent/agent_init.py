@@ -1942,6 +1942,10 @@ def _build_context_engine(agent, _agent_cfg, cs, _custom_providers, _effective_c
         # resolution already sees them.
         if cs.model_thresholds:
             agent.context_compressor.model_thresholds = cs.model_thresholds
+        # Compressor-derived plugins use the same output reservation as the
+        # built-in engine. Other plugin contracts remain unchanged.
+        if isinstance(agent.context_compressor, ContextCompressor):
+            agent.context_compressor.max_tokens = _compressor_max_tokens(agent)
         agent.context_compressor.update_model(
             model=agent.model, context_length=_plugin_ctx_len, base_url=agent.base_url,
             api_key=getattr(agent, "api_key", ""), provider=agent.provider, api_mode=agent.api_mode,
@@ -2144,6 +2148,9 @@ def _inject_context_engine_tools(agent):
             for _names in (agent.valid_tool_names, agent._context_engine_tool_names, _existing_tool_names):
                 _names.add(_tname)
 
+    if (getattr(agent.context_compressor, "requires_tools_for_compression", False)
+            and not agent._context_engine_tool_names):
+        raise ValueError("The selected context engine requires its recall tools. Enable the context_engine toolset or select a different engine.")
     if agent.context_compressor:
         try:
             agent.context_compressor.on_session_start(
@@ -2485,9 +2492,9 @@ def init_agent(
     )
     _build_context_engine(agent, _agent_cfg, cs, _custom_providers, _effective_context_length, session_db)
     _configure_ollama_num_ctx(agent, _model_cfg, _config_context_length)
+    _inject_context_engine_tools(agent)
     _enforce_minimum_context(agent)
     _warn_nonagentic_hermes_model(agent)
-    _inject_context_engine_tools(agent)
     _init_usage_state(agent)
     _clamp_compressor_to_ollama_num_ctx(agent)
     _emit_compression_summary(agent, cs)

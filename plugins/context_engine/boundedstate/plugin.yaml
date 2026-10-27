@@ -1,4 +1,4 @@
 name: boundedstate
 version: 0.1.0
 kind: context-engine
-description: "Bounded-state context engine — carries STATE instead of replaying the transcript. Measured on real traffic: 26.3 cache-read tokens per fresh input token, 95.6% of all tokens processed being re-reads of the same conversation (cache_write_tokens=0 in all 171 usage rows, so that is a lower bound)."
+description: "Opt-in deterministic, lossy summaries using the normal context-compaction lifecycle. No summary-model calls."

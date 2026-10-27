@@ -2078,6 +2078,9 @@ def check_compression_model_feasibility(agent: Any) -> None:
     later, so ``replay_compression_warning`` resends it."""
     if not agent.compression_enabled:
         return
+    if not getattr(agent.context_compressor, "uses_summary_model", True):
+        agent._compression_feasibility_checked = True
+        return
     try:
         from agent.auxiliary_client import (
             _resolve_task_provider_model, _try_configured_fallback_for_unavailable_client,

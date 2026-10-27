@@ -51,13 +51,11 @@ DEFAULT_CONFIG = {
         "terminal_continue": True,
     },
     "agent": {
-        # Context-floor enforcement mode (design: DESIGN-REMOVE-64K-WALL). "measured" (default):
-        # compute the real per-profile overhead (system prompt + resident tool schema + framing)
-        # and only require window >= O + max_tokens + W, so a sub-64K model that actually fits
-        # (e.g. a 32K laptop model) can start. "fixed": the legacy hard 64K floor — one-line
-        # rollback. An unmeasurable O ALWAYS falls back to the fixed floor (conservative: never
-        # under-provision). See agent/model_metadata.py: effective_main_floor().
-        "context_floor": "measured",
+        # Preserve the existing 64K rule by default. Opt-in "measured" estimates
+        # system/tool overhead plus output and working space for smaller models.
+        # Unknown prompt surfaces fall back to fixed. Runtime overflow checks
+        # remain necessary: an estimate is not the model's actual tokenizer.
+        "context_floor": "fixed",
         # Working-window headroom W (tokens) reserved for the conversation on top of O +
         # max_tokens, in "measured" mode. Bigger = stricter (refuses tighter-fitting models).
         "context_floor_working_window": 8192,
