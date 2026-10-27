@@ -6,6 +6,19 @@ import { nativeText } from './native-i18n'
 const FIRST_CHECK_DELAY_MS = 30_000
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1_000
 
+export interface ReleaseProgress {
+  stage: 'prepare' | 'fetch' | 'manual' | 'error'
+  releasePhase?: 'checking' | 'downloading' | 'verifying' | 'ready'
+  releaseVersion?: string
+  message: string
+  percent: number | null
+  error: string | null
+  at: number
+  transferred?: number
+  total?: number
+  bytesPerSecond?: number
+}
+
 type ReleaseUpdater = Pick<
   AppUpdater,
   | 'allowPrerelease'
@@ -17,6 +30,7 @@ type ReleaseUpdater = Pick<
   | 'setFeedURL'
   | 'disableWebInstaller'
   | 'logger'
+  | 'on'
 >
 interface ReleaseUpdaterOptions {
   currentVersion: string
@@ -25,6 +39,7 @@ interface ReleaseUpdaterOptions {
   log: (message: string) => void
   showMessageBox: (window: BrowserWindow | null, options: MessageBoxOptions) => Promise<MessageBoxReturnValue>
   updater: ReleaseUpdater
+  onProgress?: (progress: ReleaseProgress) => void
 }
 export interface ReleaseUpdateStatus {
   supported: boolean
@@ -35,8 +50,9 @@ export interface ReleaseUpdateStatus {
   error?: string
   message?: string
   fetchedAt: number
+  progress?: ReleaseProgress
 }
-type ApplyResult = { ok: boolean; manualRestart?: boolean; error?: string; message?: string }
+type ApplyResult = { ok: boolean; manualRestart?: boolean; error?: string; message?: string; releaseVersion?: string }
 export interface ReleaseUpdaterController {
   check: (manual?: boolean) => Promise<void>
   status: (force?: boolean) => Promise<ReleaseUpdateStatus>
@@ -98,6 +114,37 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
   let checking: Promise<ReleaseUpdateStatus> | null = null
   let latest: ReleaseUpdateStatus | null = null
   let applying: Promise<ApplyResult> | null = null
+  let progress: ReleaseProgress | undefined
+  let ready: ApplyResult | null = null
+
+  const publish = (value: Omit<ReleaseProgress, 'at'>) => {
+    progress = { ...value, at: Date.now() }
+    options.onProgress?.(progress)
+  }
+
+  updater.on('download-progress', info => {
+    if (!applying) {
+      return
+    }
+    const valid = (value: number) => (Number.isFinite(value) && value >= 0 ? value : undefined)
+    const transferred = valid(info.transferred)
+    const total = valid(info.total)
+    const percent = total && transferred !== undefined ? Math.min(100, (transferred / total) * 100) : null
+    publish({
+      stage: 'fetch',
+      message: '',
+      error: null,
+      percent,
+      releasePhase: percent === 100 ? 'verifying' : 'downloading',
+      releaseVersion: latest?.releaseVersion,
+      transferred,
+      total,
+      bytesPerSecond: valid(info.bytesPerSecond)
+    })
+  })
+  // electron-updater also emits errors separately from its rejected promise.
+  // Handle them so a failed update cannot terminate the Electron process.
+  updater.on('error', error => options.log(`[release-update] ${errorMessage(error)}`))
 
   const status = async (force = false): Promise<ReleaseUpdateStatus> => {
     if (checking) {
@@ -105,7 +152,7 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
     }
 
     if (!force && latest && !latest.error && Date.now() - latest.fetchedAt < CHECK_INTERVAL_MS) {
-      return latest
+      return { ...latest, progress }
     }
 
     checking = (async () => {
@@ -131,7 +178,7 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
         options.log(`[release-update] check failed: ${latest.message}`)
       }
 
-      return latest
+      return { ...latest, progress }
     })()
 
     try {
@@ -146,8 +193,13 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
       return applying
     }
 
+    if (ready) {
+      return Promise.resolve(ready)
+    }
+
     applying = (async () => {
       try {
+        publish({ stage: 'prepare', releasePhase: 'checking', message: '', percent: null, error: null })
         const current = await status(true)
 
         if (current.error) {
@@ -155,24 +207,52 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
         }
 
         if (!current.updateAvailable) {
+          publish({
+            stage: 'error',
+            message: nativeText('No newer Hebri release is available.'),
+            percent: null,
+            error: 'no-update'
+          })
+
           return { ok: false, error: 'no-update', message: nativeText('No newer Hebri release is available.') }
         }
 
+        publish({
+          stage: 'fetch',
+          releasePhase: 'downloading',
+          releaseVersion: current.releaseVersion,
+          message: '',
+          percent: null,
+          error: null
+        })
         const files = await updater.downloadUpdate()
 
         if (!files.length) {
           throw new Error('The Hebri update download did not produce an installer.')
         }
 
-        return {
+        ready = {
           ok: true,
           manualRestart: true,
+          releaseVersion: current.releaseVersion,
           message: nativeText(
             'Hebri {version} is downloaded. Quit Hebri completely, then reopen it to finish installing. Your running work has not been stopped.',
             { version: current.releaseVersion ?? '' }
           )
         }
+        publish({
+          stage: 'manual',
+          releasePhase: 'ready',
+          releaseVersion: current.releaseVersion,
+          message: ready.message ?? '',
+          percent: 100,
+          error: null
+        })
+
+        return ready
       } catch (error) {
+        publish({ stage: 'error', message: errorMessage(error), percent: null, error: 'download-failed' })
+
         return { ok: false, error: 'download-failed', message: errorMessage(error) }
       }
     })().finally(() => {

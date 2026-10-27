@@ -3149,6 +3149,12 @@ export const zhHant = defineLocale({
   },
 
   updates: {
+    releaseInstalled: '更新已安裝',
+    releaseReady: '下載完成',
+    releaseReadyBody: '儲存工作，完全結束 Hebri 以安裝更新，然後重新開啟 Hebri。目前執行中的應用程式尚未變更。',
+    releaseVerifying: '正在驗證下載…',
+    releaseDownloadBody: '正在下載 Hebri 桌面更新。目前的工作將保持開啟。',
+    releaseDownloadFooter: '下載內容會在準備安裝前經過驗證。',
     stages: {
       idle: '準備中…',
       prepare: '準備中…',
@@ -3190,8 +3196,7 @@ export const zhHant = defineLocale({
     copy: '複製',
     copied: '已複製',
     done: '完成',
-    applyingBody:
-      'Hebri 更新程式會在自己的視窗中接管，並在完成後自動重新開啟 Hebri。更新期間請勿自行重新開啟 Hebri。',
+    applyingBody: 'Hebri 更新程式會在自己的視窗中接管，並在完成後自動重新開啟 Hebri。更新期間請勿自行重新開啟 Hebri。',
     applyingBodyBackend: '遠端後端正在套用更新並將重新啟動。恢復後 Hebri 會自動重新連線。',
     applyingClose: '此視窗會在更新期間關閉，隨後 Hebri 會自動重新開啟。',
     errorTitle: '更新未完成',

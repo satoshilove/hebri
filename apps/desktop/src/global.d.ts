@@ -747,6 +747,7 @@ export interface DesktopUpdateCommit {
 }
 
 export interface DesktopUpdateStatus {
+  progress?: DesktopUpdateProgress
   source?: 'release'
   releaseVersion?: string
   supported: boolean
@@ -789,6 +790,7 @@ export interface DesktopUpdateApplyOptions {
 }
 
 export interface DesktopUpdateApplyResult {
+  releaseVersion?: string
   ok: boolean
   branch?: string
   error?: string
@@ -840,6 +842,11 @@ export type DesktopUpdateStage =
   | 'error'
 
 export interface DesktopUpdateProgress {
+  releasePhase?: 'checking' | 'downloading' | 'verifying' | 'ready'
+  releaseVersion?: string
+  transferred?: number
+  total?: number
+  bytesPerSecond?: number
   stage: DesktopUpdateStage
   message: string
   percent: number | null

@@ -97,6 +97,7 @@ const {
   $updateOverlayOpen,
   $updateOverlayTarget,
   requestActiveUpdate,
+  refreshDesktopVersion,
   resetUpdateApplyState,
   startUpdatePoller,
   stopUpdatePoller,
@@ -134,6 +135,30 @@ const setRemote = (on: boolean) =>
     logs: [],
     windowButtonPosition: null
   })
+
+it('confirms a release installation only when the running app matches the downloaded version', async () => {
+  storage.clear()
+  notifySpy.mockClear()
+  storage.set('hebri.downloaded-release', '0.17.21')
+  const getVersion = vi.fn().mockResolvedValue({ appVersion: '0.17.20' })
+
+  const previousWindow = globalThis.window
+
+  ;(globalThis as unknown as { window: unknown }).window = { hermesDesktop: { getVersion } }
+
+  try {
+    await refreshDesktopVersion()
+    expect(notifySpy).not.toHaveBeenCalled()
+    expect(storage.get('hebri.downloaded-release')).toBe('0.17.21')
+    getVersion.mockResolvedValue({ appVersion: '0.17.21' })
+    await refreshDesktopVersion()
+    await refreshDesktopVersion()
+    expect(notifySpy).toHaveBeenCalledTimes(1)
+    expect(notifySpy.mock.calls[0][0]).toMatchObject({ title: 'Update installed', message: 'Hebri 0.17.21' })
+  } finally {
+    ;(globalThis as unknown as { window: unknown }).window = previousWindow
+  }
+})
 
 describe('maybeNotifyUpdateAvailable', () => {
   beforeEach(() => {

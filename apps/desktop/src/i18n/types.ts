@@ -3377,6 +3377,12 @@ export interface Translations {
   }
 
   updates: {
+    releaseInstalled: string
+    releaseReady: string
+    releaseReadyBody: string
+    releaseVerifying: string
+    releaseDownloadBody: string
+    releaseDownloadFooter: string
     stages: Record<string, string>
     checking: string
     checkFailedTitle: string

@@ -4058,6 +4058,13 @@ export const en: Translations = {
   },
 
   updates: {
+    releaseInstalled: 'Update installed',
+    releaseReady: 'Download complete',
+    releaseReadyBody:
+      'Save your work, quit Hebri completely to install the update, then reopen Hebri. The running app has not changed yet.',
+    releaseVerifying: 'Verifying download…',
+    releaseDownloadBody: 'Downloading the Hebri desktop update. Your running work stays open.',
+    releaseDownloadFooter: 'The download will be checked before it is ready to install.',
     stages: {
       idle: 'Getting ready…',
       prepare: 'Getting ready…',

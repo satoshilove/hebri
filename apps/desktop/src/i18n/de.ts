@@ -1540,8 +1540,7 @@ export const de = defineLocale({
           title: 'Oberfläche + Agent deinstallieren, Daten behalten',
           description:
             'Entfernt die App und den Hebri-Agent, behält aber Konfiguration, Chats und Geheimnisse für eine spätere Neuinstallation.',
-          consequence:
-            'die Chat-Oberfläche und den Hebri-Agent (Konfiguration, Chats und Geheimnisse bleiben erhalten)'
+          consequence: 'die Chat-Oberfläche und den Hebri-Agent (Konfiguration, Chats und Geheimnisse bleiben erhalten)'
         },
         full: {
           title: 'Alles deinstallieren',
@@ -4513,6 +4512,13 @@ export const de = defineLocale({
     }
   },
   updates: {
+    releaseInstalled: 'Update installiert',
+    releaseReady: 'Download abgeschlossen',
+    releaseReadyBody:
+      'Speichere deine Arbeit, beende Hebri vollständig, um das Update zu installieren, und öffne Hebri erneut. Die laufende App wurde noch nicht geändert.',
+    releaseVerifying: 'Download wird überprüft…',
+    releaseDownloadBody: 'Das Hebri-Desktop-Update wird heruntergeladen. Deine laufende Arbeit bleibt geöffnet.',
+    releaseDownloadFooter: 'Der Download wird vor der Installation überprüft.',
     stages: {
       idle: 'Wird vorbereitet…',
       prepare: 'Wird vorbereitet…',

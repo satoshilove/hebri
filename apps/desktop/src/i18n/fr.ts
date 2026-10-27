@@ -4525,6 +4525,13 @@ export const fr = defineLocale({
     }
   },
   updates: {
+    releaseInstalled: 'Mise à jour installée',
+    releaseReady: 'Téléchargement terminé',
+    releaseReadyBody:
+      'Enregistrez votre travail, quittez complètement Hebri pour installer la mise à jour, puis rouvrez Hebri. L’application en cours n’a pas encore changé.',
+    releaseVerifying: 'Vérification du téléchargement…',
+    releaseDownloadBody: 'Téléchargement de la mise à jour de Hebri. Votre travail reste ouvert.',
+    releaseDownloadFooter: 'Le téléchargement sera vérifié avant de pouvoir être installé.',
     stages: {
       idle: 'Préparation…',
       prepare: 'Préparation…',
@@ -4713,8 +4720,7 @@ export const fr = defineLocale({
     headerTitle: 'Configurons Hebri Agent pour vous',
     headerDesc:
       'Connectez un fournisseur de modèles pour commencer à discuter. La plupart des options nécessitent un clic.',
-    preparingInstall:
-      "Hebri finalise l'installation. Cela prend généralement moins d'une minute au premier lancement.",
+    preparingInstall: "Hebri finalise l'installation. Cela prend généralement moins d'une minute au premier lancement.",
     starting: 'Démarrage de Hebri…',
     lookingUpProviders: 'Recherche des fournisseurs...',
     collapse: 'Réduire',

@@ -1840,8 +1840,7 @@ export const es = defineLocale({
         'Un ajuste de inicio externo a la app eligió esta conexión, así que las opciones de abajo son de solo lectura. Reinicia Hebri sin ese ajuste (o pregunta a quien lo configuró) para cambiarla aquí.',
       modeTitle: 'Modo de conexión',
       localTitle: 'Gateway local',
-      localDesc:
-        'Inicia un backend privado de Hebri en localhost. Es el valor predeterminado y funciona sin conexión.',
+      localDesc: 'Inicia un backend privado de Hebri en localhost. Es el valor predeterminado y funciona sin conexión.',
       remoteTitle: 'Gateway remoto',
       remoteDesc: 'Conecta esta shell de escritorio a un backend remoto de Hebri.',
       remoteAuthHint:
@@ -3946,8 +3945,7 @@ export const es = defineLocale({
       title: 'La base de datos de sesiones está dañada',
       body: (profiles: string) =>
         `Hebri no puede leer todo el historial de sesiones de ${profiles}. Los chats que faltan en esta lista no se eliminaron; el archivo donde se guardan está dañado.`,
-      action:
-        'Sal de Hebri en este perfil y luego inspecciona el archivo sin modificarlo, o restaura una instantánea:',
+      action: 'Sal de Hebri en este perfil y luego inspecciona el archivo sin modificarlo, o restaura una instantánea:',
       guide: 'Guía de recuperación'
     },
     noFilterMatches: 'Ninguna sesión coincide con estos filtros',
@@ -4505,6 +4503,13 @@ export const es = defineLocale({
     }
   },
   updates: {
+    releaseInstalled: 'Actualización instalada',
+    releaseReady: 'Descarga completada',
+    releaseReadyBody:
+      'Guarda tu trabajo, cierra Hebri por completo para instalar la actualización y vuelve a abrirlo. La aplicación en ejecución aún no ha cambiado.',
+    releaseVerifying: 'Verificando la descarga…',
+    releaseDownloadBody: 'Descargando la actualización de Hebri. Tu trabajo permanece abierto.',
+    releaseDownloadFooter: 'La descarga se verificará antes de estar lista para instalar.',
     stages: {
       idle: 'Preparando…',
       prepare: 'Preparando…',

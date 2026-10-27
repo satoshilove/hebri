@@ -2931,6 +2931,13 @@ export const ja = defineLocale({
   },
 
   updates: {
+    releaseInstalled: '更新をインストールしました',
+    releaseReady: 'ダウンロード完了',
+    releaseReadyBody:
+      '作業を保存し、Hebriを完全に終了して更新をインストールしてから、再度開いてください。実行中のアプリはまだ変更されていません。',
+    releaseVerifying: 'ダウンロードを検証中…',
+    releaseDownloadBody: 'Hebriの更新をダウンロードしています。作業は開いたままです。',
+    releaseDownloadFooter: 'インストールの準備が整う前にダウンロードを検証します。',
     stages: {
       idle: '準備中…',
       prepare: '準備中…',
@@ -3050,8 +3057,7 @@ export const ja = defineLocale({
       'セッショントークンまたはブラウザーサインインでリモートバックエンドを使用します。ローカルインストールは開始されません。',
     installLocalTitle: 'Hebri をローカルにインストール',
     installLocalDesc: 'Hebri をダウンロードし、Python 環境を作成して、このコンピューターでバックエンドを実行します。',
-    localStartUnavailable:
-      'ローカルインストールを開始できません。Hebri Desktop を再起動して、もう一度お試しください。',
+    localStartUnavailable: 'ローカルインストールを開始できません。Hebri Desktop を再起動して、もう一度お試しください。',
     remoteSetupTitle: '既存の Hebri に接続',
     remoteSetupDesc:
       'ゲートウェイ URL を入力してください。Hebri Desktop がトークンとブラウザーサインインのどちらが必要かを検出します。',
@@ -3472,8 +3478,7 @@ export const ja = defineLocale({
       address: 'アドレス',
       addressPlaceholder: 'アドレスを入力',
       blankPageBody: '上のアドレス欄に入力するか、Hebri にページを開くよう頼んでください。',
-      finishedRestarting: message =>
-        `Hebri がプレビューサーバーの再起動を完了しました${message ? `: ${message}` : ''}`,
+      finishedRestarting: message => `Hebri がプレビューサーバーの再起動を完了しました${message ? `: ${message}` : ''}`,
       failedRestarting: message => `サーバーの再起動に失敗しました: ${message}`,
       unknownError: '不明なエラー',
       restartedTitle: 'プレビューサーバーが再起動しました',
