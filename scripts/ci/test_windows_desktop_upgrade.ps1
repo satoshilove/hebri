@@ -45,7 +45,11 @@ function Install-Package([string]$File, [switch]$Update) {
 function Assert-Version([string]$Version) {
     $binary = Join-Path $installDir 'Hebri.exe'
     $actual = (Get-Item -LiteralPath $binary).VersionInfo.ProductVersion
-    if ($actual -ne $Version) { throw "Expected installed version $Version, found $actual." }
+    # Windows PE resources encode the fourth (revision) component even when
+    # the desktop's semantic version has only three components.
+    if ($actual -notin @($Version, "$Version.0")) {
+        throw "Expected installed version $Version, found $actual."
+    }
 }
 
 Install-Package $previous
