@@ -25,6 +25,8 @@ type ReleaseUpdater = Pick<
   | 'allowDowngrade'
   | 'autoDownload'
   | 'autoInstallOnAppQuit'
+  | 'autoRunAppAfterInstall'
+  | 'quitAndInstall'
   | 'checkForUpdates'
   | 'downloadUpdate'
   | 'setFeedURL'
@@ -36,6 +38,7 @@ interface ReleaseUpdaterOptions {
   currentVersion: string
   getWindow: () => BrowserWindow | null
   isPackaged: boolean
+  platform?: NodeJS.Platform
   log: (message: string) => void
   showMessageBox: (window: BrowserWindow | null, options: MessageBoxOptions) => Promise<MessageBoxReturnValue>
   updater: ReleaseUpdater
@@ -57,6 +60,7 @@ export interface ReleaseUpdaterController {
   check: (manual?: boolean) => Promise<void>
   status: (force?: boolean) => Promise<ReleaseUpdateStatus>
   apply: () => Promise<ApplyResult>
+  installOnQuit: (exitCode: number) => void
   start: () => void
 }
 
@@ -93,7 +97,16 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
   // Check automatically, download only after Update now. Retain the updater's
   // checksum/signature validation and normal quit guards for active work.
   updater.autoDownload = false
-  updater.autoInstallOnAppQuit = true
+  const visibleWindowsInstall = (options.platform ?? process.platform) === 'win32'
+  // BaseUpdater's automatic quit hook always passes isSilent=true. On Windows
+  // hand off through the public API only at the final, successful quit event,
+  // after active-work confirmation and backend teardown have completed.
+  updater.autoInstallOnAppQuit = !visibleWindowsInstall
+
+  if (visibleWindowsInstall) {
+    updater.autoRunAppAfterInstall = false
+  }
+
   updater.allowPrerelease = false
   updater.allowDowngrade = false
   updater.disableWebInstaller = true
@@ -116,6 +129,7 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
   let applying: Promise<ApplyResult> | null = null
   let progress: ReleaseProgress | undefined
   let ready: ApplyResult | null = null
+  let installStarted = false
 
   const publish = (value: Omit<ReleaseProgress, 'at'>) => {
     progress = { ...value, at: Date.now() }
@@ -126,6 +140,7 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
     if (!applying) {
       return
     }
+
     const valid = (value: number) => (Number.isFinite(value) && value >= 0 ? value : undefined)
     const transferred = valid(info.transferred)
     const total = valid(info.total)
@@ -298,6 +313,19 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
     check,
     status,
     apply,
+    installOnQuit(exitCode) {
+      if (!visibleWindowsInstall || exitCode !== 0 || !ready || installStarted) {
+        return
+      }
+
+      installStarted = true
+
+      try {
+        updater.quitAndInstall(false, false)
+      } catch (error) {
+        options.log(`[release-update] installer launch failed: ${errorMessage(error)}`)
+      }
+    },
     start() {
       if (started) {
         return

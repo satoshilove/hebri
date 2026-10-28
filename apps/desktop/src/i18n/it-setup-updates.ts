@@ -5,7 +5,7 @@ export const itSetupUpdates = {
     releaseInstalled: 'Aggiornamento installato',
     releaseReady: 'Download completato',
     releaseReadyBody:
-      'Salva il lavoro, esci completamente da Hebri per installare l’aggiornamento, poi riapri Hebri. L’app in esecuzione non è ancora cambiata.',
+      'Salva il lavoro, esci completamente da Hebri per installare l’aggiornamento, poi riapri Hebri. L’app in esecuzione non è ancora cambiata. Su Windows, segui la procedura di installazione visibile e attendi che termini prima di riaprire.',
     releaseVerifying: 'Verifica del download…',
     releaseDownloadBody: 'Download dell’aggiornamento di Hebri desktop. Il lavoro in corso rimane aperto.',
     releaseDownloadFooter: 'Il download verrà verificato prima di essere pronto per l’installazione.',

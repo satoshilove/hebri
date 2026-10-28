@@ -3159,7 +3159,8 @@ export const zhHant = defineLocale({
   updates: {
     releaseInstalled: '更新已安裝',
     releaseReady: '下載完成',
-    releaseReadyBody: '儲存工作，完全結束 Hebri 以安裝更新，然後重新開啟 Hebri。目前執行中的應用程式尚未變更。',
+    releaseReadyBody:
+      '儲存工作，完全結束 Hebri 以安裝更新，然後重新開啟 Hebri。目前執行中的應用程式尚未變更。 在 Windows 上，請依照安裝程式的提示操作，等待安裝完成後再重新開啟。',
     releaseVerifying: '正在驗證下載…',
     releaseDownloadBody: '正在下載 Hebri 桌面更新。目前的工作將保持開啟。',
     releaseDownloadFooter: '下載內容會在準備安裝前經過驗證。',

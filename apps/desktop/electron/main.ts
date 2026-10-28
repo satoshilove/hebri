@@ -17965,8 +17965,9 @@ app.on('will-quit', () => {
   quitFinalization.arm()
 })
 
-app.on('quit', () => {
+app.on('quit', (_event, exitCode) => {
   quitFinalization.cancel()
+  releaseUpdater?.installOnQuit(exitCode)
 })
 
 // Answered synchronously so preload can publish the verdict before the

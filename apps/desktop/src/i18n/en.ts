@@ -4069,7 +4069,7 @@ export const en: Translations = {
     releaseInstalled: 'Update installed',
     releaseReady: 'Download complete',
     releaseReadyBody:
-      'Save your work, quit Hebri completely to install the update, then reopen Hebri. The running app has not changed yet.',
+      'Save your work, quit Hebri completely to install the update, then reopen Hebri. The running app has not changed yet. On Windows, follow the visible installer and wait for it to finish before reopening.',
     releaseVerifying: 'Verifying download…',
     releaseDownloadBody: 'Downloading the Hebri desktop update. Your running work stays open.',
     releaseDownloadFooter: 'The download will be checked before it is ready to install.',
