@@ -4536,7 +4536,7 @@ export const fr = defineLocale({
     releaseInstalled: 'Mise à jour installée',
     releaseReady: 'Téléchargement terminé',
     releaseReadyBody:
-      'Enregistrez votre travail, quittez complètement Hebri pour installer la mise à jour, puis rouvrez Hebri. L’application en cours n’a pas encore changé.',
+      'Enregistrez votre travail, quittez complètement Hebri pour installer la mise à jour, puis rouvrez Hebri. L’application en cours n’a pas encore changé. Sous Windows, suis les étapes du programme d’installation et attends la fin avant de rouvrir Hebri.',
     releaseVerifying: 'Vérification du téléchargement…',
     releaseDownloadBody: 'Téléchargement de la mise à jour de Hebri. Votre travail reste ouvert.',
     releaseDownloadFooter: 'Le téléchargement sera vérifié avant de pouvoir être installé.',
