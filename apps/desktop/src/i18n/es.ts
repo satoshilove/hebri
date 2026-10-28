@@ -363,7 +363,7 @@ export const es = defineLocale({
     connect: 'Conectar',
     connecting: 'Conectando',
     continue: 'Continuar',
-    bots: 'Compañeros',
+    bots: 'Bits',
     copied: 'Copiado',
     copy: 'Copiar',
     copyFailed: 'No se pudo copiar',
@@ -769,7 +769,7 @@ export const es = defineLocale({
       appearanceTypography: 'Tipografía',
       appearanceWindowLayout: 'Ventana y diseño',
       appearanceChatDisplay: 'Visualización del chat',
-      appearancePet: 'Mascota',
+      appearancePet: 'Hebits',
       appearanceGeneral: 'General',
       modelMain: 'Modelo principal',
       modelAuxiliary: 'Modelos auxiliares',
@@ -1208,7 +1208,7 @@ export const es = defineLocale({
       removeTheme: 'Quitar tema',
       importedBadge: 'Importado',
       pet: {
-        title: 'Mascota',
+        title: 'Hebits',
         intro:
           'Adopta una mascota animada de petdex que flota sobre la app y reacciona a lo que hace Hebri: corre mientras se ejecutan herramientas, celebra los éxitos y se entristece con los errores.',
         restartHint:
@@ -3026,7 +3026,7 @@ export const es = defineLocale({
     changeTheme: 'Cambiar tema...',
     changeColorMode: 'Cambiar modo de color...',
     pets: {
-      title: 'Mascotas',
+      title: 'Hebits',
       placeholder: 'Buscar mascotas…',
       loading: 'Cargando la galería petdex…',
       error: 'No se pudo acceder a la galería petdex.',

@@ -415,7 +415,8 @@ so glass and message-bubble transparency do not reveal scrolling text.
 
 ## Iconography & brand
 
-- **Companions** is the user-facing name of the persistent agent roster. Keep
+- **Hebits** names the animated pets; their existing `pet.*` APIs and saved slugs remain stable.
+- **Bits** is the user-facing name of the persistent agent roster. Keep
   existing profile handles, `hermes-bots` metadata and canonical `Bot Chat`
   titles stable; they are routing/storage identities, not display copy.
 - `src/plugins/hermes-bots/characters.ts` owns Hebri's original character art

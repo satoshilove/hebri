@@ -60,7 +60,7 @@ export const zhHant = defineLocale({
     connect: '連線',
     connecting: '連線中',
     continue: '繼續',
-    bots: '夥伴',
+    bots: 'Bits',
     copied: '已複製',
     copy: '複製',
     copyFailed: '複製失敗',
@@ -310,7 +310,7 @@ export const zhHant = defineLocale({
       appearanceTypography: '字體與縮放',
       appearanceWindowLayout: '視窗與佈局',
       appearanceChatDisplay: '聊天顯示',
-      appearancePet: '寵物',
+      appearancePet: 'Hebits',
       appearanceGeneral: '一般',
       modelMain: '主要模型',
       modelAuxiliary: '輔助模型',
@@ -644,7 +644,7 @@ export const zhHant = defineLocale({
       removeTheme: '移除主題',
       importedBadge: '已匯入',
       pet: {
-        title: '寵物',
+        title: 'Hebits',
         intro:
           '領養一隻懸浮在應用上的 petdex 動畫寵物，它會根據 Hebri 的狀態做出反應——工具執行時奔跑、成功時歡呼、出錯時沮喪。',
         restartHint: '寵物功能需要重新啟動——目前執行的應用在此功能加入前啟動。請結束並重新開啟 Hebri，然後回到此處。',
@@ -1042,7 +1042,7 @@ export const zhHant = defineLocale({
       versionUnavailable: '版本不可用',
       bundleOutOfSync: '應用程式建置版本過舊',
       bundleOutOfSyncDesc:
-        'Hebri 執行環境已更新,但桌面應用程式本身仍是舊建置——在應用程式更新之前,新的介面功能(如 Companions)不會顯示。請執行下方的更新以重新建置應用程式。如果此警告仍未消除,請從最新的桌面安裝程式重新安裝。',
+        'Hebri 執行環境已更新,但桌面應用程式本身仍是舊建置——在應用程式更新之前,新的介面功能(如 Bits)不會顯示。請執行下方的更新以重新建置應用程式。如果此警告仍未消除,請從最新的桌面安裝程式重新安裝。',
       bundleOutOfSyncAction: '取得安裝程式',
       bundleSwapPending: '重新啟動以完成更新',
       bundleSwapPendingDesc:
@@ -1989,7 +1989,7 @@ export const zhHant = defineLocale({
     changeTheme: '變更主題',
     changeColorMode: '變更色彩模式…',
     pets: {
-      title: '寵物',
+      title: 'Hebits',
       placeholder: '搜尋寵物…',
       loading: '正在載入 petdex 畫廊…',
       error: '無法連線至 petdex 畫廊。',
@@ -4120,7 +4120,7 @@ export const zhHant = defineLocale({
     resumeStrandedTitle: '無法載入此工作階段',
     resumeStrandedBody: '與此工作階段的連線失敗，自動重試已停止。請確認閘道正在執行，然後重試。',
     poolSlotTimeoutBody:
-      '所有本機設定檔後端插槽目前都在使用中。請在「設定」→「進階」中增加 Warm Companion Backends，或等待閒置後端被移除後重試。',
+      '所有本機設定檔後端插槽目前都在使用中。請在「設定」→「進階」中增加 Warm Bit Backends，或等待閒置後端被移除後重試。',
     poolSlotTimeoutOpenSettings: '開啟進階設定',
     resumeRetry: '重試',
     nothingToBranch: '沒有可分支的內容',

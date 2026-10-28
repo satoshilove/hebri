@@ -71,8 +71,7 @@ export const additionalIt: typeof additionalEn = {
     retry: 'Riprova',
     telegramQr: 'Codice QR per la configurazione di Telegram',
     petBackend: 'Aggiungi un backend per immagini per generare',
-    petBackendHelp:
-      'Per creare una mascotte personalizzata serve un fornitore capace di usare un’immagine di riferimento.',
+    petBackendHelp: 'Per creare un Hebit personalizzato serve un fornitore capace di usare un’immagine di riferimento.',
     petSetup: 'Configura la generazione di immagini',
     getKeyFrom: 'Ottieni una chiave da',
     removeReference: 'Rimuovi riferimento',
@@ -198,9 +197,9 @@ export const additionalIt: typeof additionalEn = {
     reconnectHebri: 'Non connesso: apri Hebri per riconnetterti',
     apiKey: 'Chiave API',
     warmBackends:
-      'Numero di servizi dei compagni mantenuti attivi per passare subito da un compagno all’altro. Un valore maggiore rende il passaggio più rapido, ma usa più memoria (circa 60 MB per servizio). La modifica si applica subito.',
+      'Numero di servizi dei Bits mantenuti attivi per passare subito da un Bit all’altro. Un valore maggiore rende il passaggio più rapido, ma usa più memoria (circa 60 MB per servizio). La modifica si applica subito.',
     backendIdle:
-      'Tempo durante il quale un servizio di un compagno inutilizzato rimane pronto prima di essere arrestato. Aumentalo per evitare un nuovo avvio quando torni a un compagno dopo pochi minuti.',
+      'Tempo durante il quale un servizio di un Bit inutilizzato rimane pronto prima di essere arrestato. Aumentalo per evitare un nuovo avvio quando torni a un Bit dopo pochi minuti.',
     restoreWindow: 'Ripristina finestra',
     maximizeWindow: 'Ingrandisci finestra',
     archiveSkill: 'Archivia competenza',
@@ -253,8 +252,8 @@ export const additionalIt: typeof additionalEn = {
     noGatewayLogs: 'Nessuna voce recente nel registro del gateway',
     otherImprovements: 'Altri miglioramenti',
     inThisUpdate: 'In questo aggiornamento',
-    selectBotFirst: 'Seleziona un compagno prima di avviare un’altra chat.',
-    updateForBotChat: 'Aggiorna Hebri Desktop per aprire un’altra chat con il compagno.',
+    selectBotFirst: 'Seleziona un Bit prima di avviare un’altra chat.',
+    updateForBotChat: 'Aggiorna Hebri Desktop per aprire un’altra chat con il Bit.',
     memory: 'ricordo',
     skill: 'competenza'
   },
@@ -283,8 +282,8 @@ export const additionalIt: typeof additionalEn = {
     buildStarted: (title: string) => `${title} è stato avviato: lo trovi tra le sessioni`,
     openingNamed: (title: string) => `Apertura di ${title}…`,
     done: '✓ Fatto',
-    petNamed: (name: string) => `Mascotte ${name}`,
-    pet: 'mascotte',
+    petNamed: (name: string) => `Hebit ${name}`,
+    pet: 'Hebit',
     copied: 'Copiato',
     copy: 'Copia',
     renderFailed: (id: string) => `Impossibile visualizzare «${id}»`

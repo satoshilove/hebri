@@ -37,8 +37,8 @@ export const itSettingsDevice = {
       }
     },
     poolLimits: {
-      warmBotBackendsAria: 'Motori dei compagni mantenuti pronti',
-      warmBotBackendsTitle: 'Motori dei compagni mantenuti pronti',
+      warmBotBackendsAria: 'Motori dei Bits mantenuti pronti',
+      warmBotBackendsTitle: 'Motori dei Bits mantenuti pronti',
       backendIdleTimeoutAria: 'Tempo massimo di inattività del motore in millisecondi',
       backendIdleTimeoutTitle: 'Tempo massimo di inattività del motore'
     },
@@ -98,7 +98,7 @@ export const itSettingsDevice = {
       versionUnavailable: 'Versione non disponibile',
       bundleOutOfSync: 'Versione dell’app non aggiornata',
       bundleOutOfSyncDesc:
-        'Il motore di Hebri è stato aggiornato, ma l’app desktop usa ancora una versione precedente. Le nuove funzioni dell’interfaccia, come il pannello Compagni, non saranno disponibili fino all’aggiornamento. Avvia l’aggiornamento qui sotto per ricompilare l’app. Se l’avviso resta, reinstalla dall’ultimo programma di installazione desktop.',
+        'Il motore di Hebri è stato aggiornato, ma l’app desktop usa ancora una versione precedente. Le nuove funzioni dell’interfaccia, come il pannello Bits, non saranno disponibili fino all’aggiornamento. Avvia l’aggiornamento qui sotto per ricompilare l’app. Se l’avviso resta, reinstalla dall’ultimo programma di installazione desktop.',
       bundleOutOfSyncAction: 'Scarica il programma di installazione',
       bundleSwapPending: 'Riavvia per completare l’aggiornamento',
       bundleSwapPendingDesc:

@@ -38,11 +38,11 @@ export const itReused = {
   },
   commandCenter: {
     pets: {
-      placeholder: 'Cerca mascotte…',
+      placeholder: 'Cerca Hebits…',
       generatedTag: 'Generata'
     },
     generatePet: {
-      namePlaceholder: 'Dai un nome alla mascotte'
+      namePlaceholder: 'Dai un nome all’Hebit'
     }
   },
   profiles: {
