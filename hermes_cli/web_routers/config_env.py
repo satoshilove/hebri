@@ -132,6 +132,14 @@ async def update_config(
                 existing = require_readable_config_before_write()
                 incoming = _denormalize_config_from_web(body.config)
                 merged = _deep_merge(existing, incoming)
+                if "model_context_length" in body.config:
+                    incoming_model = incoming.get("model")
+                    if not isinstance(incoming_model, dict) or "context_length" not in incoming_model:
+                        # The web value 0 means auto-detect; deep-merge must not restore
+                        # the old on-disk override after denormalization removes it.
+                        merged_model = merged.get("model")
+                        if isinstance(merged_model, dict):
+                            merged_model.pop("context_length", None)
                 # Compare normalized approvals.mode across the in-memory
                 # documents, not config blocks and not cache re-reads: the page
                 # PUTs the defaulted GET record while disk holds sparse YAML (a
