@@ -2114,13 +2114,26 @@ class ContextCompressor(SummaryDispatchMixin, MicroCompactionMixin, ContextEngin
         if self._threshold_tokens is None:
             # Resolve the window first: it may floor threshold_percent as a side effect.
             _ctx = self.context_length
-            self._threshold_tokens = self._compute_threshold_tokens(_ctx, self.threshold_percent, self.max_tokens)
+            self._threshold_tokens = self._compute_threshold_tokens(
+                _ctx, self.threshold_percent, self.max_tokens, floor=self._threshold_floor_override,
+            )
             self._apply_threshold_tokens_cap()
         return self._threshold_tokens
 
     @threshold_tokens.setter
     def threshold_tokens(self, value: int) -> None:
         self._threshold_tokens = value
+
+    @property
+    def threshold_floor(self) -> int | None:
+        """Context-floor override for the compaction threshold (None = legacy 64K floor)."""
+        return self._threshold_floor_override
+
+    @threshold_floor.setter
+    def threshold_floor(self, value: int | None) -> None:
+        self._threshold_floor_override = value
+        # Force the threshold to re-derive against the new floor on next access.
+        self._threshold_tokens = None
 
     @property
     def tail_token_budget(self) -> int:
@@ -2504,7 +2517,9 @@ class ContextCompressor(SummaryDispatchMixin, MicroCompactionMixin, ContextEngin
         ceiling, which the feasibility probe re-derives per runtime."""
         base_percent = resolve_model_threshold(model, self.model_thresholds, self._config_threshold_percent, provider)
         effective_percent = self._effective_threshold_percent(context_length, base_percent)
-        threshold = self._compute_threshold_tokens(context_length, effective_percent, self.max_tokens)
+        threshold = self._compute_threshold_tokens(
+            context_length, effective_percent, self.max_tokens, floor=self._threshold_floor_override,
+        )
         cap = self._effective_threshold_cap(context_length)
         if cap is not None:
             threshold = min(threshold, cap)
@@ -2607,10 +2622,12 @@ class ContextCompressor(SummaryDispatchMixin, MicroCompactionMixin, ContextEngin
     @staticmethod
     def _compute_threshold_tokens(
         context_length: int, threshold_percent: float, max_tokens: int | None = None,
+        floor: int | None = None,
     ) -> int:
         """Compute the compaction trigger in tokens from the effective input budget.
-        Base is ``(context_length - max_tokens) * threshold_percent`` floored at MINIMUM_CONTEXT_LENGTH;
-        when the floor binds it is capped at 85% of the budget so small windows can still fire.
+        Base is ``(context_length - max_tokens) * threshold_percent`` floored at ``floor`` (the
+        context-floor value; defaults to MINIMUM_CONTEXT_LENGTH); when the floor binds it is capped
+        at 85% of the budget so small windows can still fire.
 
         The base value is ``effective_input_budget * threshold_percent``, floored at
         ``MINIMUM_CONTEXT_LENGTH`` so large-context models don't compress prematurely at 50%. BUT that floor
@@ -2628,8 +2645,10 @@ class ContextCompressor(SummaryDispatchMixin, MicroCompactionMixin, ContextEngin
         effective_window = context_length - (max_tokens or 0)
         if effective_window <= 0:
             effective_window = context_length
+        if floor is None:
+            floor = MINIMUM_CONTEXT_LENGTH
         pct_value = int(effective_window * threshold_percent)
-        floored = max(pct_value, MINIMUM_CONTEXT_LENGTH)
+        floored = max(pct_value, floor)
         # The floor must not consume output headroom: cap at 85% when it is the binding term. Near-minimum windows
         # otherwise trigger at ~98%, and providers that silently clip over-window prompts (ollama) never raise the
         # overflow backstop, so the session wedges. An explicit threshold_percent above 85% is user intent; not capped.
@@ -2717,6 +2736,11 @@ class ContextCompressor(SummaryDispatchMixin, MicroCompactionMixin, ContextEngin
         self._configured_threshold_percent = self.threshold_percent
         self._resolved_context_length: int | None = None
         self._threshold_tokens = self._tail_token_budget = self._max_summary_tokens = None
+        # Context-floor override for the compaction threshold (design: DESIGN-REMOVE-64K-WALL). None
+        # means the legacy MINIMUM_CONTEXT_LENGTH floor ("fixed" mode / not yet installed). agent_init
+        # sets this to the measured floor after the agent's tools are loaded, so the threshold reflects
+        # the measured requirement instead of the 64K wall.
+        self._threshold_floor_override: int | None = None
         self.compression_count = 0
         # The init log reports resolved budgets; emit it on first resolution to keep construction non-blocking.
         # The "initialized" log reports resolved token budgets, which would force the deferred

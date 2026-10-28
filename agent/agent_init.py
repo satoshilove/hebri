@@ -29,7 +29,8 @@ from agent.memory_manager import StreamingContextScrubber
 from agent.memory_provider import is_core_memory_provider
 from agent.session_activity import ActivityProvenance
 from agent.model_metadata import (
-    MINIMUM_CONTEXT_LENGTH, fetch_model_metadata, is_local_endpoint, query_ollama_num_ctx
+    MINIMUM_CONTEXT_LENGTH, effective_main_floor, fetch_model_metadata, is_local_endpoint,
+    query_ollama_num_ctx
 )
 from agent.process_bootstrap import _install_safe_stdio
 from agent.subdirectory_hints import SubdirectoryHintTracker
@@ -1941,6 +1942,10 @@ def _build_context_engine(agent, _agent_cfg, cs, _custom_providers, _effective_c
         # resolution already sees them.
         if cs.model_thresholds:
             agent.context_compressor.model_thresholds = cs.model_thresholds
+        # Compressor-derived plugins use the same output reservation as the
+        # built-in engine. Other plugin contracts remain unchanged.
+        if isinstance(agent.context_compressor, ContextCompressor):
+            agent.context_compressor.max_tokens = _compressor_max_tokens(agent)
         agent.context_compressor.update_model(
             model=agent.model, context_length=_plugin_ctx_len, base_url=agent.base_url,
             api_key=getattr(agent, "api_key", ""), provider=agent.provider, api_mode=agent.api_mode,
@@ -2002,8 +2007,12 @@ def _build_context_engine(agent, _agent_cfg, cs, _custom_providers, _effective_c
 
 
 def _enforce_minimum_context(agent):
-    # Reject windows below the 64K floor needed for reliable tool-calling; an explicit
-    # positive model.context_length on LM Studio is allowed below the floor.
+    # The default "fixed" mode preserves the existing 64K admission rule.
+    # Opt-in "measured" mode estimates per-profile overhead O and requires
+    # window >= O + max_tokens + W. An unavailable estimate uses the fixed
+    # floor. Normal request preflight still protects against estimation error.
+    # An explicit positive model.context_length on LM Studio is allowed below
+    # the floor, as before.
     _ctx = getattr(agent.context_compressor, "context_length", 0)
     # A local Ollama server serves num_ctx, not the GGUF's advertised window: a Modelfile or
     # model.ollama_num_ctx at 64K+ is a usable window even when the metadata says 40K (#100437).
@@ -2016,30 +2025,67 @@ def _enforce_minimum_context(agent):
         and not isinstance(agent._config_context_length, bool)
         and agent._config_context_length > 0
     )
-    if _ctx and _ctx < MINIMUM_CONTEXT_LENGTH and not _allow_lmstudio_explicit_below_floor:
-        floor_k = MINIMUM_CONTEXT_LENGTH // 1000
+    _floor, _breakdown = effective_main_floor(agent)
+    if _ctx and _ctx < _floor and not _allow_lmstudio_explicit_below_floor:
+        if _breakdown is None:
+            # fixed mode, or measured mode with an unmeasurable O: reproduce today's
+            # exact 64K behaviour (comparison AND message) so rollback is lossless.
+            floor_k = MINIMUM_CONTEXT_LENGTH // 1000
+            if agent.base_url and is_local_endpoint(agent.base_url):
+                remedy = (
+                    f"Your local server is serving a {_ctx:,}-token window.  Start it with at least "
+                    f"{floor_k}K context (llama.cpp: -c {MINIMUM_CONTEXT_LENGTH}; vLLM: --max-model-len; "
+                    f"Ollama: OLLAMA_CONTEXT_LENGTH={MINIMUM_CONTEXT_LENGTH} or a Modelfile num_ctx), "
+                    f"or set model.ollama_num_ctx in config.yaml to the window it really serves "
+                    f"(at least {floor_k}K)."
+                )
+            else:
+                remedy = (
+                    f"Choose a model with at least {floor_k}K context.  If your server "
+                    f"reports a window smaller than the model's true window, set "
+                    f"model.context_length in config.yaml to the real value "
+                    f"(this must be at least {floor_k}K)."
+                )
+            raise ValueError(
+                f"Model {agent.model} has a context window of {_ctx:,} tokens, "
+                f"which is below the minimum {MINIMUM_CONTEXT_LENGTH:,} required "
+                f"by Hebri.  {remedy}"
+            )
+        # measured mode: refuse with the real measured numbers, not a bare "below 64K".
+        _o = _breakdown["o"]
+        _mt = _breakdown["max_tokens"]
+        _w = _breakdown["w"]
+        _short = _floor - _ctx
         if agent.base_url and is_local_endpoint(agent.base_url):
-            # Any OpenAI-compatible local server (llama.cpp, vLLM, Ollama, ...) — the window is the
-            # server's runtime setting, not the model's; never assume Ollama here (#87075).
             remedy = (
-                f"Your local server is serving a {_ctx:,}-token window.  Start it with at least "
-                f"{floor_k}K context (llama.cpp: -c {MINIMUM_CONTEXT_LENGTH}; vLLM: --max-model-len; "
-                f"Ollama: OLLAMA_CONTEXT_LENGTH={MINIMUM_CONTEXT_LENGTH} or a Modelfile num_ctx), "
-                f"or set model.ollama_num_ctx in config.yaml to the window it really serves "
-                f"(at least {floor_k}K)."
+                f"this profile's estimated overhead is {_o:,} tokens (system prompt + resident tool "
+                f"schema + framing); with the {_mt:,}-token output reservation and the "
+                f"{_w:,}-token working window the fit-check needs {_floor:,} tokens, "
+                f"{_short:,} more than this server serves. To fix: (1) shrink the resident tool "
+                f"set (agent.disabled_toolsets or platform_toolsets) to cut the schema, "
+                f"(2) raise the served window, or (3) set agent.context_floor: fixed to keep "
+                f"the old 64K rule."
             )
         else:
             remedy = (
-                f"Choose a model with at least {floor_k}K context.  If your server "
-                f"reports a window smaller than the model's true window, set "
-                f"model.context_length in config.yaml to the real value "
-                f"(this must be at least {floor_k}K)."
+                f"choose a model with at least {_floor:,} tokens of context for this profile "
+                f"(measured overhead {_o:,} + output reservation {_mt:,} + working window "
+                f"{_w:,}), or shrink the resident tool set (agent.disabled_toolsets / "
+                f"platform_toolsets) to cut the measured overhead. Set agent.context_floor: fixed "
+                f"to keep the old 64K rule."
             )
         raise ValueError(
-            f"Model {agent.model} has a context window of {_ctx:,} tokens, "
-            f"which is below the minimum {MINIMUM_CONTEXT_LENGTH:,} required "
-            f"by Hebri.  {remedy}"
+            f"Model {agent.model} has a context window of {_ctx:,} tokens, but this profile "
+            f"needs at least {_floor:,} to fit: measured overhead {_o:,} (system prompt + "
+            f"resident tool schema + framing) + {_mt:,} output reservation + {_w:,} working "
+            f"window = {_floor:,}, which is {_short:,} tokens over the window.  {remedy}"
         )
+    # Gate passed: in measured mode, install the measured floor on the compressor so the
+    # compaction threshold reflects the measured requirement instead of the 64K wall (the
+    # threshold re-derives lazily against it). "fixed" mode leaves it None (legacy 64K floor).
+    if _breakdown is not None:
+        with suppress(Exception):
+            agent.context_compressor.threshold_floor = _floor
 
 
 def _warn_nonagentic_hermes_model(agent):
@@ -2101,6 +2147,9 @@ def _inject_context_engine_tools(agent):
             for _names in (agent.valid_tool_names, agent._context_engine_tool_names, _existing_tool_names):
                 _names.add(_tname)
 
+    if (getattr(agent.context_compressor, "requires_tools_for_compression", False)
+            and not agent._context_engine_tool_names):
+        raise ValueError("The selected context engine requires its recall tools. Enable the context_engine toolset or select a different engine.")
     if agent.context_compressor:
         try:
             agent.context_compressor.on_session_start(
@@ -2442,9 +2491,9 @@ def init_agent(
     )
     _build_context_engine(agent, _agent_cfg, cs, _custom_providers, _effective_context_length, session_db)
     _configure_ollama_num_ctx(agent, _model_cfg, _config_context_length)
+    _inject_context_engine_tools(agent)
     _enforce_minimum_context(agent)
     _warn_nonagentic_hermes_model(agent)
-    _inject_context_engine_tools(agent)
     _init_usage_state(agent)
     _clamp_compressor_to_ollama_num_ctx(agent)
     _emit_compression_summary(agent, cs)

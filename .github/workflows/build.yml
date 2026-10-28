@@ -41,9 +41,21 @@ jobs:
             exit 1
           }
 
+  context-regressions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Python runtime and test dependencies
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install -e . pytest==9.1.1
+      - name: Test profile isolation and real context-engine lifecycle
+        run: bash scripts/run_tests.sh tests/agent/test_context_floor_profiles.py tests/plugins/test_local_context_engines.py --tb=short
+
   quality:
-    needs: [validate-version]
-    if: always() && (needs.validate-version.result == 'success' || needs.validate-version.result == 'skipped')
+    needs: [validate-version, context-regressions]
+    if: always() && needs.context-regressions.result == 'success' && (needs.validate-version.result == 'success' || needs.validate-version.result == 'skipped')
     runs-on: ubuntu-24.04
     # A cold Node 26 install can take 5+ minutes and the inherited 8,500-test
     # renderer suite takes another 12–15 on hosted Linux. Keep a hard ceiling,

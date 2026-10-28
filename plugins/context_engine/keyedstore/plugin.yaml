@@ -1,0 +1,4 @@
+name: keyedstore
+version: 0.1.0
+kind: context-engine
+description: "Opt-in conversation-scoped local archive with bounded recall and normal context compaction."

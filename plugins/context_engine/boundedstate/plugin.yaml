@@ -1,0 +1,4 @@
+name: boundedstate
+version: 0.1.0
+kind: context-engine
+description: "Opt-in deterministic, lossy summaries using the normal context-compaction lifecycle. No summary-model calls."

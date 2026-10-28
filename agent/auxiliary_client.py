@@ -4281,8 +4281,15 @@ def _try_main_agent_model_fallback(
 # it). This preserves the existing fallback surface for unrecognised/custom models while closing the gap on
 # the well-known ones.
 def _task_minimum_context_length(task: Optional[str]) -> Optional[int]:
-    """Minimum context length for an auxiliary task; None = no floor (only ``compression`` has one)."""
-    return MINIMUM_CONTEXT_LENGTH if task == "compression" else None
+    """Minimum context length for an auxiliary task; None = no floor (only ``compression`` has one).
+    In "measured" mode the compression floor is the aux requirement (framing + working window), not
+    the full 64K main-model floor, so a sub-64K compression model is not screened out. "fixed" mode
+    returns the legacy 64K exactly as before."""
+    if task != "compression":
+        return None
+    from agent.model_metadata import effective_aux_floor
+    _aux_floor, _ = effective_aux_floor()
+    return _aux_floor
 
 
 def _candidate_context_window(provider: str, model: str, base_url: str = "", api_key: str = "") -> Optional[int]:

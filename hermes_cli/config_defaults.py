@@ -51,6 +51,17 @@ DEFAULT_CONFIG = {
         "terminal_continue": True,
     },
     "agent": {
+        # Preserve the existing 64K rule by default. Opt-in "measured" estimates
+        # system/tool overhead plus output and working space for smaller models.
+        # Unknown prompt surfaces fall back to fixed. Runtime overflow checks
+        # remain necessary: an estimate is not the model's actual tokenizer.
+        "context_floor": "fixed",
+        # Working-window headroom W (tokens) reserved for the conversation on top of O +
+        # max_tokens, in "measured" mode. Bigger = stricter (refuses tighter-fitting models).
+        "context_floor_working_window": 8192,
+        # Output reservation (tokens) used by the fit-check when the model's own max_tokens is
+        # unset. A model must reserve room to produce a response after O + W.
+        "context_floor_max_tokens": 4096,
         # Turn cap. null = unlimited (default; caps caused silent mid-task truncation). Positive int
         # caps; "none"/"unlimited"/"inf"/0/-1 also mean unlimited (resolve_turn_limit).
         "max_turns": None,
