@@ -98,7 +98,7 @@ def message_agent_tool_schema() -> dict:
                         "type": "string",
                         "description": (
                             "Who to message: a teammate profile name from your roster "
-                            "('researcher', 'hermes' for the default agent), or "
+                            "('researcher', 'hermes' for Hebri's default agent), or "
                             "'<peer>' / '<peer>/<agent>' for a registered peer gateway."
                         ),
                     },
