@@ -3188,6 +3188,13 @@ export const ru = defineLocale({
     }
   },
   updates: {
+    releaseInstalled: 'Обновление установлено',
+    releaseReady: 'Загрузка завершена',
+    releaseReadyBody:
+      'Сохраните работу, полностью закройте Hebri для установки обновления, затем откройте снова. Работающее приложение пока не изменилось.',
+    releaseVerifying: 'Проверка загрузки…',
+    releaseDownloadBody: 'Загрузка обновления Hebri. Текущая работа остаётся открытой.',
+    releaseDownloadFooter: 'Перед установкой загруженный файл будет проверен.',
     stages: {
       idle: 'Готовимся…',
       prepare: 'Готовимся…',

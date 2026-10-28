@@ -2531,6 +2531,13 @@ export const ar = defineLocale({
     }
   },
   updates: {
+    releaseInstalled: 'تم تثبيت التحديث',
+    releaseReady: 'اكتمل التنزيل',
+    releaseReadyBody:
+      'احفظ عملك وأغلق Hebri بالكامل لتثبيت التحديث، ثم افتحه مجددًا. لم يتغير التطبيق قيد التشغيل بعد.',
+    releaseVerifying: 'جارٍ التحقق من التنزيل…',
+    releaseDownloadBody: 'جارٍ تنزيل تحديث Hebri. سيبقى عملك الحالي مفتوحًا.',
+    releaseDownloadFooter: 'سيتم التحقق من التنزيل قبل أن يصبح جاهزًا للتثبيت.',
     stages: {
       idle: 'جار التحضير...',
       prepare: 'جار التحضير...',

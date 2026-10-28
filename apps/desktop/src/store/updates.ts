@@ -25,6 +25,7 @@ import { $connection } from '@/store/session'
 import type { BackendUpdateCheckResponse } from '@/types/hermes'
 
 export interface UpdateApplyState {
+  releaseProgress?: DesktopUpdateProgress
   applying: boolean
   stage: DesktopUpdateStage
   message: string
@@ -76,6 +77,7 @@ export const resetUpdateApplyState = () => {
 }
 
 const UPDATE_TOAST_ID = 'desktop-update-available'
+const DOWNLOADED_RELEASE_KEY = 'hebri.downloaded-release'
 // Time-based snooze instead of per-sha dismissal: this repo lands ~100 commits
 // a day, so a "don't show this exact sha again" guard re-popped the toast on
 // every new commit. We instead suppress the toast for a cooldown window that
@@ -370,6 +372,18 @@ export async function refreshDesktopVersion(): Promise<DesktopVersionInfo | null
 
     if (next) {
       $desktopVersion.set(next)
+
+      if (storedString(DOWNLOADED_RELEASE_KEY) === next.appVersion) {
+        persistString(DOWNLOADED_RELEASE_KEY, '')
+        notify({
+          id: 'hebri-release-installed',
+          kind: 'success',
+          placement: 'default',
+          durationMs: 10000,
+          title: translateNow('updates.releaseInstalled'),
+          message: `Hebri ${next.appVersion}`
+        })
+      }
     }
 
     return next ?? null
@@ -450,6 +464,10 @@ export async function checkUpdates({ force = false }: UpdateCheckOptions = {}): 
   try {
     const status = await bridge.check({ force })
     $updateStatus.set(status)
+
+    if (status.progress) {
+      ingestProgress(status.progress)
+    }
     maybeNotifyUpdateAvailable(status, 'client')
     void refreshDesktopVersion()
 
@@ -533,8 +551,22 @@ export async function applyUpdates(opts: DesktopUpdateApplyOptions = {}): Promis
     // sandbox helper isn't launchable): keep a closeable manual-restart state so
     // the user keeps a working window instead of a dead app or a stuck spinner.
     if (result?.ok && result?.manualRestart) {
+      if (result.releaseVersion) {
+        persistString(DOWNLOADED_RELEASE_KEY, result.releaseVersion)
+      }
       $updateApply.set({
         ...IDLE,
+        releaseProgress: result.releaseVersion
+          ? {
+              stage: 'manual',
+              releasePhase: 'ready',
+              releaseVersion: result.releaseVersion,
+              message: result.message ?? '',
+              percent: 100,
+              error: null,
+              at: Date.now()
+            }
+          : undefined,
         applying: false,
         stage: 'manual',
         message: result.message ?? translateNow('updates.manualPickedUp')
@@ -999,14 +1031,15 @@ function ingestProgress(payload: DesktopUpdateProgress): void {
 
   $updateApply.set({
     applying: !terminal,
+    releaseProgress: payload.releasePhase ? payload : undefined,
     stage: payload.stage,
     message: payload.message,
     // Streamed log lines carry percent: null; keep the last milestone percent
     // (10/60/…) instead of resetting the bar to indeterminate on every line.
-    percent: payload.percent ?? current.percent,
+    percent: payload.releasePhase ? payload.percent : (payload.percent ?? current.percent),
     error: payload.error,
     // 'manual' carries the command to run in its message field.
-    command: payload.stage === 'manual' ? payload.message : current.command,
+    command: payload.releasePhase ? null : payload.stage === 'manual' ? payload.message : current.command,
     log
   })
 }

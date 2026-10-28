@@ -82,6 +82,51 @@ describe('BlockerView', () => {
     resetUpdateApplyState()
   })
 
+  it('shows live release progress and honest ready-to-install instructions without source-update promises', async () => {
+    $updateOverlayOpen.set(true)
+    $updateStatus.set({ supported: true, source: 'release', updateAvailable: true })
+
+    const progress = {
+      stage: 'fetch' as const,
+      releasePhase: 'downloading' as const,
+      releaseVersion: '0.17.21',
+      message: '',
+      percent: 50,
+      transferred: 1048576,
+      total: 2097152,
+      bytesPerSecond: 524288,
+      error: null,
+      at: Date.now()
+    }
+
+    $updateApply.set({
+      applying: true,
+      stage: 'fetch',
+      message: '',
+      percent: 50,
+      error: null,
+      command: null,
+      log: [],
+      releaseProgress: progress
+    })
+    await renderUpdatesOverlay()
+    expect(screen.getByText(/50%.*1.0 MiB.*2.0 MiB.*0.5 MiB\/s/)).toBeTruthy()
+    expect(screen.queryByText(/reopens Hebri automatically/)).toBeNull()
+    await act(async () => {
+      $updateApply.set({
+        ...$updateApply.get(),
+        applying: false,
+        stage: 'manual',
+        releaseProgress: { ...progress, stage: 'manual', releasePhase: 'ready', percent: 100 }
+      })
+    })
+    expect(screen.getByRole('heading', { name: 'Download complete' })).toBeTruthy()
+    expect(screen.getByText(/quit Hebri completely to install/)).toBeTruthy()
+    expect(screen.queryByText('Update from your terminal')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }))
+    expect($updateOverlayOpen.get()).toBe(false)
+  })
+
   it('uses the blocker view for a foreign process instead of the generic update error', async () => {
     $updateOverlayTarget.set('client')
     $updateOverlayOpen.set(true)

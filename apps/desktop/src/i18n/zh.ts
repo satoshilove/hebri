@@ -3851,6 +3851,12 @@ export const zh = defineLocale({
   },
 
   updates: {
+    releaseInstalled: '更新已安装',
+    releaseReady: '下载完成',
+    releaseReadyBody: '保存工作，完全退出 Hebri 以安装更新，然后重新打开 Hebri。当前运行的应用尚未更改。',
+    releaseVerifying: '正在验证下载…',
+    releaseDownloadBody: '正在下载 Hebri 桌面更新。当前工作将保持打开。',
+    releaseDownloadFooter: '下载内容将在准备安装前经过验证。',
     stages: {
       idle: '准备中…',
       prepare: '准备中…',

@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict'
+import { EventEmitter } from 'node:events'
 
 import { test, vi } from 'vitest'
 
 import { createReleaseUpdater, releaseUpdaterEnabled, routeDesktopUpdate } from './release-updater'
 
 function updater(result: object | null = null) {
+  const events = new EventEmitter()
+
   return {
+    on: events.on.bind(events),
+    emit: events.emit.bind(events),
     allowPrerelease: true,
     autoDownload: true,
     allowDowngrade: true,
@@ -123,8 +128,8 @@ test('packaged checks and apply use releases even without origin; failures never
   const result = await routeDesktopUpdate(true, () => controller.apply(), source)
   assert.equal(result.manualRestart, true)
   assert.equal(client.downloadUpdate.mock.calls.length, 1)
-  client.downloadUpdate.mockRejectedValueOnce(new Error('checksum mismatch'))
-  assert.equal((await controller.apply()).ok, false)
+  assert.equal((await controller.apply()).ok, true)
+  assert.equal(client.downloadUpdate.mock.calls.length, 1)
   await assert.rejects(routeDesktopUpdate(true, undefined, source), /not ready/)
   assert.equal(source.mock.calls.length, 0)
   await assert.rejects(routeDesktopUpdate(false, undefined, source), /origin/)
@@ -149,4 +154,66 @@ test('a disabled updater is an error, and concurrent checks share a request', as
   assert.equal(client.checkForUpdates.mock.calls.length, 1)
   assert.equal((await controller.apply()).ok, false)
   assert.equal(client.downloadUpdate.mock.calls.length, 0)
+})
+
+test('release download streams real progress, survives a reopened status view and becomes ready only after verification', async () => {
+  const client = updater({ isUpdateAvailable: true, updateInfo: { version: '0.17.21' } })
+  let finish!: (files: string[]) => void
+  client.downloadUpdate.mockImplementation(
+    () =>
+      new Promise(resolve => {
+        finish = resolve
+      })
+  )
+  const onProgress = vi.fn()
+
+  const controller = createReleaseUpdater({
+    currentVersion: '0.17.20',
+    isPackaged: true,
+    getWindow: () => null,
+    log: vi.fn(),
+    showMessageBox: vi.fn(),
+    updater: client as never,
+    onProgress
+  })!
+
+  const first = controller.apply()
+  const second = controller.apply()
+  await vi.waitFor(() => assert.equal(client.downloadUpdate.mock.calls.length, 1))
+  client.emit('download-progress', { transferred: 50, total: 100, bytesPerSecond: 10 })
+  assert.equal(onProgress.mock.calls.at(-1)?.[0].percent, 50)
+  assert.equal((await controller.status()).progress?.transferred, 50)
+  client.emit('download-progress', { transferred: 100, total: 100, bytesPerSecond: 10 })
+  assert.equal((await controller.status()).progress?.releasePhase, 'verifying')
+  finish(['verified-installer'])
+  const [one, two] = await Promise.all([first, second])
+  assert.deepEqual(one, two)
+  assert.equal(one.releaseVersion, '0.17.21')
+  assert.equal(one.manualRestart, true)
+  assert.equal((await controller.status()).progress?.releasePhase, 'ready')
+  await controller.apply()
+  assert.equal(client.downloadUpdate.mock.calls.length, 1)
+})
+
+test('failed verification never reports ready and a retry starts with unknown progress', async () => {
+  const client = updater({ isUpdateAvailable: true, updateInfo: { version: '0.17.21' } })
+
+  const controller = createReleaseUpdater({
+    currentVersion: '0.17.20',
+    isPackaged: true,
+    getWindow: () => null,
+    log: vi.fn(),
+    showMessageBox: vi.fn(),
+    updater: client as never
+  })!
+
+  client.downloadUpdate.mockImplementationOnce(async () => {
+    client.emit('download-progress', { transferred: 100, total: 100, bytesPerSecond: 10 })
+    client.emit('error', new Error('checksum mismatch'))
+    throw new Error('checksum mismatch')
+  })
+  assert.equal((await controller.apply()).ok, false)
+  assert.equal((await controller.status()).progress?.stage, 'error')
+  assert.equal((await controller.status()).progress?.releasePhase, undefined)
+  assert.equal((await controller.apply()).ok, true)
 })

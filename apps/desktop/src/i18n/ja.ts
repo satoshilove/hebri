@@ -2939,6 +2939,13 @@ export const ja = defineLocale({
   },
 
   updates: {
+    releaseInstalled: '更新をインストールしました',
+    releaseReady: 'ダウンロード完了',
+    releaseReadyBody:
+      '作業を保存し、Hebriを完全に終了して更新をインストールしてから、再度開いてください。実行中のアプリはまだ変更されていません。',
+    releaseVerifying: 'ダウンロードを検証中…',
+    releaseDownloadBody: 'Hebriの更新をダウンロードしています。作業は開いたままです。',
+    releaseDownloadFooter: 'インストールの準備が整う前にダウンロードを検証します。',
     stages: {
       idle: '準備中…',
       prepare: '準備中…',

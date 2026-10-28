@@ -18969,6 +18969,7 @@ app.whenReady().then(() => {
   // captured by the original transaction before removing the journal entry.
   void resumeManagedSshRecoveries()
   releaseUpdater = createReleaseUpdater({
+    onProgress: emitUpdateProgress,
     currentVersion: app.getVersion(),
     getWindow: () => mainWindow,
     isPackaged: app.isPackaged,

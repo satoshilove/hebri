@@ -105,7 +105,7 @@ export function UpdatesOverlay() {
   const updateBlockers = !isBackend && apply.error === 'venv-blocked' && apply.blockers?.length ? apply.blockers : null
 
   const handleClose = (next: boolean) => {
-    if (phase === 'applying') {
+    if (phase === 'applying' && !apply.releaseProgress) {
       return
     }
 
@@ -131,12 +131,17 @@ export function UpdatesOverlay() {
         bodyClassName="overflow-hidden p-0 gap-0"
         className="max-w-sm"
         onOpenAutoFocus={preventCloseButtonAutoFocus}
-        showCloseButton={phase !== 'applying'}
+        showCloseButton={phase !== 'applying' || !!apply.releaseProgress}
       >
         {phase === 'applying' && <ApplyingView apply={apply} isBackend={isBackend} />}
 
         {phase === 'manual' && (
-          <ManualView command={apply.command ?? null} message={apply.message} onDone={() => handleClose(false)} />
+          <ManualView
+            command={apply.command ?? null}
+            message={apply.message}
+            onDone={() => handleClose(false)}
+            releaseVersion={apply.releaseProgress?.releaseVersion}
+          />
         )}
 
         {phase === 'guiSkew' && <GuiSkewView message={apply.message} onDone={() => handleClose(false)} />}
@@ -332,7 +337,17 @@ function IdleView({
   )
 }
 
-function ManualView({ command, message, onDone }: { command: string | null; message?: string; onDone: () => void }) {
+function ManualView({
+  command,
+  message,
+  releaseVersion,
+  onDone
+}: {
+  command: string | null
+  message?: string
+  releaseVersion?: string
+  onDone: () => void
+}) {
   const { t } = useI18n()
   const u = t.updates
   const [copied, setCopied] = useState(false)
@@ -354,10 +369,13 @@ function ManualView({ command, message, onDone }: { command: string | null; mess
     return (
       <div className="grid gap-5 px-6 pb-6 pt-7 pr-8">
         <div className="flex flex-col items-center gap-3 text-center">
-          <Terminal className="size-8 text-primary" />
+          {releaseVersion ? <Check className="size-8 text-primary" /> : <Terminal className="size-8 text-primary" />}
 
-          <DialogTitle className="text-center text-xl">{u.manualTitle}</DialogTitle>
-          <DialogDescription className="text-center text-sm">{message || u.manualPickedUp}</DialogDescription>
+          <DialogTitle className="text-center text-xl">{releaseVersion ? u.releaseReady : u.manualTitle}</DialogTitle>
+          {releaseVersion && <p className="text-sm">Hebri {releaseVersion}</p>}
+          <DialogDescription className="text-center text-sm">
+            {releaseVersion ? u.releaseReadyBody : message || u.manualPickedUp}
+          </DialogDescription>
         </div>
 
         <Button className="font-semibold" onClick={onDone} size="lg" variant="secondary">
@@ -437,14 +455,22 @@ function GuiSkewView({ message, onDone }: { message?: string; onDone: () => void
 function ApplyingView({ apply, isBackend }: { apply: UpdateApplyState; isBackend: boolean }) {
   const { t } = useI18n()
   const u = t.updates
-  const label = u.stages[apply.stage as DesktopUpdateStage] ?? u.stages.idle
-  const body = isBackend ? u.applyingBodyBackend : u.applyingBody
+  const release = apply.releaseProgress
+
+  const label =
+    release?.releasePhase === 'verifying'
+      ? u.releaseVerifying
+      : release?.releasePhase === 'checking'
+        ? u.checking
+        : (u.stages[apply.stage as DesktopUpdateStage] ?? u.stages.idle)
+
+  const body = release ? u.releaseDownloadBody : isBackend ? u.applyingBodyBackend : u.applyingBody
   const currentMessage = apply.message.trim()
   const recentLog = apply.log.slice(-4)
 
   const percent =
     typeof apply.percent === 'number' && Number.isFinite(apply.percent)
-      ? Math.max(2, Math.min(100, Math.round(apply.percent)))
+      ? Math.max(0, Math.min(100, Math.round(apply.percent)))
       : null
 
   return (
@@ -454,6 +480,7 @@ function ApplyingView({ apply, isBackend }: { apply: UpdateApplyState; isBackend
 
         <DialogTitle className="text-center text-xl">{label}</DialogTitle>
         <DialogDescription className="text-center text-sm">{body}</DialogDescription>
+        {release?.releaseVersion && <p className="text-sm">Hebri {release.releaseVersion}</p>}
 
         {currentMessage ? (
           <p className="max-w-lg break-words text-center text-xs leading-5 text-muted-foreground">{currentMessage}</p>
@@ -466,6 +493,14 @@ function ApplyingView({ apply, isBackend }: { apply: UpdateApplyState; isBackend
         size="lg"
         value={percent === null ? 0 : percent / 100}
       />
+      {release && (
+        <p className="text-center text-sm tabular-nums" role="status">
+          {percent !== null && `${percent}%`}
+          {release.transferred !== undefined && ` · ${(release.transferred / 1048576).toFixed(1)} MiB`}
+          {!!release.total && ` / ${(release.total / 1048576).toFixed(1)} MiB`}
+          {!!release.bytesPerSecond && ` · ${(release.bytesPerSecond / 1048576).toFixed(1)} MiB/s`}
+        </p>
+      )}
 
       {recentLog.length > 1 ? (
         <div className="max-h-24 overflow-hidden rounded-md border border-border/70 bg-muted/35 px-3 py-2 text-left font-mono text-[11px] leading-4 text-muted-foreground">
@@ -477,7 +512,7 @@ function ApplyingView({ apply, isBackend }: { apply: UpdateApplyState; isBackend
         </div>
       ) : null}
 
-      <p className="text-center text-xs text-muted-foreground">{u.applyingClose}</p>
+      <p className="text-center text-xs text-muted-foreground">{release ? u.releaseDownloadFooter : u.applyingClose}</p>
     </div>
   )
 }
