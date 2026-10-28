@@ -37,6 +37,7 @@ import {
   pickImageFromDevice,
   probeImagen
 } from './avatar-image'
+import { CharacterPicker } from './character-picker'
 import { useBots } from './i18n'
 import { PetTab } from './pet'
 
@@ -137,115 +138,121 @@ export function AvatarPicker({ shape, color, image, onShape, onColor, onImage, g
         </Button>
       ) : null}
       {tab === 'bot' ? (
-        isBlobShape(shape) && blobatarSvg ? (
-          (() => {
-            const { seedPart, kind } = parseBlobShape(shape, pickerName)
-            const locked = Boolean(seedPart)
+        <div className="grid gap-3">
+          <CharacterPicker onImage={onImage} onShape={onShape} shape={shape} />
+          <details>
+            <summary className="text-xs text-(--ui-text-tertiary)">{b.avatar.classicShapes}</summary>
+            {isBlobShape(shape) && blobatarSvg ? (
+              (() => {
+                const { seedPart, kind } = parseBlobShape(shape, pickerName)
+                const locked = Boolean(seedPart)
 
-            return (
+                return (
+                  <div className="grid justify-items-center gap-3">
+                    {/* Silhouette pins: Auto (name decides) + the six blob kinds. */}
+                    <div className="grid grid-cols-4 justify-items-center gap-1.5">
+                      {['', ...BLOB_KINDS].map(k => (
+                        <RowButton
+                          className={cn(
+                            'flex items-center justify-center rounded-md transition-colors hover:bg-(--chrome-action-hover)',
+                            k === kind && !image && 'ring-1 ring-(--ui-accent)'
+                          )}
+                          key={k || 'auto'}
+                          onClick={() => {
+                            onImage(null)
+                            onShape(blobShapeString(seedPart, k))
+                          }}
+                          style={{
+                            width: 44,
+                            height: 44
+                          }}
+                          title={k || b.editor.autoHint}
+                        >
+                          {k ? (
+                            <BotFace
+                              color={avatarColor(color, pickerName)}
+                              name={pickerName}
+                              shape={blobShapeString(seedPart, k)}
+                              size={32}
+                            />
+                          ) : (
+                            <span className="text-[0.6rem] text-(--ui-text-tertiary)">{b.editor.auto}</span>
+                          )}
+                        </RowButton>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        onClick={() => {
+                          onImage(null)
+                          onShape(blobShapeString(Math.random().toString(36).slice(2, 10), kind))
+                        }}
+                        size="sm"
+                        type="button"
+                        variant="ghost"
+                      >
+                        <Codicon className="mr-1 text-[0.8rem]" name="refresh" />
+                        {b.avatar.randomize}
+                      </Button>
+                      <Button
+                        onClick={() => onShape(blobShapeString(locked ? '' : pickerName, kind))}
+                        size="sm"
+                        type="button"
+                        variant="ghost"
+                      >
+                        <Codicon className="mr-1 text-[0.8rem]" name={locked ? 'unlock' : 'lock'} />
+                        {locked ? b.editor.unlock : b.editor.lockFace}
+                      </Button>
+                    </div>
+                    <div className="text-center text-[0.65rem] text-(--ui-text-quaternary)">
+                      {locked ? b.editor.lockedHint : b.editor.unlockedHint}
+                    </div>
+                    <Button
+                      className="text-(--ui-text-tertiary)"
+                      onClick={() => onShape(defaultShapeFor(pickerName))}
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      {b.avatar.classicShapes}
+                    </Button>
+                  </div>
+                )
+              })()
+            ) : (
               <div className="grid justify-items-center gap-3">
-                {/* Silhouette pins: Auto (name decides) + the six blob kinds. */}
                 <div className="grid grid-cols-4 justify-items-center gap-1.5">
-                  {['', ...BLOB_KINDS].map(k => (
+                  {(blobatarSvg ? ['blobatar', ...AVATAR_PICKER_SHAPES] : AVATAR_PICKER_SHAPES).map(s => (
                     <RowButton
                       className={cn(
                         'flex items-center justify-center rounded-md transition-colors hover:bg-(--chrome-action-hover)',
-                        k === kind && !image && 'ring-1 ring-(--ui-accent)'
+                        s === shape && !image && 'ring-1 ring-(--ui-accent)'
                       )}
-                      key={k || 'auto'}
+                      key={s}
                       onClick={() => {
                         onImage(null)
-                        onShape(blobShapeString(seedPart, k))
+                        onShape(s)
                       }}
                       style={{
                         width: 44,
                         height: 44
                       }}
-                      title={k || b.editor.autoHint}
+                      title={s === 'blobatar' ? b.avatar.blobFromName : undefined}
                     >
-                      {k ? (
-                        <BotFace
-                          color={avatarColor(color, pickerName)}
-                          name={pickerName}
-                          shape={blobShapeString(seedPart, k)}
-                          size={32}
-                        />
-                      ) : (
-                        <span className="text-[0.6rem] text-(--ui-text-tertiary)">{b.editor.auto}</span>
-                      )}
+                      <BotFace color={avatarColor(color, pickerName)} name={pickerName} shape={s} size={32} />
                     </RowButton>
                   ))}
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button
-                    onClick={() => {
-                      onImage(null)
-                      onShape(blobShapeString(Math.random().toString(36).slice(2, 10), kind))
-                    }}
-                    size="sm"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <Codicon className="mr-1 text-[0.8rem]" name="refresh" />
-                    {b.avatar.randomize}
-                  </Button>
-                  <Button
-                    onClick={() => onShape(blobShapeString(locked ? '' : pickerName, kind))}
-                    size="sm"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <Codicon className="mr-1 text-[0.8rem]" name={locked ? 'unlock' : 'lock'} />
-                    {locked ? b.editor.unlock : b.editor.lockFace}
-                  </Button>
-                </div>
-                <div className="text-center text-[0.65rem] text-(--ui-text-quaternary)">
-                  {locked ? b.editor.lockedHint : b.editor.unlockedHint}
-                </div>
-                <Button
-                  className="text-(--ui-text-tertiary)"
-                  onClick={() => onShape(defaultShapeFor(pickerName))}
-                  size="sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  {b.avatar.classicShapes}
-                </Button>
+                <ColorSwatches
+                  clearLabel={b.avatar.matchTheName}
+                  onChange={onColor}
+                  swatches={PROFILE_SWATCHES}
+                  value={color}
+                />
               </div>
-            )
-          })()
-        ) : (
-          <div className="grid justify-items-center gap-3">
-            <div className="grid grid-cols-4 justify-items-center gap-1.5">
-              {(blobatarSvg ? ['blobatar', ...AVATAR_PICKER_SHAPES] : AVATAR_PICKER_SHAPES).map(s => (
-                <RowButton
-                  className={cn(
-                    'flex items-center justify-center rounded-md transition-colors hover:bg-(--chrome-action-hover)',
-                    s === shape && !image && 'ring-1 ring-(--ui-accent)'
-                  )}
-                  key={s}
-                  onClick={() => {
-                    onImage(null)
-                    onShape(s)
-                  }}
-                  style={{
-                    width: 44,
-                    height: 44
-                  }}
-                  title={s === 'blobatar' ? b.avatar.blobFromName : undefined}
-                >
-                  <BotFace color={avatarColor(color, pickerName)} name={pickerName} shape={s} size={32} />
-                </RowButton>
-              ))}
-            </div>
-            <ColorSwatches
-              clearLabel={b.avatar.matchTheName}
-              onChange={onColor}
-              swatches={PROFILE_SWATCHES}
-              value={color}
-            />
-          </div>
-        )
+            )}
+          </details>
+        </div>
       ) : null}
       {tab === 'generate' ? (
         imagen ? (

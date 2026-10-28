@@ -1,0 +1,1442 @@
+[
+  {
+    "slug": "hebri-sage-cobalt",
+    "displayName": "Sage · Cobalt",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:0"
+  },
+  {
+    "slug": "hebri-sage-aurora",
+    "displayName": "Sage · Aurora",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:1"
+  },
+  {
+    "slug": "hebri-sage-coral",
+    "displayName": "Sage · Coral",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:2"
+  },
+  {
+    "slug": "hebri-sage-lilac",
+    "displayName": "Sage · Lilac",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:3"
+  },
+  {
+    "slug": "hebri-sage-amber",
+    "displayName": "Sage · Amber",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:4"
+  },
+  {
+    "slug": "hebri-sage-glacier",
+    "displayName": "Sage · Glacier",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:5"
+  },
+  {
+    "slug": "hebri-sage-rose",
+    "displayName": "Sage · Rose",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:6"
+  },
+  {
+    "slug": "hebri-sage-matcha",
+    "displayName": "Sage · Matcha",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:7"
+  },
+  {
+    "slug": "hebri-sage-midnight",
+    "displayName": "Sage · Midnight",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:8"
+  },
+  {
+    "slug": "hebri-sage-ember",
+    "displayName": "Sage · Ember",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:9"
+  },
+  {
+    "slug": "hebri-sage-pearl",
+    "displayName": "Sage · Pearl",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:10"
+  },
+  {
+    "slug": "hebri-sage-electric",
+    "displayName": "Sage · Electric",
+    "description": "The Hebri original",
+    "shape": "hebri:sage:11"
+  },
+  {
+    "slug": "hebri-orbit-cobalt",
+    "displayName": "Orbit · Cobalt",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:0"
+  },
+  {
+    "slug": "hebri-orbit-aurora",
+    "displayName": "Orbit · Aurora",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:1"
+  },
+  {
+    "slug": "hebri-orbit-coral",
+    "displayName": "Orbit · Coral",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:2"
+  },
+  {
+    "slug": "hebri-orbit-lilac",
+    "displayName": "Orbit · Lilac",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:3"
+  },
+  {
+    "slug": "hebri-orbit-amber",
+    "displayName": "Orbit · Amber",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:4"
+  },
+  {
+    "slug": "hebri-orbit-glacier",
+    "displayName": "Orbit · Glacier",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:5"
+  },
+  {
+    "slug": "hebri-orbit-rose",
+    "displayName": "Orbit · Rose",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:6"
+  },
+  {
+    "slug": "hebri-orbit-matcha",
+    "displayName": "Orbit · Matcha",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:7"
+  },
+  {
+    "slug": "hebri-orbit-midnight",
+    "displayName": "Orbit · Midnight",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:8"
+  },
+  {
+    "slug": "hebri-orbit-ember",
+    "displayName": "Orbit · Ember",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:9"
+  },
+  {
+    "slug": "hebri-orbit-pearl",
+    "displayName": "Orbit · Pearl",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:10"
+  },
+  {
+    "slug": "hebri-orbit-electric",
+    "displayName": "Orbit · Electric",
+    "description": "A small machine, a big personality",
+    "shape": "hebri:orbit:11"
+  },
+  {
+    "slug": "hebri-fox-cobalt",
+    "displayName": "Kitsu · Cobalt",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:0"
+  },
+  {
+    "slug": "hebri-fox-aurora",
+    "displayName": "Kitsu · Aurora",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:1"
+  },
+  {
+    "slug": "hebri-fox-coral",
+    "displayName": "Kitsu · Coral",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:2"
+  },
+  {
+    "slug": "hebri-fox-lilac",
+    "displayName": "Kitsu · Lilac",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:3"
+  },
+  {
+    "slug": "hebri-fox-amber",
+    "displayName": "Kitsu · Amber",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:4"
+  },
+  {
+    "slug": "hebri-fox-glacier",
+    "displayName": "Kitsu · Glacier",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:5"
+  },
+  {
+    "slug": "hebri-fox-rose",
+    "displayName": "Kitsu · Rose",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:6"
+  },
+  {
+    "slug": "hebri-fox-matcha",
+    "displayName": "Kitsu · Matcha",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:7"
+  },
+  {
+    "slug": "hebri-fox-midnight",
+    "displayName": "Kitsu · Midnight",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:8"
+  },
+  {
+    "slug": "hebri-fox-ember",
+    "displayName": "Kitsu · Ember",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:9"
+  },
+  {
+    "slug": "hebri-fox-pearl",
+    "displayName": "Kitsu · Pearl",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:10"
+  },
+  {
+    "slug": "hebri-fox-electric",
+    "displayName": "Kitsu · Electric",
+    "description": "An alert little explorer",
+    "shape": "hebri:fox:11"
+  },
+  {
+    "slug": "hebri-owl-cobalt",
+    "displayName": "Luma · Cobalt",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:0"
+  },
+  {
+    "slug": "hebri-owl-aurora",
+    "displayName": "Luma · Aurora",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:1"
+  },
+  {
+    "slug": "hebri-owl-coral",
+    "displayName": "Luma · Coral",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:2"
+  },
+  {
+    "slug": "hebri-owl-lilac",
+    "displayName": "Luma · Lilac",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:3"
+  },
+  {
+    "slug": "hebri-owl-amber",
+    "displayName": "Luma · Amber",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:4"
+  },
+  {
+    "slug": "hebri-owl-glacier",
+    "displayName": "Luma · Glacier",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:5"
+  },
+  {
+    "slug": "hebri-owl-rose",
+    "displayName": "Luma · Rose",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:6"
+  },
+  {
+    "slug": "hebri-owl-matcha",
+    "displayName": "Luma · Matcha",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:7"
+  },
+  {
+    "slug": "hebri-owl-midnight",
+    "displayName": "Luma · Midnight",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:8"
+  },
+  {
+    "slug": "hebri-owl-ember",
+    "displayName": "Luma · Ember",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:9"
+  },
+  {
+    "slug": "hebri-owl-pearl",
+    "displayName": "Luma · Pearl",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:10"
+  },
+  {
+    "slug": "hebri-owl-electric",
+    "displayName": "Luma · Electric",
+    "description": "A quiet night companion",
+    "shape": "hebri:owl:11"
+  },
+  {
+    "slug": "hebri-pebble-cobalt",
+    "displayName": "Pebble · Cobalt",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:0"
+  },
+  {
+    "slug": "hebri-pebble-aurora",
+    "displayName": "Pebble · Aurora",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:1"
+  },
+  {
+    "slug": "hebri-pebble-coral",
+    "displayName": "Pebble · Coral",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:2"
+  },
+  {
+    "slug": "hebri-pebble-lilac",
+    "displayName": "Pebble · Lilac",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:3"
+  },
+  {
+    "slug": "hebri-pebble-amber",
+    "displayName": "Pebble · Amber",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:4"
+  },
+  {
+    "slug": "hebri-pebble-glacier",
+    "displayName": "Pebble · Glacier",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:5"
+  },
+  {
+    "slug": "hebri-pebble-rose",
+    "displayName": "Pebble · Rose",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:6"
+  },
+  {
+    "slug": "hebri-pebble-matcha",
+    "displayName": "Pebble · Matcha",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:7"
+  },
+  {
+    "slug": "hebri-pebble-midnight",
+    "displayName": "Pebble · Midnight",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:8"
+  },
+  {
+    "slug": "hebri-pebble-ember",
+    "displayName": "Pebble · Ember",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:9"
+  },
+  {
+    "slug": "hebri-pebble-pearl",
+    "displayName": "Pebble · Pearl",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:10"
+  },
+  {
+    "slug": "hebri-pebble-electric",
+    "displayName": "Pebble · Electric",
+    "description": "Small stone, steady presence",
+    "shape": "hebri:pebble:11"
+  },
+  {
+    "slug": "hebri-prism-cobalt",
+    "displayName": "Prism · Cobalt",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:0"
+  },
+  {
+    "slug": "hebri-prism-aurora",
+    "displayName": "Prism · Aurora",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:1"
+  },
+  {
+    "slug": "hebri-prism-coral",
+    "displayName": "Prism · Coral",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:2"
+  },
+  {
+    "slug": "hebri-prism-lilac",
+    "displayName": "Prism · Lilac",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:3"
+  },
+  {
+    "slug": "hebri-prism-amber",
+    "displayName": "Prism · Amber",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:4"
+  },
+  {
+    "slug": "hebri-prism-glacier",
+    "displayName": "Prism · Glacier",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:5"
+  },
+  {
+    "slug": "hebri-prism-rose",
+    "displayName": "Prism · Rose",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:6"
+  },
+  {
+    "slug": "hebri-prism-matcha",
+    "displayName": "Prism · Matcha",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:7"
+  },
+  {
+    "slug": "hebri-prism-midnight",
+    "displayName": "Prism · Midnight",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:8"
+  },
+  {
+    "slug": "hebri-prism-ember",
+    "displayName": "Prism · Ember",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:9"
+  },
+  {
+    "slug": "hebri-prism-pearl",
+    "displayName": "Prism · Pearl",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:10"
+  },
+  {
+    "slug": "hebri-prism-electric",
+    "displayName": "Prism · Electric",
+    "description": "A floating crystal mind",
+    "shape": "hebri:prism:11"
+  },
+  {
+    "slug": "hebri-nova-cobalt",
+    "displayName": "Nova · Cobalt",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:0"
+  },
+  {
+    "slug": "hebri-nova-aurora",
+    "displayName": "Nova · Aurora",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:1"
+  },
+  {
+    "slug": "hebri-nova-coral",
+    "displayName": "Nova · Coral",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:2"
+  },
+  {
+    "slug": "hebri-nova-lilac",
+    "displayName": "Nova · Lilac",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:3"
+  },
+  {
+    "slug": "hebri-nova-amber",
+    "displayName": "Nova · Amber",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:4"
+  },
+  {
+    "slug": "hebri-nova-glacier",
+    "displayName": "Nova · Glacier",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:5"
+  },
+  {
+    "slug": "hebri-nova-rose",
+    "displayName": "Nova · Rose",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:6"
+  },
+  {
+    "slug": "hebri-nova-matcha",
+    "displayName": "Nova · Matcha",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:7"
+  },
+  {
+    "slug": "hebri-nova-midnight",
+    "displayName": "Nova · Midnight",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:8"
+  },
+  {
+    "slug": "hebri-nova-ember",
+    "displayName": "Nova · Ember",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:9"
+  },
+  {
+    "slug": "hebri-nova-pearl",
+    "displayName": "Nova · Pearl",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:10"
+  },
+  {
+    "slug": "hebri-nova-electric",
+    "displayName": "Nova · Electric",
+    "description": "A pocketful of starlight",
+    "shape": "hebri:nova:11"
+  },
+  {
+    "slug": "hebri-nimbus-cobalt",
+    "displayName": "Nimbus · Cobalt",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:0"
+  },
+  {
+    "slug": "hebri-nimbus-aurora",
+    "displayName": "Nimbus · Aurora",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:1"
+  },
+  {
+    "slug": "hebri-nimbus-coral",
+    "displayName": "Nimbus · Coral",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:2"
+  },
+  {
+    "slug": "hebri-nimbus-lilac",
+    "displayName": "Nimbus · Lilac",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:3"
+  },
+  {
+    "slug": "hebri-nimbus-amber",
+    "displayName": "Nimbus · Amber",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:4"
+  },
+  {
+    "slug": "hebri-nimbus-glacier",
+    "displayName": "Nimbus · Glacier",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:5"
+  },
+  {
+    "slug": "hebri-nimbus-rose",
+    "displayName": "Nimbus · Rose",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:6"
+  },
+  {
+    "slug": "hebri-nimbus-matcha",
+    "displayName": "Nimbus · Matcha",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:7"
+  },
+  {
+    "slug": "hebri-nimbus-midnight",
+    "displayName": "Nimbus · Midnight",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:8"
+  },
+  {
+    "slug": "hebri-nimbus-ember",
+    "displayName": "Nimbus · Ember",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:9"
+  },
+  {
+    "slug": "hebri-nimbus-pearl",
+    "displayName": "Nimbus · Pearl",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:10"
+  },
+  {
+    "slug": "hebri-nimbus-electric",
+    "displayName": "Nimbus · Electric",
+    "description": "A cloud with curious eyes",
+    "shape": "hebri:nimbus:11"
+  },
+  {
+    "slug": "hebri-sprout-cobalt",
+    "displayName": "Sprout · Cobalt",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:0"
+  },
+  {
+    "slug": "hebri-sprout-aurora",
+    "displayName": "Sprout · Aurora",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:1"
+  },
+  {
+    "slug": "hebri-sprout-coral",
+    "displayName": "Sprout · Coral",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:2"
+  },
+  {
+    "slug": "hebri-sprout-lilac",
+    "displayName": "Sprout · Lilac",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:3"
+  },
+  {
+    "slug": "hebri-sprout-amber",
+    "displayName": "Sprout · Amber",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:4"
+  },
+  {
+    "slug": "hebri-sprout-glacier",
+    "displayName": "Sprout · Glacier",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:5"
+  },
+  {
+    "slug": "hebri-sprout-rose",
+    "displayName": "Sprout · Rose",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:6"
+  },
+  {
+    "slug": "hebri-sprout-matcha",
+    "displayName": "Sprout · Matcha",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:7"
+  },
+  {
+    "slug": "hebri-sprout-midnight",
+    "displayName": "Sprout · Midnight",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:8"
+  },
+  {
+    "slug": "hebri-sprout-ember",
+    "displayName": "Sprout · Ember",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:9"
+  },
+  {
+    "slug": "hebri-sprout-pearl",
+    "displayName": "Sprout · Pearl",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:10"
+  },
+  {
+    "slug": "hebri-sprout-electric",
+    "displayName": "Sprout · Electric",
+    "description": "An idea taking root",
+    "shape": "hebri:sprout:11"
+  },
+  {
+    "slug": "hebri-ember-cobalt",
+    "displayName": "Ember · Cobalt",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:0"
+  },
+  {
+    "slug": "hebri-ember-aurora",
+    "displayName": "Ember · Aurora",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:1"
+  },
+  {
+    "slug": "hebri-ember-coral",
+    "displayName": "Ember · Coral",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:2"
+  },
+  {
+    "slug": "hebri-ember-lilac",
+    "displayName": "Ember · Lilac",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:3"
+  },
+  {
+    "slug": "hebri-ember-amber",
+    "displayName": "Ember · Amber",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:4"
+  },
+  {
+    "slug": "hebri-ember-glacier",
+    "displayName": "Ember · Glacier",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:5"
+  },
+  {
+    "slug": "hebri-ember-rose",
+    "displayName": "Ember · Rose",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:6"
+  },
+  {
+    "slug": "hebri-ember-matcha",
+    "displayName": "Ember · Matcha",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:7"
+  },
+  {
+    "slug": "hebri-ember-midnight",
+    "displayName": "Ember · Midnight",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:8"
+  },
+  {
+    "slug": "hebri-ember-ember",
+    "displayName": "Ember · Ember",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:9"
+  },
+  {
+    "slug": "hebri-ember-pearl",
+    "displayName": "Ember · Pearl",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:10"
+  },
+  {
+    "slug": "hebri-ember-electric",
+    "displayName": "Ember · Electric",
+    "description": "A little spark of energy",
+    "shape": "hebri:ember:11"
+  },
+  {
+    "slug": "hebri-ripple-cobalt",
+    "displayName": "Ripple · Cobalt",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:0"
+  },
+  {
+    "slug": "hebri-ripple-aurora",
+    "displayName": "Ripple · Aurora",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:1"
+  },
+  {
+    "slug": "hebri-ripple-coral",
+    "displayName": "Ripple · Coral",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:2"
+  },
+  {
+    "slug": "hebri-ripple-lilac",
+    "displayName": "Ripple · Lilac",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:3"
+  },
+  {
+    "slug": "hebri-ripple-amber",
+    "displayName": "Ripple · Amber",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:4"
+  },
+  {
+    "slug": "hebri-ripple-glacier",
+    "displayName": "Ripple · Glacier",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:5"
+  },
+  {
+    "slug": "hebri-ripple-rose",
+    "displayName": "Ripple · Rose",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:6"
+  },
+  {
+    "slug": "hebri-ripple-matcha",
+    "displayName": "Ripple · Matcha",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:7"
+  },
+  {
+    "slug": "hebri-ripple-midnight",
+    "displayName": "Ripple · Midnight",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:8"
+  },
+  {
+    "slug": "hebri-ripple-ember",
+    "displayName": "Ripple · Ember",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:9"
+  },
+  {
+    "slug": "hebri-ripple-pearl",
+    "displayName": "Ripple · Pearl",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:10"
+  },
+  {
+    "slug": "hebri-ripple-electric",
+    "displayName": "Ripple · Electric",
+    "description": "A drop of calm",
+    "shape": "hebri:ripple:11"
+  },
+  {
+    "slug": "hebri-mochi-cobalt",
+    "displayName": "Mochi · Cobalt",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:0"
+  },
+  {
+    "slug": "hebri-mochi-aurora",
+    "displayName": "Mochi · Aurora",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:1"
+  },
+  {
+    "slug": "hebri-mochi-coral",
+    "displayName": "Mochi · Coral",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:2"
+  },
+  {
+    "slug": "hebri-mochi-lilac",
+    "displayName": "Mochi · Lilac",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:3"
+  },
+  {
+    "slug": "hebri-mochi-amber",
+    "displayName": "Mochi · Amber",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:4"
+  },
+  {
+    "slug": "hebri-mochi-glacier",
+    "displayName": "Mochi · Glacier",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:5"
+  },
+  {
+    "slug": "hebri-mochi-rose",
+    "displayName": "Mochi · Rose",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:6"
+  },
+  {
+    "slug": "hebri-mochi-matcha",
+    "displayName": "Mochi · Matcha",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:7"
+  },
+  {
+    "slug": "hebri-mochi-midnight",
+    "displayName": "Mochi · Midnight",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:8"
+  },
+  {
+    "slug": "hebri-mochi-ember",
+    "displayName": "Mochi · Ember",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:9"
+  },
+  {
+    "slug": "hebri-mochi-pearl",
+    "displayName": "Mochi · Pearl",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:10"
+  },
+  {
+    "slug": "hebri-mochi-electric",
+    "displayName": "Mochi · Electric",
+    "description": "Soft, squishy, slightly strange",
+    "shape": "hebri:mochi:11"
+  },
+  {
+    "slug": "hebri-halo-cobalt",
+    "displayName": "Halo · Cobalt",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:0"
+  },
+  {
+    "slug": "hebri-halo-aurora",
+    "displayName": "Halo · Aurora",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:1"
+  },
+  {
+    "slug": "hebri-halo-coral",
+    "displayName": "Halo · Coral",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:2"
+  },
+  {
+    "slug": "hebri-halo-lilac",
+    "displayName": "Halo · Lilac",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:3"
+  },
+  {
+    "slug": "hebri-halo-amber",
+    "displayName": "Halo · Amber",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:4"
+  },
+  {
+    "slug": "hebri-halo-glacier",
+    "displayName": "Halo · Glacier",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:5"
+  },
+  {
+    "slug": "hebri-halo-rose",
+    "displayName": "Halo · Rose",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:6"
+  },
+  {
+    "slug": "hebri-halo-matcha",
+    "displayName": "Halo · Matcha",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:7"
+  },
+  {
+    "slug": "hebri-halo-midnight",
+    "displayName": "Halo · Midnight",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:8"
+  },
+  {
+    "slug": "hebri-halo-ember",
+    "displayName": "Halo · Ember",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:9"
+  },
+  {
+    "slug": "hebri-halo-pearl",
+    "displayName": "Halo · Pearl",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:10"
+  },
+  {
+    "slug": "hebri-halo-electric",
+    "displayName": "Halo · Electric",
+    "description": "A loop with a point of view",
+    "shape": "hebri:halo:11"
+  },
+  {
+    "slug": "hebri-comet-cobalt",
+    "displayName": "Comet · Cobalt",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:0"
+  },
+  {
+    "slug": "hebri-comet-aurora",
+    "displayName": "Comet · Aurora",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:1"
+  },
+  {
+    "slug": "hebri-comet-coral",
+    "displayName": "Comet · Coral",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:2"
+  },
+  {
+    "slug": "hebri-comet-lilac",
+    "displayName": "Comet · Lilac",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:3"
+  },
+  {
+    "slug": "hebri-comet-amber",
+    "displayName": "Comet · Amber",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:4"
+  },
+  {
+    "slug": "hebri-comet-glacier",
+    "displayName": "Comet · Glacier",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:5"
+  },
+  {
+    "slug": "hebri-comet-rose",
+    "displayName": "Comet · Rose",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:6"
+  },
+  {
+    "slug": "hebri-comet-matcha",
+    "displayName": "Comet · Matcha",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:7"
+  },
+  {
+    "slug": "hebri-comet-midnight",
+    "displayName": "Comet · Midnight",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:8"
+  },
+  {
+    "slug": "hebri-comet-ember",
+    "displayName": "Comet · Ember",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:9"
+  },
+  {
+    "slug": "hebri-comet-pearl",
+    "displayName": "Comet · Pearl",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:10"
+  },
+  {
+    "slug": "hebri-comet-electric",
+    "displayName": "Comet · Electric",
+    "description": "Always going somewhere",
+    "shape": "hebri:comet:11"
+  },
+  {
+    "slug": "hebri-pixel-cobalt",
+    "displayName": "Pixel · Cobalt",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:0"
+  },
+  {
+    "slug": "hebri-pixel-aurora",
+    "displayName": "Pixel · Aurora",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:1"
+  },
+  {
+    "slug": "hebri-pixel-coral",
+    "displayName": "Pixel · Coral",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:2"
+  },
+  {
+    "slug": "hebri-pixel-lilac",
+    "displayName": "Pixel · Lilac",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:3"
+  },
+  {
+    "slug": "hebri-pixel-amber",
+    "displayName": "Pixel · Amber",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:4"
+  },
+  {
+    "slug": "hebri-pixel-glacier",
+    "displayName": "Pixel · Glacier",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:5"
+  },
+  {
+    "slug": "hebri-pixel-rose",
+    "displayName": "Pixel · Rose",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:6"
+  },
+  {
+    "slug": "hebri-pixel-matcha",
+    "displayName": "Pixel · Matcha",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:7"
+  },
+  {
+    "slug": "hebri-pixel-midnight",
+    "displayName": "Pixel · Midnight",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:8"
+  },
+  {
+    "slug": "hebri-pixel-ember",
+    "displayName": "Pixel · Ember",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:9"
+  },
+  {
+    "slug": "hebri-pixel-pearl",
+    "displayName": "Pixel · Pearl",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:10"
+  },
+  {
+    "slug": "hebri-pixel-electric",
+    "displayName": "Pixel · Electric",
+    "description": "A playful stack of possibilities",
+    "shape": "hebri:pixel:11"
+  },
+  {
+    "slug": "hebri-tangle-cobalt",
+    "displayName": "Tangle · Cobalt",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:0"
+  },
+  {
+    "slug": "hebri-tangle-aurora",
+    "displayName": "Tangle · Aurora",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:1"
+  },
+  {
+    "slug": "hebri-tangle-coral",
+    "displayName": "Tangle · Coral",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:2"
+  },
+  {
+    "slug": "hebri-tangle-lilac",
+    "displayName": "Tangle · Lilac",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:3"
+  },
+  {
+    "slug": "hebri-tangle-amber",
+    "displayName": "Tangle · Amber",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:4"
+  },
+  {
+    "slug": "hebri-tangle-glacier",
+    "displayName": "Tangle · Glacier",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:5"
+  },
+  {
+    "slug": "hebri-tangle-rose",
+    "displayName": "Tangle · Rose",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:6"
+  },
+  {
+    "slug": "hebri-tangle-matcha",
+    "displayName": "Tangle · Matcha",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:7"
+  },
+  {
+    "slug": "hebri-tangle-midnight",
+    "displayName": "Tangle · Midnight",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:8"
+  },
+  {
+    "slug": "hebri-tangle-ember",
+    "displayName": "Tangle · Ember",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:9"
+  },
+  {
+    "slug": "hebri-tangle-pearl",
+    "displayName": "Tangle · Pearl",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:10"
+  },
+  {
+    "slug": "hebri-tangle-electric",
+    "displayName": "Tangle · Electric",
+    "description": "A thought with a twist",
+    "shape": "hebri:tangle:11"
+  },
+  {
+    "slug": "hebri-luna-cobalt",
+    "displayName": "Luna · Cobalt",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:0"
+  },
+  {
+    "slug": "hebri-luna-aurora",
+    "displayName": "Luna · Aurora",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:1"
+  },
+  {
+    "slug": "hebri-luna-coral",
+    "displayName": "Luna · Coral",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:2"
+  },
+  {
+    "slug": "hebri-luna-lilac",
+    "displayName": "Luna · Lilac",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:3"
+  },
+  {
+    "slug": "hebri-luna-amber",
+    "displayName": "Luna · Amber",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:4"
+  },
+  {
+    "slug": "hebri-luna-glacier",
+    "displayName": "Luna · Glacier",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:5"
+  },
+  {
+    "slug": "hebri-luna-rose",
+    "displayName": "Luna · Rose",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:6"
+  },
+  {
+    "slug": "hebri-luna-matcha",
+    "displayName": "Luna · Matcha",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:7"
+  },
+  {
+    "slug": "hebri-luna-midnight",
+    "displayName": "Luna · Midnight",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:8"
+  },
+  {
+    "slug": "hebri-luna-ember",
+    "displayName": "Luna · Ember",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:9"
+  },
+  {
+    "slug": "hebri-luna-pearl",
+    "displayName": "Luna · Pearl",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:10"
+  },
+  {
+    "slug": "hebri-luna-electric",
+    "displayName": "Luna · Electric",
+    "description": "A crescent with character",
+    "shape": "hebri:luna:11"
+  },
+  {
+    "slug": "hebri-shroom-cobalt",
+    "displayName": "Shroom · Cobalt",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:0"
+  },
+  {
+    "slug": "hebri-shroom-aurora",
+    "displayName": "Shroom · Aurora",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:1"
+  },
+  {
+    "slug": "hebri-shroom-coral",
+    "displayName": "Shroom · Coral",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:2"
+  },
+  {
+    "slug": "hebri-shroom-lilac",
+    "displayName": "Shroom · Lilac",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:3"
+  },
+  {
+    "slug": "hebri-shroom-amber",
+    "displayName": "Shroom · Amber",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:4"
+  },
+  {
+    "slug": "hebri-shroom-glacier",
+    "displayName": "Shroom · Glacier",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:5"
+  },
+  {
+    "slug": "hebri-shroom-rose",
+    "displayName": "Shroom · Rose",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:6"
+  },
+  {
+    "slug": "hebri-shroom-matcha",
+    "displayName": "Shroom · Matcha",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:7"
+  },
+  {
+    "slug": "hebri-shroom-midnight",
+    "displayName": "Shroom · Midnight",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:8"
+  },
+  {
+    "slug": "hebri-shroom-ember",
+    "displayName": "Shroom · Ember",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:9"
+  },
+  {
+    "slug": "hebri-shroom-pearl",
+    "displayName": "Shroom · Pearl",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:10"
+  },
+  {
+    "slug": "hebri-shroom-electric",
+    "displayName": "Shroom · Electric",
+    "description": "A tiny forest daydream",
+    "shape": "hebri:shroom:11"
+  },
+  {
+    "slug": "hebri-echo-cobalt",
+    "displayName": "Echo · Cobalt",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:0"
+  },
+  {
+    "slug": "hebri-echo-aurora",
+    "displayName": "Echo · Aurora",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:1"
+  },
+  {
+    "slug": "hebri-echo-coral",
+    "displayName": "Echo · Coral",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:2"
+  },
+  {
+    "slug": "hebri-echo-lilac",
+    "displayName": "Echo · Lilac",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:3"
+  },
+  {
+    "slug": "hebri-echo-amber",
+    "displayName": "Echo · Amber",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:4"
+  },
+  {
+    "slug": "hebri-echo-glacier",
+    "displayName": "Echo · Glacier",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:5"
+  },
+  {
+    "slug": "hebri-echo-rose",
+    "displayName": "Echo · Rose",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:6"
+  },
+  {
+    "slug": "hebri-echo-matcha",
+    "displayName": "Echo · Matcha",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:7"
+  },
+  {
+    "slug": "hebri-echo-midnight",
+    "displayName": "Echo · Midnight",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:8"
+  },
+  {
+    "slug": "hebri-echo-ember",
+    "displayName": "Echo · Ember",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:9"
+  },
+  {
+    "slug": "hebri-echo-pearl",
+    "displayName": "Echo · Pearl",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:10"
+  },
+  {
+    "slug": "hebri-echo-electric",
+    "displayName": "Echo · Electric",
+    "description": "A living little waveform",
+    "shape": "hebri:echo:11"
+  },
+  {
+    "slug": "hebri-glint-cobalt",
+    "displayName": "Glint · Cobalt",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:0"
+  },
+  {
+    "slug": "hebri-glint-aurora",
+    "displayName": "Glint · Aurora",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:1"
+  },
+  {
+    "slug": "hebri-glint-coral",
+    "displayName": "Glint · Coral",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:2"
+  },
+  {
+    "slug": "hebri-glint-lilac",
+    "displayName": "Glint · Lilac",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:3"
+  },
+  {
+    "slug": "hebri-glint-amber",
+    "displayName": "Glint · Amber",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:4"
+  },
+  {
+    "slug": "hebri-glint-glacier",
+    "displayName": "Glint · Glacier",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:5"
+  },
+  {
+    "slug": "hebri-glint-rose",
+    "displayName": "Glint · Rose",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:6"
+  },
+  {
+    "slug": "hebri-glint-matcha",
+    "displayName": "Glint · Matcha",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:7"
+  },
+  {
+    "slug": "hebri-glint-midnight",
+    "displayName": "Glint · Midnight",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:8"
+  },
+  {
+    "slug": "hebri-glint-ember",
+    "displayName": "Glint · Ember",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:9"
+  },
+  {
+    "slug": "hebri-glint-pearl",
+    "displayName": "Glint · Pearl",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:10"
+  },
+  {
+    "slug": "hebri-glint-electric",
+    "displayName": "Glint · Electric",
+    "description": "Geometry with attitude",
+    "shape": "hebri:glint:11"
+  }
+]

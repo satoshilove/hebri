@@ -147,7 +147,7 @@ const itBase = {
     choose: 'Scegli',
     connecting: 'Connessione in corso',
     continue: 'Continua',
-    bots: 'Bot',
+    bots: 'Compagni',
     copyFailed: 'Copia non riuscita',
     docs: 'Documentazione',
     formatJson: 'Formatta JSON',

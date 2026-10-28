@@ -60,7 +60,7 @@ export const ja = defineLocale({
     connect: '接続',
     connecting: '接続中',
     continue: '続ける',
-    bots: 'ボット',
+    bots: 'コンパニオン',
     copied: 'コピーしました',
     copy: 'コピー',
     copyFailed: 'コピーに失敗しました',
@@ -981,7 +981,7 @@ export const ja = defineLocale({
       versionUnavailable: 'バージョンを取得できません',
       bundleOutOfSync: 'アプリのビルドが古くなっています',
       bundleOutOfSyncDesc:
-        'Hebri ランタイムは更新されましたが、デスクトップアプリ自体は古いビルドのままです。アプリを更新するまで、新しいインターフェース機能(Bot Mode など)は表示されません。下の更新を実行してアプリを再ビルドしてください。それでもこの警告が消えない場合は、最新のデスクトップインストーラーから再インストールしてください。',
+        'Hebri ランタイムは更新されましたが、デスクトップアプリ自体は古いビルドのままです。アプリを更新するまで、新しいインターフェース機能(Companions など)は表示されません。下の更新を実行してアプリを再ビルドしてください。それでもこの警告が消えない場合は、最新のデスクトップインストーラーから再インストールしてください。',
       bundleOutOfSyncAction: 'インストーラーを入手',
       bundleSwapPending: '再起動して更新を完了',
       bundleSwapPendingDesc:
@@ -3971,7 +3971,7 @@ export const ja = defineLocale({
     resumeStrandedBody:
       'このセッションへの接続に失敗し、自動再試行も停止しました。ゲートウェイが実行中か確認してから、もう一度お試しください。',
     poolSlotTimeoutBody:
-      'すべてのローカルプロファイルバックエンドスロットが使用中です。「設定」→「詳細設定」で「Warm Bot Backends」を増やすか、アイドル状態のバックエンドが解放された後に再試行してください。',
+      'すべてのローカルプロファイルバックエンドスロットが使用中です。「設定」→「詳細設定」で「Warm Companion Backends」を増やすか、アイドル状態のバックエンドが解放された後に再試行してください。',
     poolSlotTimeoutOpenSettings: '詳細設定を開く',
     resumeRetry: '再試行',
     nothingToBranch: 'ブランチするものがありません',

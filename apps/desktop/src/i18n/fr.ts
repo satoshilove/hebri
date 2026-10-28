@@ -361,7 +361,7 @@ export const fr = defineLocale({
     connect: 'Connecter',
     connecting: 'Connexion',
     continue: 'Continuer',
-    bots: 'Bots',
+    bots: 'Compagnons',
     copied: 'Copié',
     copy: 'Copier',
     copyFailed: 'Échec de la copie',

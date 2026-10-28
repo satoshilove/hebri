@@ -127,7 +127,7 @@ def resolve_active_pet(configured_slug: str | None = None) -> InstalledPet | Non
 
 
 def install_pet(slug: str, *, force: bool = False, timeout: float = _DOWNLOAD_TIMEOUT) -> InstalledPet:
-    """Download *slug* from the manifest; idempotent unless *force*. Raises :class:`PetStoreError` / ``ManifestError``."""
+    """Install bundled artwork or download from the manifest; idempotent unless *force*."""
     from agent.pet.manifest import find_entry
 
     slug = _safe_slug(slug)
@@ -135,6 +135,15 @@ def install_pet(slug: str, *, force: bool = False, timeout: float = _DOWNLOAD_TI
         raise PetStoreError("invalid pet slug")
     if not force and (existing := _usable_pet(slug)):
         return existing
+    from agent.pet.bundled import asset, entries
+    if source := asset(slug):
+        directory = _ensure_dir(pets_dir() / slug)
+        shutil.copyfile(source, directory / "spritesheet.webp")
+        entry = entries()[slug]
+        _write_pet_json(directory, {"id": slug, "displayName": entry["displayName"],
+                                   "description": entry["description"], "spritesheetPath": "spritesheet.webp",
+                                   "createdBy": "hebri"})
+        return _usable_pet(slug, f"could not install bundled companion '{slug}'")
     entry = find_entry(slug, timeout=timeout)
     if entry is None:
         raise PetStoreError(f"pet '{slug}' is not in the petdex manifest")
@@ -228,7 +237,8 @@ def thumbnail_png(slug: str, *, source_url: str = "", timeout: float = 30.0) -> 
     never fetches arbitrary client URLs). Server-side so it rides the authenticated
     gateway as a same-origin data URL, sidestepping CSP/hotlink limits.
     """
-    if not (slug := slug.strip()):
+    slug = slug.strip()
+    if not slug or slug != _safe_slug(slug) or "/" in slug or "\\" in slug:
         return None
     if (cache := _thumb_path(slug)).is_file():
         with contextlib.suppress(OSError):
@@ -237,6 +247,10 @@ def thumbnail_png(slug: str, *, source_url: str = "", timeout: float = 30.0) -> 
     if pet := _usable_pet(slug):
         with contextlib.suppress(OSError):
             sheet_bytes = pet.spritesheet.read_bytes()
+    if sheet_bytes is None:
+        from agent.pet.bundled import asset
+        if source := asset(slug):
+            sheet_bytes = source.read_bytes()
     if sheet_bytes is None and source_url and _is_petdex_host(source_url):
         try:
             sheet_bytes = _http_get(source_url, timeout).content

@@ -190,9 +190,9 @@ export const additionalEn = {
     reconnectHebri: 'Not connected — open Hebri to reconnect',
     apiKey: 'API key',
     warmBackends:
-      'How many bot backends stay running for instant switching. Higher = faster switches, more memory (~60MB per backend). Applies immediately.',
+      'How many companion backends stay running for instant switching. Higher = faster switches, more memory (~60MB per backend). Applies immediately.',
     backendIdle:
-      'How long an unused bot backend stays warm before it is shut down. Raise this so bots you revisit every few minutes never pay a cold start.',
+      'How long an unused companion backend stays warm before it is shut down. Raise this so companions you revisit every few minutes never pay a cold start.',
     restoreWindow: 'Restore window',
     maximizeWindow: 'Maximize window',
     archiveSkill: 'Archive skill',
@@ -245,8 +245,8 @@ export const additionalEn = {
     noGatewayLogs: 'No recent gateway log lines',
     otherImprovements: 'Other improvements',
     inThisUpdate: 'In this update',
-    selectBotFirst: 'Select a Bot before starting another chat.',
-    updateForBotChat: 'Update Hebri Desktop to open another Bot chat.',
+    selectBotFirst: 'Select a companion before starting another chat.',
+    updateForBotChat: 'Update Hebri Desktop to open another companion chat.',
     memory: 'memory',
     skill: 'skill'
   },

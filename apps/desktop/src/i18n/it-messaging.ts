@@ -4,7 +4,7 @@ export const itMessaging = {
   messaging: {
     search: 'Cerca nella messaggistica…',
     ownershipIntro:
-      'Collega app di messaggistica esterne a questo gateway Synapsek Hebri. Le credenziali delle piattaforme e le approvazioni di associazione appartengono al profilo Hebri selezionato e sono separate dalle conversazioni del team e dai bot.',
+      'Collega app di messaggistica esterne a questo gateway Synapsek Hebri. Le credenziali delle piattaforme e le approvazioni di associazione appartengono al profilo Hebri selezionato e sono separate dalle conversazioni del team e dai compagni.',
     loading: 'Caricamento delle piattaforme di messaggistica…',
     loadFailed: 'Impossibile caricare le piattaforme di messaggistica',
     states: {

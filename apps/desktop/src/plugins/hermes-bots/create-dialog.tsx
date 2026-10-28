@@ -37,7 +37,7 @@ import {
  */
 import { useEffect, useRef, useState } from 'react'
 
-import { avatarColor, blobatarSvg, botAppearance, BotFace } from './avatar'
+import { avatarColor, botAppearance, BotFace } from './avatar'
 import { isBackfilledFacePng } from './avatar-image'
 import { AvatarPicker } from './avatar-picker'
 import { $selectedBot } from './bot-state'
@@ -132,9 +132,8 @@ export function CreateAgentDialog({ open, onClose, roster }: CreateAgentDialogPr
   const flightRef = useRef<Promise<null | string> | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  // Default shapes mode: deterministic blob face drawn from the agent's name
-  // (falls back to the legacy shape vocabulary on older SDKs).
-  const [shape, setShape] = useState(blobatarSvg ? 'blobatar' : 'circle')
+  // New companions start with Hebri's original face; saved appearances are untouched.
+  const [shape, setShape] = useState('hebri:sage:0')
   const [color, setColor] = useState<null | string>(null)
   const [image, setImage] = useState<null | string>(null)
   const [advanced, setAdvanced] = useState(false)
@@ -264,7 +263,7 @@ export function CreateAgentDialog({ open, onClose, roster }: CreateAgentDialogPr
     setName('')
     setTitle('')
     setDescription('')
-    setShape(blobatarSvg ? 'blobatar' : 'circle')
+    setShape('hebri:sage:0')
     setColor(null)
     setImage(null)
     setAdvanced(false)

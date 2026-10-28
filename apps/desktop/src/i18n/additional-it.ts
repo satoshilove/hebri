@@ -198,9 +198,9 @@ export const additionalIt: typeof additionalEn = {
     reconnectHebri: 'Non connesso: apri Hebri per riconnetterti',
     apiKey: 'Chiave API',
     warmBackends:
-      'Numero di servizi dei bot mantenuti attivi per passare subito da un bot all’altro. Un valore maggiore rende il passaggio più rapido, ma usa più memoria (circa 60 MB per servizio). La modifica si applica subito.',
+      'Numero di servizi dei compagni mantenuti attivi per passare subito da un compagno all’altro. Un valore maggiore rende il passaggio più rapido, ma usa più memoria (circa 60 MB per servizio). La modifica si applica subito.',
     backendIdle:
-      'Tempo durante il quale un servizio di un bot inutilizzato rimane pronto prima di essere arrestato. Aumentalo per evitare un nuovo avvio quando torni a un bot dopo pochi minuti.',
+      'Tempo durante il quale un servizio di un compagno inutilizzato rimane pronto prima di essere arrestato. Aumentalo per evitare un nuovo avvio quando torni a un compagno dopo pochi minuti.',
     restoreWindow: 'Ripristina finestra',
     maximizeWindow: 'Ingrandisci finestra',
     archiveSkill: 'Archivia competenza',
@@ -253,8 +253,8 @@ export const additionalIt: typeof additionalEn = {
     noGatewayLogs: 'Nessuna voce recente nel registro del gateway',
     otherImprovements: 'Altri miglioramenti',
     inThisUpdate: 'In questo aggiornamento',
-    selectBotFirst: 'Seleziona un bot prima di avviare un’altra chat.',
-    updateForBotChat: 'Aggiorna Hebri Desktop per aprire un’altra chat con il bot.',
+    selectBotFirst: 'Seleziona un compagno prima di avviare un’altra chat.',
+    updateForBotChat: 'Aggiorna Hebri Desktop per aprire un’altra chat con il compagno.',
     memory: 'ricordo',
     skill: 'competenza'
   },

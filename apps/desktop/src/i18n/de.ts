@@ -360,7 +360,7 @@ export const de = defineLocale({
     connect: 'Verbinden',
     connecting: 'Verbindung wird hergestellt…',
     continue: 'Weiter',
-    bots: 'Bots',
+    bots: 'Begleiter',
     copied: 'Kopiert',
     copy: 'Kopieren',
     copyFailed: 'Kopieren fehlgeschlagen',

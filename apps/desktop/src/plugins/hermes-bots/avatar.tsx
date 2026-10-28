@@ -9,6 +9,7 @@
 import * as sdk from '@hermes/plugin-sdk'
 import { profileColor } from '@hermes/plugin-sdk'
 
+import { characterSvg, paintCharacter, parseCharacterShape } from './characters'
 import type { AvatarAppearance, AvatarShape, BotMeta, FaceMood } from './types'
 
 // Deterministic blob avatars (name → face). Feature-detected: older SDKs
@@ -114,7 +115,7 @@ export function defaultShapeFor(name: string): AvatarShape {
   return AVATAR_SHAPES[hash % AVATAR_SHAPES.length]
 }
 
-// ── blobatar shapes mode (default for new agents) ───────────────────────────
+// ── legacy blobatar shapes mode ────────────────────────────────────────────
 // Deterministic soft-body faces drawn from a string. Shape strings:
 //   'blobatar'                — the face follows the bot's NAME (renaming the
 //                               bot re-rolls the face, live in the dialog)
@@ -683,6 +684,12 @@ function settlePose(svg: SVGSVGElement, mood: string, target: FacePose, t: numbe
 }
 
 function paintMathFace(svg: SVGSVGElement, t: number) {
+  if (svg.hasAttribute('data-hb-character')) {
+    paintCharacter(svg, svg.getAttribute('data-hb-mood') || 'idle', t)
+
+    return
+  }
+
   const mood = svg.getAttribute('data-hb-mood') || 'idle'
   const shape = svg.getAttribute('data-hb-shape') || 'circle'
   const pose = settlePose(svg, mood, facePose(mood, t), t)
@@ -1013,6 +1020,24 @@ export function BotFace({ shape, color, image, size = 36, name = 'agent', mood =
     )
   }
 
+  if (parseCharacterShape(shape)) {
+    // Only catalog templates and validated palette IDs enter this markup.
+    const markup = characterSvg(shape)
+
+    return (
+      <span
+        aria-hidden
+        dangerouslySetInnerHTML={{ __html: markup }}
+        ref={node => {
+          const svg = node?.querySelector('svg')
+          svg?.setAttribute('data-bot-face', name)
+          svg?.setAttribute('data-hb-mood', mood)
+        }}
+        style={{ width: size, height: size, display: 'block', lineHeight: 0 }}
+      />
+    )
+  }
+
   // Blobatar shapes: the library draws the whole face (body + eyes + its own
   // name-derived palette). Inline SVG via innerHTML so the roster PNG
   // backfill's `svg[data-bot-face=…]` query still finds it; the math clock
@@ -1135,7 +1160,7 @@ export function botAppearance(name: string, meta: BotMeta | null | undefined): A
   // The primary profile is literally named "default"; the SDK's profileColor
   // can hand it a near-black that renders as an ugly black square, and any
   // auto-seeded color in local bot-meta would otherwise stick. Give the
-  // primary a nice fixed generic look (a friendly violet squircle). A user's
+  // primary the original Hebri Sage face. A user's
   // EXPLICIT customization still wins: an uploaded/generated/pet image, or a
   // shape/color they set via the editor (tracked by meta.custom === true).
   const isPrimary = (name || '').trim().toLowerCase() === 'default'
@@ -1143,7 +1168,7 @@ export function botAppearance(name: string, meta: BotMeta | null | undefined): A
 
   if (isPrimary && !userCustomized) {
     return {
-      shape: 'squircle',
+      shape: 'hebri:sage:0',
       color: PRIMARY_AVATAR_COLOR,
       image: meta?.image || null
     }

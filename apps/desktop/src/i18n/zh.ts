@@ -92,7 +92,7 @@ export const zh = defineLocale({
     connect: '连接',
     connecting: '连接中',
     continue: '继续',
-    bots: '机器人',
+    bots: '伙伴',
     copied: '已复制',
     copy: '复制',
     copyFailed: '复制失败',
@@ -1253,7 +1253,7 @@ export const zh = defineLocale({
       versionUnavailable: '版本不可用',
       bundleOutOfSync: '应用构建版本过旧',
       bundleOutOfSyncDesc:
-        'Hebri 运行时已更新,但桌面应用本身仍是旧构建——在应用更新之前,新的界面功能(如 Bot Mode)不会显示。请运行下方的更新以重新构建应用。如果此警告仍未消除,请从最新的桌面安装程序重新安装。',
+        'Hebri 运行时已更新,但桌面应用本身仍是旧构建——在应用更新之前,新的界面功能(如 Companions)不会显示。请运行下方的更新以重新构建应用。如果此警告仍未消除,请从最新的桌面安装程序重新安装。',
       bundleOutOfSyncAction: '获取安装程序',
       bundleSwapPending: '重启以完成更新',
       bundleSwapPendingDesc: '更新后的应用已安装完成，只需重启 Hebri 即可加载新版本。聊天记录和设置不会受到影响。',
@@ -4909,7 +4909,7 @@ export const zh = defineLocale({
     resumeStrandedTitle: '无法加载此会话',
     resumeStrandedBody: '与此会话的连接失败，自动重试已停止。请确认网关正在运行，然后重试。',
     poolSlotTimeoutBody:
-      '所有本地配置后端槽位都在使用中。请在“设置”→“高级”中增加 Warm Bot Backends，或等待空闲后端被驱逐后重试。',
+      '所有本地配置后端槽位都在使用中。请在“设置”→“高级”中增加 Warm Companion Backends，或等待空闲后端被驱逐后重试。',
     poolSlotTimeoutOpenSettings: '打开高级设置',
     resumeRetry: '重试',
     nothingToBranch: '没有可分支的内容',

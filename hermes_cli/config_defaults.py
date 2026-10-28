@@ -967,7 +967,7 @@ DEFAULT_CONFIG = {
             "render_mode": "auto",
             # Size scalar relative to native 192×208 frames, shared by desktop canvas and CLI/TUI
             # column width. Half-block fallback clamps to a legibility floor.
-            "scale": 0.33,
+            "scale": 0.25,
             "unicode_cols": 0,  # Hard override for terminal column width; 0 = derive from scale.
         },
     },

@@ -339,7 +339,7 @@ export const en: Translations = {
     connect: 'Connect',
     connecting: 'Connecting',
     continue: 'Continue',
-    bots: 'Bots',
+    bots: 'Companions',
     copied: 'Copied',
     copy: 'Copy',
     copyFailed: 'Copy failed',
@@ -1233,8 +1233,8 @@ export const en: Translations = {
       }
     },
     poolLimits: {
-      warmBotBackendsAria: 'Warm bot backends',
-      warmBotBackendsTitle: 'Warm Bot Backends',
+      warmBotBackendsAria: 'Warm companion backends',
+      warmBotBackendsTitle: 'Warm Companion Backends',
       backendIdleTimeoutAria: 'Backend idle timeout in milliseconds',
       backendIdleTimeoutTitle: 'Backend Idle Timeout'
     },
@@ -1299,7 +1299,7 @@ export const en: Translations = {
       versionUnavailable: 'Version unavailable',
       bundleOutOfSync: 'App build out of date',
       bundleOutOfSyncDesc:
-        'The Hebri runtime was updated, but the desktop app itself is still an older build — new interface features (like Bot Mode) will be missing until it updates. Run the update below to rebuild the app. If that doesn\u2019t clear this warning, reinstall from the latest desktop installer.',
+        'The Hebri runtime was updated, but the desktop app itself is still an older build — new interface features (like Companions) will be missing until it updates. Run the update below to rebuild the app. If that doesn\u2019t clear this warning, reinstall from the latest desktop installer.',
       bundleOutOfSyncAction: 'Get the installer',
       bundleSwapPending: 'Restart to finish the update',
       bundleSwapPendingDesc:
@@ -2756,9 +2756,9 @@ export const en: Translations = {
     openBrowser: 'Open browser',
     gatewayRestartFailed: 'Gateway restart failed.',
     sharedGatewayRestartTitle: 'Restart the shared gateway?',
-    sharedGatewayRestartDescription: bots => `All bots on this device reconnect: ${bots}`,
+    sharedGatewayRestartDescription: bots => `All companions on this device reconnect: ${bots}`,
     sharedGatewayRestartConfirm: 'Restart all',
-    sharedGatewayRestarted: count => `Shared gateway restarted (${count} ${count === 1 ? 'bot' : 'bots'})`,
+    sharedGatewayRestarted: count => `Shared gateway restarted (${count} ${count === 1 ? 'companion' : 'companions'})`,
     updateHermes: 'Update Hebri',
     reloadWindow: 'Reload window',
     actionRunning: 'running',
@@ -2838,7 +2838,7 @@ export const en: Translations = {
   messaging: {
     search: 'Search messaging...',
     ownershipIntro:
-      'Connect external messaging apps to this Synapsek Hebri gateway. Platform credentials and pairing approvals belong to the selected Hebri profile; they are separate from Team conversations and Bots.',
+      'Connect external messaging apps to this Synapsek Hebri gateway. Platform credentials and pairing approvals belong to the selected Hebri profile; they are separate from Team conversations and Companions.',
     loading: 'Loading messaging platforms...',
     loadFailed: 'Messaging platforms failed to load',
     states: {
