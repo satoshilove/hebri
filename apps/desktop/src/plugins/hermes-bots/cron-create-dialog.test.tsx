@@ -109,7 +109,7 @@ describe('where the run\u2019s output lands', () => {
     fillRequiredFields()
 
     fireEvent.click(controlUnder('Send results to'))
-    fireEvent.click(screen.getByRole('option', { name: /chat \(bot responds\)/ }))
+    fireEvent.click(screen.getByRole('option', { name: /chat \(Bit responds\)/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Create cron' }))
 
     await waitFor(() => expect(request).toHaveBeenCalled())
@@ -128,7 +128,7 @@ describe('where the run\u2019s output lands', () => {
     const { rerender } = render(<CreateRoutineDialog bot={{ name: 'ops' }} onClose={() => undefined} open />)
 
     fireEvent.click(controlUnder('Send results to'))
-    fireEvent.click(screen.getByRole('option', { name: /chat \(bot responds\)/ }))
+    fireEvent.click(screen.getByRole('option', { name: /chat \(Bit responds\)/ }))
     // Cancel resets; a reopened dialog must never inherit the last target.
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 

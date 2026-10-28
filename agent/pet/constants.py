@@ -22,7 +22,7 @@ LOOP_MS = 1100  # full-loop duration for one state, ms (petdex default)
 # native pixels by it and every terminal surface derives its column width from it
 # (:func:`cols_for_scale`). petdex clients render at 0.7; we default smaller so the
 # mascot stays a glanceable corner sprite (half-blocks clamp to ``UNICODE_MIN_COLS``).
-DEFAULT_SCALE = 0.33
+DEFAULT_SCALE = 0.25
 # User-settable bounds (``/pet scale``, desktop slider): floor keeps the pet
 # clickable/visible; ceiling stops a fat-fingered value from filling the screen.
 MIN_SCALE = 0.1

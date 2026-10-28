@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { $petInfo, setPetInfo } from './pet'
-import { $petGallery, adoptPet, type GatewayRequest, loadPetGallery, resetPetGallery } from './pet-gallery'
+import { $petGallery, adoptPet, type GatewayRequest, loadPetGallery, removePet, resetPetGallery } from './pet-gallery'
 
 function localGallery() {
   return {
@@ -12,6 +12,18 @@ function localGallery() {
 }
 
 describe('pet gallery pet.info sync', () => {
+  it('keeps offline bundled artwork available for adoption after uninstalling', async () => {
+    const slug = 'hebri-prism-lilac'
+    const request = vi.fn(async () => ({ ok: true })) as unknown as GatewayRequest
+    $petGallery.set({
+      enabled: true,
+      active: slug,
+      pets: [{ slug, displayName: 'Prism', installed: true, bundled: true, spritesheetUrl: '' }]
+    })
+    await removePet(request, slug, 'Could not remove')
+    expect($petGallery.get()?.pets).toEqual([expect.objectContaining({ slug, installed: false, bundled: true })])
+    expect($petGallery.get()?.active).toBe('')
+  })
   beforeEach(() => {
     resetPetGallery()
     setPetInfo({ enabled: false })

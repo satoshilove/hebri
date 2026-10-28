@@ -15,7 +15,7 @@ import { setAwaitingResponse, setBusy } from '@/store/session'
 // Fallbacks mirror pet-sprite's defaults; the gateway normally sends real values.
 const DEFAULT_FRAME_W = 192
 const DEFAULT_FRAME_H = 208
-const DEFAULT_SCALE = 0.33
+const DEFAULT_SCALE = 0.25
 
 // Must match the root's paddingBottom — the sprite renders bottom-centered, this
 // many px above the window's bottom edge. Used to anchor the resize.

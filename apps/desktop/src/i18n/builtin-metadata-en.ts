@@ -212,10 +212,10 @@ export const builtinMetadataEn = {
   'Toggle terminal': 'Toggle terminal',
   'Toggle logs': 'Toggle logs',
   'Toggle yolo': 'Toggle yolo',
-  'New Bot…': 'New Bot…',
-  'New Computer Mode Bot…': 'New Computer Mode Bot…',
-  'Bot Mode — a one-chat-per-agent roster with avatars, routines, group chats, and bot-to-bot messaging. Ships with the app; disable here if unwanted.':
-    'Bot Mode — a one-chat-per-agent roster with avatars, routines, group chats, and bot-to-bot messaging. Ships with the app; disable here if unwanted.',
+  'New Bot…': 'New Bit…',
+  'New Computer Mode Bot…': 'New Computer Mode Bit…',
+  'Bits — Hebri agents with their own memory, skills, routines, and chats. Bits can collaborate locally and across paired computers.':
+    'Bits — Hebri agents with their own memory, skills, routines, and chats. Bits can collaborate locally and across paired computers.',
   'Multi-agent task board — board page, sidebar entry, and a live in-flight count in the status bar.':
     'Multi-agent task board — board page, sidebar entry, and a live in-flight count in the status bar.',
   Default: 'Default',

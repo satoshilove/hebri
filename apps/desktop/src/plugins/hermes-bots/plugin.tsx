@@ -106,7 +106,7 @@ export default {
   id: ID,
   name: translateNow('common.bots'),
   description:
-    'Bot Mode — a one-chat-per-agent roster with avatars, routines, group chats, and bot-to-bot messaging. Ships with the app; disable here if unwanted.',
+    'Bits — Hebri agents with their own memory, skills, routines, and chats. Bits can collaborate locally and across paired computers.',
   register(ctx: PluginContext) {
     setPluginCtx(ctx)
     // The user's own roster sections. Read once at register; every mutation
@@ -883,7 +883,7 @@ export default {
           })
 
           const note =
-            '\n\n[@mentions resolved from the Bot Mode roster — the user is referring to: ' +
+            '\n\n[@mentions resolved from the Bits roster — the user is referring to: ' +
             lines.join('; ') +
             '. If they want one of these agents contacted, compose your own message and send it with your message_agent tool (agents on other connected machines are reachable too — the Desktop relays it); never forward the user\u2019s text verbatim. If this session has no message_agent tool, agent messaging is unavailable here — say so.]'
 

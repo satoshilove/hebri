@@ -10,7 +10,7 @@ const DEFAULT_FRAMES = 6
 const DEFAULT_LOOP_MS = 1100
 // Mirrors agent.pet.constants.DEFAULT_SCALE — fallback only; the gateway sends
 // the configured scale.
-const DEFAULT_SCALE = 0.33
+const DEFAULT_SCALE = 0.25
 
 function readDevicePixelRatio(): number {
   const ratio = window.devicePixelRatio

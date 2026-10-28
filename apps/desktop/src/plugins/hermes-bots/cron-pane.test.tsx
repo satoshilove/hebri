@@ -89,13 +89,13 @@ describe('the pane follows the roster hydrating after mount', () => {
   it('starts fail-closed, then paints once the row arrives', async () => {
     renderPane()
 
-    expect(screen.getByText('This bot has to appear in the roster first.')).toBeTruthy()
+    expect(screen.getByText('This Bit has to appear in the roster first.')).toBeTruthy()
 
     // The same focused bot chat now resolves to its exact roster row. Nothing
     // else changes — only a store write the pane must be subscribed to see.
     act(() => $lastRoster.set([{ connectionId: 'local', name: 'research' }]))
 
-    await waitFor(() => expect(screen.queryByText('This bot has to appear in the roster first.')).toBeNull())
+    await waitFor(() => expect(screen.queryByText('This Bit has to appear in the roster first.')).toBeNull())
     expect(await screen.findByText('Report')).toBeTruthy()
     expect(screen.getByText('Scheduled jobs')).toBeTruthy()
   })
@@ -129,7 +129,7 @@ describe('identity matching stays exact', () => {
 
     act(() => $lastRoster.set([{ connectionId: 'local', name: 'research' }]))
 
-    await waitFor(() => expect(screen.getByText('This bot has to appear in the roster first.')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('This Bit has to appear in the roster first.')).toBeTruthy())
     expect(request).not.toHaveBeenCalled()
   })
 })

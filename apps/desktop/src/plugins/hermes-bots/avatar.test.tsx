@@ -64,6 +64,33 @@ beforeEach(() => {
   blobatarSvgMock.mockReturnValue('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"></svg>')
 })
 
+describe('Hebri companion faces preserve appearance precedence', () => {
+  it('uses a saved photo even when a Hebri shape is present', async () => {
+    const { BotFace, stopFaceClock } = await import('./avatar')
+
+    const { container, unmount } = render(
+      <BotFace color="#123456" image="data:image/png;base64,AA==" shape="hebri:sage:0" />
+    )
+
+    expect(container.querySelector('img')?.getAttribute('src')).toBe('data:image/png;base64,AA==')
+    expect(container.querySelector('svg')).toBeNull()
+    unmount()
+    stopFaceClock()
+  })
+
+  it('keeps untrusted display names as DOM attributes and updates the activity mood', async () => {
+    const { BotFace, stopFaceClock } = await import('./avatar')
+    const name = '"><img src=x onerror=alert(1)>'
+    const { container, rerender, unmount } = render(<BotFace color="" mood="idle" name={name} shape="hebri:sage:0" />)
+    expect(container.querySelector('img')).toBeNull()
+    expect(container.querySelector('svg')?.getAttribute('data-bot-face')).toBe(name)
+    rerender(<BotFace color="" mood="work" name={name} shape="hebri:sage:0" />)
+    expect(container.querySelector('svg')?.getAttribute('data-hb-mood')).toBe('work')
+    unmount()
+    stopFaceClock()
+  })
+})
+
 describe('blob shape strings round-trip through parse/build', () => {
   it('recognizes only the blobatar family', async () => {
     const { isBlobShape } = await import('./avatar')

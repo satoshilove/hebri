@@ -117,8 +117,8 @@ export function FloatingPet() {
   // The facing mirror lives on the sprite wrapper, not the container, so the
   // speech bubble (a container child) never renders flipped/backwards.
   const spriteWrapRef = useRef<HTMLDivElement | null>(null)
-  const petW = (info.frameW ?? 192) * (info.scale ?? 0.33)
-  const petH = (info.frameH ?? 208) * (info.scale ?? 0.33)
+  const petW = (info.frameW ?? 192) * (info.scale ?? 0.25)
+  const petH = (info.frameH ?? 208) * (info.scale ?? 0.25)
   // Soft contact shadow, sized off the pet so every scale/species grounds the
   // same way (cf. lairp's per-actor feet ellipse). Lighter on light backgrounds.
   const shadowW = Math.round(petW * 0.55)

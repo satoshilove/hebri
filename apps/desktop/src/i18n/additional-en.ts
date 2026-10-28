@@ -66,7 +66,7 @@ export const additionalEn = {
     retry: 'Retry',
     telegramQr: 'Telegram setup QR code',
     petBackend: 'Add an image backend to generate',
-    petBackendHelp: 'Hatching a custom pet needs a provider that can ground on a reference image.',
+    petBackendHelp: 'Hatching a custom Hebit needs a provider that can ground on a reference image.',
     petSetup: 'Set up image generation',
     getKeyFrom: 'Grab a key from',
     removeReference: 'Remove reference',
@@ -190,9 +190,9 @@ export const additionalEn = {
     reconnectHebri: 'Not connected — open Hebri to reconnect',
     apiKey: 'API key',
     warmBackends:
-      'How many bot backends stay running for instant switching. Higher = faster switches, more memory (~60MB per backend). Applies immediately.',
+      'How many Bit backends stay running for instant switching. Higher = faster switches, more memory (~60MB per backend). Applies immediately.',
     backendIdle:
-      'How long an unused bot backend stays warm before it is shut down. Raise this so bots you revisit every few minutes never pay a cold start.',
+      'How long an unused Bit backend stays warm before it is shut down. Raise this so Bits you revisit every few minutes never pay a cold start.',
     restoreWindow: 'Restore window',
     maximizeWindow: 'Maximize window',
     archiveSkill: 'Archive skill',
@@ -245,8 +245,8 @@ export const additionalEn = {
     noGatewayLogs: 'No recent gateway log lines',
     otherImprovements: 'Other improvements',
     inThisUpdate: 'In this update',
-    selectBotFirst: 'Select a Bot before starting another chat.',
-    updateForBotChat: 'Update Hebri Desktop to open another Bot chat.',
+    selectBotFirst: 'Select a Bit before starting another chat.',
+    updateForBotChat: 'Update Hebri Desktop to open another Bit chat.',
     memory: 'memory',
     skill: 'skill'
   },
@@ -274,8 +274,8 @@ export const additionalEn = {
     buildStarted: (title: string) => `${title} was started — find it in your sessions`,
     openingNamed: (title: string) => `Opening ${title}…`,
     done: '✓ Done',
-    petNamed: (name: string) => `${name} pet`,
-    pet: 'pet',
+    petNamed: (name: string) => `${name} Hebit`,
+    pet: 'Hebit',
     copied: 'Copied',
     copy: 'Copy',
     renderFailed: (id: string) => `“${id}” failed to render`

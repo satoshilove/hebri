@@ -25,7 +25,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The app provider the plugin's tab label renders under; a plugin test may reach it.
 // eslint-disable-next-line no-restricted-imports
-import { I18nProvider } from '@/i18n'
+import { I18nProvider, TRANSLATIONS } from '@/i18n'
 
 import type * as DataModule from './data'
 import type * as RoutingModule from './routing'
@@ -169,7 +169,7 @@ afterEach(() => {
 })
 
 describe('the Bots pane dock', () => {
-  it('renders its tab label from the live locale, not the register-time string', () => {
+  it('renders the catalog roster label in each locale', () => {
     paneStores()
 
     const harness = recordingContext()
@@ -187,10 +187,13 @@ describe('the Bots pane dock', () => {
         </I18nProvider>
       )
 
-    expect(inLocale('en')).toBeTruthy()
-    expect(inLocale('ru')).not.toBe(inLocale('en'))
-
-    harness.dispose()
+    try {
+      // Bits is a brand name shared across locales; it need not translate differently.
+      expect(inLocale('en')).toBe(TRANSLATIONS.en.common.bots)
+      expect(inLocale('ru')).toBe(TRANSLATIONS.ru.common.bots)
+    } finally {
+      harness.dispose()
+    }
   })
 })
 

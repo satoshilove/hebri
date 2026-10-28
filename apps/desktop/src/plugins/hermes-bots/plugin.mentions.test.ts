@@ -373,7 +373,7 @@ describe('the mention middleware', () => {
     const { handler } = await contributions()
     const result = await handler({ text: '@default-vera what is the disk space on the server?' })
 
-    expect(result.text).toMatch(/@mentions resolved from the Bot Mode roster/)
+    expect(result.text).toMatch(/@mentions resolved from the Bits roster/)
     expect(result.text).toMatch(/@default-vera/)
     // No CLI handoff is composed and the renderer performs NO delivery — the
     // agent owns messaging via its message_agent tool.

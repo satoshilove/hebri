@@ -37,6 +37,8 @@ export interface GalleryPet {
   spritesheetUrl?: string
   /** petdex's hand-picked set — used only to rank "popular" pets first. */
   curated?: boolean
+  /** Original Hebri artwork available offline even after uninstalling. */
+  bundled?: boolean
   /** Hatched locally by the user (createdBy=generator) — badged + ranked first. */
   generated?: boolean
 }
@@ -370,7 +372,7 @@ export function setPetEnabled(
 // the slider and the server clamp to the same range.
 export const PET_SCALE_MIN = 0.1
 export const PET_SCALE_MAX = 3.0
-export const PET_SCALE_DEFAULT = 0.33
+export const PET_SCALE_DEFAULT = 0.25
 export const clampPetScale = (n: number) => Math.max(PET_SCALE_MIN, Math.min(PET_SCALE_MAX, n))
 
 // Wheel → scale. Multiplicative so one notch feels the same at any size. Tuned
@@ -525,7 +527,7 @@ export function removePet(request: GatewayRequest, slug: string, fallback: strin
           return [p]
         }
 
-        return p.generated || !p.spritesheetUrl ? [] : [{ ...p, installed: false }]
+        return p.generated || (!p.spritesheetUrl && !p.bundled) ? [] : [{ ...p, installed: false }]
       })
     }))
   })

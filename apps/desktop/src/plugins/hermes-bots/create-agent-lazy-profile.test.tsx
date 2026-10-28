@@ -5,7 +5,7 @@
  *    rather than forcing create-then-edit, so the setup button materializes
  *    the profile through `ensureAgentCreated()` on its first action. The
  *    creation is single-flighted and idempotent: whichever door fires first
- *    (a setup click, the Capabilities tab, or Create Bot itself) is the only
+ *    (a setup click, the Capabilities tab, or Create Bit itself) is the only
  *    `profiles.create` the dialog ever sends.
  *  - `reset()` has to restore the SAME clone source the dialog mounted with.
  *    It restored '__none__' instead: the first open cloned the main profile,
@@ -172,7 +172,7 @@ describe('materializing the draft profile', () => {
       target: { value: enteredName }
     })
 
-    const create = screen.getByRole('button', { name: 'Create Bot' })
+    const create = screen.getByRole('button', { name: 'Create Bit' })
 
     expect((create as HTMLButtonElement).disabled).toBe(false)
     fireEvent.click(create)
@@ -196,8 +196,8 @@ describe('materializing the draft profile', () => {
     // The live surface needs a REAL backend row to write to.
     await waitFor(() => expect(mocks.skillsView.at(-1)).toMatchObject({ fixedProfile: 'inbox-triage' }))
 
-    // Create Bot goes through the same helper — no duplicate profiles.create.
-    fireEvent.click(screen.getByRole('button', { name: 'Create Bot' }))
+    // Create Bit goes through the same helper — no duplicate profiles.create.
+    fireEvent.click(screen.getByRole('button', { name: 'Create Bit' }))
 
     await waitFor(() => expect(mocks.createCanonicalChat).toHaveBeenCalledWith('inbox-triage', { kickoff: true }))
     expect(createCalls()).toHaveLength(1)
@@ -257,7 +257,7 @@ describe('materializing the draft profile', () => {
     ])
     fireEvent.click(screen.getByRole('option', { name: /Fresh profile/ }))
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Bot' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Bit' }))
 
     await waitFor(() =>
       expect(mocks.requestProfile).toHaveBeenCalledWith(
@@ -303,7 +303,7 @@ describe('the clone-from default', () => {
     fireEvent.click(await screen.findByRole('option', { name: /Fresh profile/ }))
     expect(cloneFrom().textContent).toMatch(/Fresh profile/)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Bot' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Bit' }))
     await waitFor(() => expect(mocks.createCanonicalChat).toHaveBeenCalled())
 
     // Second open: the picker must read `default` again, or every agent after

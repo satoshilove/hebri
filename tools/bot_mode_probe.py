@@ -169,9 +169,13 @@ def _friendly_names(profile_dir: Path) -> tuple[str, str]:
 
 def _display_name(name: str, profile_dir: Path) -> str:
     """Human-facing sender name, in the Desktop's ``botFriendlyNames`` order: Bot Mode title,
-    then profile.yaml ``display_name`` (``hermes profile rename``), else the @handle — the
-    renamed primary signs as ``Maia (@hermes)``, not ``hermes (@hermes)`` (#89720)."""
-    return next((n for n in _friendly_names(profile_dir) if n), None) or _handle(name)
+    then profile.yaml ``display_name``, else Hebri for the default profile or the named
+    profile's handle. Custom names and the compatibility routing handle stay intact."""
+    from hermes_cli.provider_identity import APP_NAME
+
+    return next((n for n in _friendly_names(profile_dir) if n), None) or (
+        APP_NAME if name == "default" else _handle(name)
+    )
 
 
 # Tokens the Desktop mention parser reserves; a bot titled "Hermes" never hijacks @hermes.
@@ -260,7 +264,7 @@ def _peer_paragraph(root: Path) -> str:
         "\n\nTeammates on OTHER machines: this install also has peer gateways "
         f"registered ({listed}). Message an agent on a peer the same way — "
         'message_agent with target "<peer>/<agent-name>" (or "<peer>" alone '
-        "for the peer's main agent). Run `hermes peer list` for the live "
+        "for the peer's main agent). Run `hebri peer list` for the live "
         "peer list."
     )
 
@@ -271,12 +275,19 @@ def _build_section(home: Path) -> str:
     if not _any_managed(root):
         return ""
 
-    roster_lines = [_bullet(f"@{_handle(name)}", _profile_role(d)) for name, d in _roster(root) if name != me]
+    roster_lines = []
+    for name, profile_dir in _roster(root):
+        if name == me:
+            continue
+        role = _profile_role(profile_dir)
+        if name == "default" and not any(_friendly_names(profile_dir)):
+            role = _role_line(_display_name(name, profile_dir), role)
+        roster_lines.append(_bullet(f"@{_handle(name)}", role))
     roster_block = "\n".join(roster_lines) or "- (no teammates yet)"
 
     return (
         f"{_PROTOCOL_HEADING}\n"
-        "This install runs Bot Mode: each Hermes profile is an agent teammate with "
+        "This install runs Bot Mode: each Hebri profile is an agent teammate with "
         'one canonical "Bot Chat" conversation, and you have the `message_agent` '
         "tool to DM any of them. It is FIRE-AND-FORGET: it delivers your message "
         "with your attribution prefixed automatically and returns an acknowledgement "
@@ -297,7 +308,11 @@ def _build_section(home: Path) -> str:
         "concisely via message_agent to their handle, and if it is a pure FYI "
         "with nothing to add, staying silent is fine — never ping-pong "
         "acknowledgements.\n"
-        f"You are `@{_handle(me)}`. Your teammates (live roster; roles from their "
+        "Use display names in prose and the exact @handles for routing. "
+        "The default agent's legacy @hermes handle is a compatibility identifier, "
+        "not its display name. Respect custom agent names.\n"
+        f"Your sender name is {_display_name(me, home)}; your handle is `@{_handle(me)}`. "
+        "Your teammates (live roster; roles from their "
         "profiles):\n"
         f"{roster_block}"
         + _remote_paragraph(root)

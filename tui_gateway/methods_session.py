@@ -1403,18 +1403,22 @@ def _(rid, params: dict) -> dict:
 
 @_pet_method("pet.gallery", fail_open={"enabled": False, "active": "", "pets": []})
 def _(rid, params: dict) -> dict:
-    """Petdex gallery + local install state (installed-only offline); ``localOnly`` skips the remote manifest."""
+    """Bundled + Petdex gallery with profile install state; ``localOnly`` skips the remote manifest."""
     local_only = bool(params.get("localOnly"))
     from agent.pet import store
     pet_cfg = _pet_display_cfg()
     installed = {p.slug: p for p in store.installed_pets()}
-    gallery: list[dict] = []
+    from agent.pet.bundled import gallery as bundled_gallery
+    gallery: list[dict] = bundled_gallery(installed)
+    bundled_ids = {item["slug"] for item in gallery}
     try:
         from agent.pet.manifest import fetch_manifest, prefetch
         # Local-only still warms the manifest cache in the background.
         if local_only:
             prefetch()
         for entry in [] if local_only else fetch_manifest():
+            if entry.slug in bundled_ids:
+                continue
             gallery.append({
                 "slug": entry.slug, "displayName": entry.display_name, "installed": entry.slug in installed,
                 "spritesheetUrl": entry.spritesheet_url,

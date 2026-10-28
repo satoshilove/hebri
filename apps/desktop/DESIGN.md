@@ -415,6 +415,17 @@ so glass and message-bubble transparency do not reveal scrolling text.
 
 ## Iconography & brand
 
+- **Hebits** names the animated pets; their existing `pet.*` APIs and saved slugs remain stable.
+- **Bits** is the user-facing name of the persistent agent roster. Keep
+  existing profile handles, `hermes-bots` metadata and canonical `Bot Chat`
+  titles stable; they are routing/storage identities, not display copy.
+- `src/plugins/hermes-bots/characters.ts` owns Hebri's original character art
+  and palettes. Faces use the shared visibility-budgeted clock; packaged pet
+  atlases are generated from that same source by `scripts/build-character-pets.mjs`.
+  Artwork colours are palette data, not interface theme colours. Existing
+  custom avatars and imported pets remain available. New pets default to 48px
+  frame width; saved sizes remain authoritative.
+
 - **Tabler** is the default component/chrome set. Import its curated aliases and
   `iconSize` scale from `src/lib/icons.ts`; do not import icon packages directly
   in feature code.

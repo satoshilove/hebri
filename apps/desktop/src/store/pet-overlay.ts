@@ -210,7 +210,7 @@ export function popOutPet(petRect: PetOverlayBounds): void {
   // Size the window off the pet's scale (not the measured rect, which includes
   // the shadow) so it matches the live resize math exactly — no jump on open.
   const pet = $petInfo.get()
-  const { width, height } = overlayWindowSize(pet.frameW ?? 192, pet.frameH ?? 208, pet.scale ?? 0.33)
+  const { width, height } = overlayWindowSize(pet.frameW ?? 192, pet.frameH ?? 208, pet.scale ?? 0.25)
   const x = Math.round(petRect.x - (width - petRect.width) / 2)
   const y = Math.round(petRect.y - (height - petRect.height) / 2)
 

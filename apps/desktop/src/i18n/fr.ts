@@ -361,7 +361,7 @@ export const fr = defineLocale({
     connect: 'Connecter',
     connecting: 'Connexion',
     continue: 'Continuer',
-    bots: 'Bots',
+    bots: 'Bits',
     copied: 'Copié',
     copy: 'Copier',
     copyFailed: 'Échec de la copie',
@@ -768,7 +768,7 @@ export const fr = defineLocale({
       appearanceTypography: 'Typographie',
       appearanceWindowLayout: 'Fenêtre et disposition',
       appearanceChatDisplay: 'Affichage des conversations',
-      appearancePet: 'Compagnon',
+      appearancePet: 'Hebits',
       appearanceGeneral: 'Général',
       modelMain: 'Modèle principal',
       modelAuxiliary: 'Modèles auxiliaires',
@@ -1212,7 +1212,7 @@ export const fr = defineLocale({
       removeTheme: 'Supprimer le thème',
       importedBadge: 'Importé',
       pet: {
-        title: 'Animal de compagnie',
+        title: 'Hebits',
         intro:
           "Adoptez une mascotte petdex animée qui flotte au-dessus de l'application et réagit aux actions de Hebri — court pendant l'exécution des outils, fête les réussites, boude les erreurs.",
         restartHint:
@@ -3044,7 +3044,7 @@ export const fr = defineLocale({
     changeTheme: 'Changer le thème',
     changeColorMode: 'Changer le mode couleur…',
     pets: {
-      title: 'Animaux de compagnie',
+      title: 'Hebits',
       placeholder: 'Rechercher des animaux…',
       loading: 'Chargement de la galerie petdex…',
       error: "Impossible d'atteindre la galerie petdex…",

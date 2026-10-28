@@ -161,7 +161,7 @@ describe('the menu opens the same forever-chat a row click does', () => {
     const bot = { name: 'alpha' } as RosterRow
 
     fireEvent.contextMenu(renderRow(bot))
-    fireEvent.click(await screen.findByText('Open Bot Chat'))
+    fireEvent.click(await screen.findByText('Open Bit Chat'))
 
     expect(openRosterBot.mock.calls).toEqual([[bot]])
   })
