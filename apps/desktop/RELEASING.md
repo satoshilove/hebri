@@ -8,16 +8,20 @@ cd apps/desktop
 npm run dist:win -- --publish never
 $env:HERMES_DESKTOP_SKIP_BUILD = '1'
 npm run test:desktop:all
+# Select a prepared Python runtime if the checkout has no .venv or venv:
+$env:HERMES_DESKTOP_PYTHON = 'C:\path\to\hebri-runtime\Scripts\python.exe'
+npm run preview:local
 ```
 
 The candidate is in `release/win-unpacked/Hebri.exe`; installers are in
 `release/`. A local build is unsigned unless signing was explicitly configured.
 Do not weaken the production updater's signature checks to install it.
 
-For interface testing, launch the unpacked candidate using a fresh test home,
-Electron user-data directory and isolated backend (the E2E fixtures in
-`e2e/fixtures.ts` set these together). Do not point a test build at an existing
-user's account, browser storage or agent data. Launching an NSIS installer on a
+The preview command creates a fresh test home, Electron user-data directory and
+isolated backend. It does not register the production URL handler or inherit
+provider credentials. A prepared Python runtime is reused as executable code;
+its normal user profile is not loaded. Do not sign into real accounts just to
+check layout. Launching an NSIS installer on a
 developer machine can change the real installation and shortcuts even when an
 alternate destination is selected; use a disposable Windows VM for installation.
 
