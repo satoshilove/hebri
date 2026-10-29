@@ -94,6 +94,34 @@ function row(): SplitNode {
 }
 
 describe('TreeSplit cascading expansion', () => {
+  it('resizes chat and browser across a minimized rail without expanding the rail', () => {
+    const tree = split(
+      'row',
+      [group(['chat']), group(['cron'], { minimized: true }), group(['browser'])],
+      [5, 1, 2],
+      'root-row'
+    )
+
+    $layoutTree.set(tree)
+    render(<TreeSplit node={tree} root rootRow />)
+    const container = document.querySelector<HTMLElement>('[data-tree-split="root-row"]')!
+    setWidth(container, 800)
+    const [chat, cron, browser] = [...container.children] as HTMLElement[]
+    setWidth(chat, 500)
+    setWidth(cron, 28)
+    setWidth(browser, 272)
+    fireEvent.pointerDown(document.querySelectorAll('[role="separator"]')[1]!, {
+      button: 0,
+      clientX: 528,
+      pointerId: 1
+    })
+    fireEvent.pointerMove(window, { clientX: 428, pointerId: 1 })
+    fireEvent.pointerUp(window, { clientX: 428, pointerId: 1 })
+    expect(row().weights[0]).toBeLessThan(tree.weights[0])
+    expect(row().weights[2]).toBeGreaterThan(tree.weights[2])
+    expect(row().children[1]).toMatchObject({ minimized: true })
+    expect($paneStates.get().cron?.widthOverride).toBeUndefined()
+  })
   it('grows Browser through Cron into Chat after Cron reaches its minimum', () => {
     const tree = split(
       'row',

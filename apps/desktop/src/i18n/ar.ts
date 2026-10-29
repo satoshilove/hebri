@@ -2532,6 +2532,7 @@ export const ar = defineLocale({
   },
   updates: {
     releaseInstalled: 'تم تثبيت التحديث',
+    quitToInstall: 'الخروج والتثبيت',
     releaseReady: 'اكتمل التنزيل',
     releaseReadyBody:
       'احفظ عملك وأغلق Hebri بالكامل لتثبيت التحديث، ثم افتحه مجددًا. لم يتغير التطبيق قيد التشغيل بعد. في Windows، اتبع برنامج التثبيت الظاهر وانتظر اكتماله قبل إعادة الفتح.',

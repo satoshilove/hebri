@@ -17965,6 +17965,8 @@ app.on('will-quit', () => {
   quitFinalization.arm()
 })
 
+ipcMain.handle('hermes:updates:quit-to-install', () => releaseUpdater?.quitToInstall() ?? { ok: false })
+
 app.on('quit', (_event, exitCode) => {
   quitFinalization.cancel()
   releaseUpdater?.installOnQuit(exitCode)
@@ -18970,6 +18972,9 @@ app.whenReady().then(() => {
   // captured by the original transaction before removing the journal entry.
   void resumeManagedSshRecoveries()
   releaseUpdater = createReleaseUpdater({
+    requestQuit: () => {
+      setImmediate(() => app.quit())
+    },
     onProgress: emitUpdateProgress,
     currentVersion: app.getVersion(),
     getWindow: () => mainWindow,

@@ -43,6 +43,7 @@ interface ReleaseUpdaterOptions {
   showMessageBox: (window: BrowserWindow | null, options: MessageBoxOptions) => Promise<MessageBoxReturnValue>
   updater: ReleaseUpdater
   onProgress?: (progress: ReleaseProgress) => void
+  requestQuit?: () => void
 }
 export interface ReleaseUpdateStatus {
   supported: boolean
@@ -61,6 +62,7 @@ export interface ReleaseUpdaterController {
   status: (force?: boolean) => Promise<ReleaseUpdateStatus>
   apply: () => Promise<ApplyResult>
   installOnQuit: (exitCode: number) => void
+  quitToInstall: () => { ok: boolean }
   start: () => void
 }
 
@@ -313,6 +315,15 @@ export function createReleaseUpdater(options: ReleaseUpdaterOptions): ReleaseUpd
     check,
     status,
     apply,
+    quitToInstall() {
+      if (!ready || !options.requestQuit) {
+        return { ok: false }
+      }
+      // Normal quit retains active-work confirmation and backend teardown.
+      options.requestQuit()
+
+      return { ok: true }
+    },
     installOnQuit(exitCode) {
       if (!visibleWindowsInstall || exitCode !== 0 || !ready || installStarted) {
         return

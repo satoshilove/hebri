@@ -468,6 +468,7 @@ export async function checkUpdates({ force = false }: UpdateCheckOptions = {}): 
     if (status.progress) {
       ingestProgress(status.progress)
     }
+
     maybeNotifyUpdateAvailable(status, 'client')
     void refreshDesktopVersion()
 
@@ -501,6 +502,10 @@ export async function applyUpdates(opts: DesktopUpdateApplyOptions = {}): Promis
   dismissNotification(UPDATE_TOAST_ID)
   $updateApply.set({
     ...IDLE,
+    releaseProgress:
+      $updateStatus.get()?.source === 'release'
+        ? { stage: 'prepare', releasePhase: 'checking', message: '', percent: null, error: null, at: Date.now() }
+        : undefined,
     applying: true,
     stage: 'prepare',
     message: translateNow('additional.notice.startingUpdate')
@@ -554,6 +559,7 @@ export async function applyUpdates(opts: DesktopUpdateApplyOptions = {}): Promis
       if (result.releaseVersion) {
         persistString(DOWNLOADED_RELEASE_KEY, result.releaseVersion)
       }
+
       $updateApply.set({
         ...IDLE,
         releaseProgress: result.releaseVersion

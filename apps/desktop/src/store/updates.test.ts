@@ -852,6 +852,23 @@ describe('applyUpdates terminal state', () => {
     delete (globalThis as unknown as { window?: unknown }).window
   })
 
+  it('shows release checking immediately, before the native progress stream starts', async () => {
+    $updateStatus.set({ supported: true, source: 'release', releaseVersion: '0.17.23' })
+    let finish!: (value: object) => void
+    applyMock.mockImplementation(
+      () =>
+        new Promise(resolve => {
+          finish = resolve
+        })
+    )
+    const pending = applyUpdates()
+    expect($updateApply.get().releaseProgress?.releasePhase).toBe('checking')
+    finish({ ok: true, manualRestart: true, releaseVersion: '0.17.23' })
+    await pending
+    expect($updateApply.get().releaseProgress?.releasePhase).toBe('ready')
+    $updateStatus.set(null)
+  })
+
   it('holds the restart view when a relauncher hands off (no close, no toast)', async () => {
     applyMock.mockResolvedValue({ ok: true, handedOff: true })
 

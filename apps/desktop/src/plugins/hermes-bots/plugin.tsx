@@ -473,7 +473,7 @@ export default {
       render: () => <BotsPane />
     })
 
-    // Routines — its OWN tiling pane splitting the workspace's right edge
+    // Routines — its OWN pane at the window's right edge, outside browser tiles
     // (NOT the collapsible right sidebar; placement 'right' is that sidebar's
     // role and hides the pane until "Show Right Sidebar").
     //
@@ -501,6 +501,7 @@ export default {
           dock: {
             pane: 'workspace',
             pos: 'right',
+            outerRight: true,
             enforce: true
           },
           // A bot's schedule is glanceable, not something you sit in — it

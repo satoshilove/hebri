@@ -3,6 +3,7 @@ import type { TranslationOverrides } from './define-locale'
 export const itSetupUpdates = {
   updates: {
     releaseInstalled: 'Aggiornamento installato',
+    quitToInstall: 'Esci e installa',
     releaseReady: 'Download completato',
     releaseReadyBody:
       'Salva il lavoro, esci completamente da Hebri per installare l’aggiornamento, poi riapri Hebri. L’app in esecuzione non è ancora cambiata. Su Windows, segui la procedura di installazione visibile e attendi che termini prima di riaprire.',
