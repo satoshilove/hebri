@@ -42,5 +42,13 @@ Before publishing:
 5. Publish the verified draft (`gh release edit vX.Y.Z --draft=false --latest`).
    Check the published release and feeds once more.
 
+For changes to backend installation, also rehearse with a disposable copy of an
+older desktop-managed `hebri-agent` tree, including its Git metadata, venv and
+bootstrap marker. A fresh checkout preview bypasses this path. Start the packaged
+candidate with an isolated home and user-data directory, without a source-root
+override. Verify visible installer progress, the updated marker, preservation of
+profile data and source backups, and a successful Devices status request. Check
+that a failed update can be retried and that an active backend blocks replacement.
+
 Mac packaging/signing needs a Mac runner; a local Windows build cannot validate
 it. Keep the cross-platform CI gates even when local checks pass.

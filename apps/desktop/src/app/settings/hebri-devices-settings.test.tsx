@@ -48,6 +48,21 @@ afterEach(() => {
   window.hermesDesktop = originalDesktop
 })
 
+it.each([
+  ['405: Method Not Allowed', /This backend does not support Hebri devices yet/],
+  ['secure_storage_required', /Secure OS credential storage is required/],
+  ['device_identity_locked', /Secure OS credential storage is required/],
+  ['network failure', /Device operation failed/]
+])('explains a status failure and allows retry: %s', async (message, expected) => {
+  setConnection('local')
+  $activeGatewayProfile.set('default')
+  vi.mocked(deviceOperation).mockRejectedValueOnce(new Error(message)).mockResolvedValue(snapshot)
+  render(<HebriDevicesSettings />)
+  expect(await screen.findByText(expected)).toBeTruthy()
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh status' }))
+  expect(await screen.findByDisplayValue('Shinobi')).toBeTruthy()
+})
+
 it('loads saved settings before editing and pairs over the entered VPN address only on click', async () => {
   setConnection('local')
   $activeGatewayProfile.set('A')

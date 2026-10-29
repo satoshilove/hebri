@@ -582,6 +582,7 @@ export interface ProfileBackendRoute {
 }
 
 const LOCAL_PRIMARY_SCOPED_ROUTES = new Set([
+  'POST /api/devices',
   'GET /api/config',
   'PUT /api/config',
   'GET /api/config/raw',

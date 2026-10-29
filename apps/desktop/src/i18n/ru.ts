@@ -1941,7 +1941,7 @@ export const ru = defineLocale({
     noSessions: 'Сеансов пока нет.',
     gatewayRunning: 'Шлюз сообщений работает',
     gatewayStopped: 'Шлюз сообщений остановлен',
-    hermesActiveSessions: (version, count) => `Hebri ${version} · Активные сеансы: ${count}`,
+    hermesActiveSessions: (version, count) => `Бэкенд Hebri ${version} · Активные сеансы: ${count}`,
     restartGateway: 'Перезапустить шлюз',
     openBrowser: 'Открыть браузер',
     gatewayRestartFailed: 'Не удалось перезапустить шлюз.',

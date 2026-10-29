@@ -3145,7 +3145,7 @@ export const es = defineLocale({
     noSessions: 'Aún no hay sesiones.',
     gatewayRunning: 'Gateway de mensajería en ejecución',
     gatewayStopped: 'Gateway de mensajería detenido',
-    hermesActiveSessions: (version, count) => `Hebri ${version} · Sesiones activas ${count}`,
+    hermesActiveSessions: (version, count) => `Backend de Hebri ${version} · Sesiones activas ${count}`,
     restartGateway: 'Reiniciar gateway',
     openBrowser: 'Abrir navegador',
     gatewayRestartFailed: 'No se pudo reiniciar el gateway.',

@@ -119,7 +119,7 @@ export const itCommandCenter = {
     noSessions: 'Ancora nessuna sessione.',
     gatewayRunning: 'Gateway di messaggistica in esecuzione',
     gatewayStopped: 'Gateway di messaggistica arrestato',
-    hermesActiveSessions: (version, count) => `Hebri ${version} · Sessioni attive ${count}`,
+    hermesActiveSessions: (version, count) => `Backend Hebri ${version} · Sessioni attive ${count}`,
     restartGateway: 'Riavvia gateway',
     openBrowser: 'Apri browser',
     gatewayRestartFailed: 'Riavvio del gateway non riuscito.',

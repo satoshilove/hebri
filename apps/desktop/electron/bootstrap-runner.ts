@@ -42,9 +42,16 @@ import path from 'node:path'
 // with no tsconfig path resolution (see scripts/bundle-electron-main.mjs).
 import { stripAnsi } from '../../shared/src/ansi'
 
+import { stopBackendChild } from './backend-child'
 import { hiddenWindowsChildOptions } from './windows-child-options'
 
 const IS_WINDOWS = process.platform === 'win32'
+
+function stopInstaller(child) {
+  stopBackendChild(child, {
+    forceKillProcessTree: pid => execFileSync('taskkill', ['/PID', String(pid), '/T', '/F'], hiddenWindowsChildOptions({ stdio: 'ignore' }))
+  })
+}
 
 const STAMP_COMMIT_RE = /^[0-9a-f]{7,40}$/i
 const FALLBACK_COMMIT_RE = /^0{7,40}$/
@@ -550,7 +557,7 @@ function spawnPowerShell(scriptPath, args, { emit, stageName, abortSignal, herme
       killed = true
 
       try {
-        child.kill('SIGTERM')
+        stopInstaller(child)
       } catch {
         void 0
       }
@@ -633,6 +640,7 @@ function spawnPowerShell(scriptPath, args, { emit, stageName, abortSignal, herme
 function spawnBash(scriptPath, args, { emit, stageName, abortSignal, hermesHome }: any = {}) {
   return new Promise<any>((resolve, reject) => {
     const child = spawn('bash', [scriptPath, ...args], {
+      detached: true,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: {
         ...process.env,
@@ -648,7 +656,7 @@ function spawnBash(scriptPath, args, { emit, stageName, abortSignal, hermesHome 
       killed = true
 
       try {
-        child.kill('SIGTERM')
+        stopInstaller(child)
       } catch {
         void 0
       }
@@ -965,7 +973,7 @@ function openRunLog(logRoot) {
 // Public entrypoint
 // ---------------------------------------------------------------------------
 
-async function runBootstrap(opts) {
+async function runBootstrap(opts): Promise<{ ok: boolean; cancelled?: boolean; failedStage?: string; error?: string; marker?: unknown }> {
   const {
     installStamp,
     activeRoot,
@@ -974,6 +982,7 @@ async function runBootstrap(opts) {
     logRoot,
     onEvent,
     abortSignal,
+    refreshExisting = false,
     writeMarker, // callback to write the bootstrap-complete marker; main.ts provides
     gitBinary // probed git path from main.ts; bare 'git' when absent
   } = opts
@@ -1075,6 +1084,16 @@ async function runBootstrap(opts) {
         return { ok: false, cancelled: true }
       }
 
+      // Updates synchronize code/dependencies, preserving the working environment
+      // and the user's existing PATH, configuration and gateway setup.
+      // Fresh installs and explicit repairs still execute all setup stages.
+      if (refreshExisting && ['venv', 'path', 'config-templates', 'config', 'configure', 'setup', 'gateway', 'system-packages'].includes(stage.name)) {
+        emit({ type: 'stage', name: stage.name, state: 'skipped', durationMs: 0,
+          json: { ok: true, skipped: true, reason: 'Keeping the existing installation setup' } })
+
+        continue
+      }
+
       const ev = await runStage({
         scriptPath: scriptInfo.path,
         installerKind,
@@ -1091,7 +1110,7 @@ async function runBootstrap(opts) {
       if (ev.state === 'failed') {
         emit({ type: 'failed', stage: stage.name, error: (ev as any).error || 'stage failed' })
 
-        return { ok: false, failedStage: stage.name, error: (ev as any).error }
+        return { ok: false, ...(abortSignal?.aborted ? { cancelled: true } : {}), failedStage: stage.name, error: (ev as any).error }
       }
     }
 

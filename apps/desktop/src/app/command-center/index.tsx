@@ -1,6 +1,7 @@
 import { compactNumber } from '@hermes/shared'
 import { type MouseEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { ambientOwnerConnectionId } from '@/api/client'
 import { LogTail } from '@/components/chat/log-tail'
 import { PageLoader } from '@/components/page-loader'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,7 @@ import { $pinnedSessionIds, pinSession, unpinSession } from '@/store/layout'
 import { notify } from '@/store/notifications'
 import { $sessions, sessionPinId } from '@/store/session'
 import { confirmSharedGatewayRestart } from '@/store/system-actions'
+import { openUpdateOverlayFor } from '@/store/updates'
 
 import { useRefreshHotkey } from '../hooks/use-refresh-hotkey'
 import { useRouteEnumParam } from '../hooks/use-route-enum-param'
@@ -268,6 +270,12 @@ export function CommandCenterView({ initialSection, onClose, onDeleteSession, on
   const runSystemAction = useCallback(
     async (kind: 'restart' | 'update') => {
       setSystemError('')
+
+      if (kind === 'update' && ambientOwnerConnectionId() === 'local') {
+        openUpdateOverlayFor('client')
+
+        return
+      }
 
       // A profile served by the shared multiplexer restarts every bot on this device: ask first.
       const shared = kind === 'restart' ? await confirmSharedGatewayRestart() : null

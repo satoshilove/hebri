@@ -51,6 +51,14 @@ import {
   withTransientRetries
 } from './connection-config'
 
+test('device operations keep an explicit profile on the shared local backend', () => {
+  for (const profile of ['default', 'helper', 'default']) {
+    const options = { primaryProfile: 'default', requestPath: '/api/devices', requestMethod: 'POST' }
+    assert.equal(resolveProfileBackendRoute(profile, options).backend, 'primary')
+    assert.equal(pathWithGlobalRemoteProfile('/api/devices', profile, options), `/api/devices?profile=${profile}`)
+  }
+})
+
 // --- connectionScopeKey / normAuthMode ---
 
 test('connectionScopeKey trims to a name or null for the global scope', () => {
