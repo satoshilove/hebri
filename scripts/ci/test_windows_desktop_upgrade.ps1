@@ -5,8 +5,8 @@ param(
 )
 
 # Installs real NSIS packages and therefore runs only on disposable hosted CI.
-# Installer UI selection is covered through the actual bundled NsisUpdater in
-# release-updater.test.ts. This unattended check exercises payload replacement.
+# The update uses the visible NSIS flow; capture progress and completion before
+# checking payload replacement. NsisUpdater argument selection is tested too.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if ($env:OS -ne 'Windows_NT' -or $env:GITHUB_ACTIONS -ne 'true' -or $env:RUNNER_ENVIRONMENT -ne 'github-hosted') {
@@ -37,10 +37,16 @@ if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notl
 function Install-Package([string]$File, [switch]$Update) {
     # /D must be last and deliberately unquoted inside the NSIS argument string.
     $arguments = '/S /currentuser /NODESKTOPSHORTCUT'
-    if ($Update) { $arguments += ' --updated' }
+    if ($Update) { $arguments = '--updated /currentuser /NODESKTOPSHORTCUT' }
     $arguments += " /D=$installDir"
-    $process = Start-Process -FilePath $File -ArgumentList $arguments -PassThru -WindowStyle Hidden
-    if (-not $process.WaitForExit(180000)) { throw 'Installer exceeded the three-minute deadline.' }
+    if ($Update) {
+        . (Join-Path $PSScriptRoot 'observe_windows_installer.ps1')
+        $process = Start-Process -FilePath $File -ArgumentList $arguments -PassThru -WindowStyle Normal
+        Wait-VisibleHebriInstaller -Process $process -EvidenceDir (Join-Path $env:RUNNER_TEMP 'hebri-installer-evidence')
+    } else {
+        $process = Start-Process -FilePath $File -ArgumentList $arguments -PassThru -WindowStyle Hidden
+        if (-not $process.WaitForExit(180000)) { throw 'Installer exceeded the three-minute deadline.' }
+    }
     $process.Refresh()
     if ($process.ExitCode -ne 0) { throw "Installer failed with exit code $($process.ExitCode)." }
 }

@@ -31,8 +31,10 @@ Before publishing:
    keep its default aligned with the currently published stable release.
 3. The workflow uploads a **draft** release. It is not the public update feed.
    Check installer signatures, checksums, all platform assets and merged Mac feed.
-4. Rehearse the visible update/installer flow in a disposable Windows VM. The
-   unattended CI payload test does not prove that installer progress is visible.
+4. Inspect the installer visual-evidence artifact: CI requires a visible native
+   progress control and Finish screen, captures both, and then checks the
+   installed version and preserved application data. Also exercise the app's
+   download and quit actions; installer screenshots alone do not cover those.
 5. Publish the verified draft (`gh release edit vX.Y.Z --draft=false --latest`).
    Check the published release and feeds once more.
 
