@@ -482,3 +482,5 @@ jobs:
             artifacts/latest*.yml
             artifacts/SHA256SUMS.txt
           generate_release_notes: true
+          # Validate the signed candidate before updating the public release feed.
+          draft: true

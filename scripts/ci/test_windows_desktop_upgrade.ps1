@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$Installer,
-    [Parameter(Mandatory = $true)][string]$ExpectedVersion
+    [Parameter(Mandatory = $true)][string]$ExpectedVersion,
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$PreviousVersion = '0.17.22'
 )
 
 # Installs real NSIS packages and therefore runs only on disposable hosted CI.
@@ -16,11 +17,13 @@ $sandbox = Join-Path $env:RUNNER_TEMP ('hebri-upgrade-' + [Guid]::NewGuid().ToSt
 $installDir = Join-Path $sandbox 'installed'
 New-Item -ItemType Directory -Path $sandbox | Out-Null
 
-& gh release download v0.17.21 --repo satoshilove/hebri --pattern 'Hebri-0.17.21-win-x64.exe' --pattern 'SHA256SUMS.txt' --dir $sandbox
+$previousName = "Hebri-$PreviousVersion-win-x64.exe"
+& gh release download "v$PreviousVersion" --repo satoshilove/hebri --pattern $previousName --pattern 'SHA256SUMS.txt' --dir $sandbox
 if ($LASTEXITCODE -ne 0) { throw 'Could not download the previous release for upgrade testing.' }
-$previous = Join-Path $sandbox 'Hebri-0.17.21-win-x64.exe'
+$previous = Join-Path $sandbox $previousName
+$checksumPattern = '^[0-9a-fA-F]{64}\s+\*?' + [regex]::Escape($previousName) + '$'
 $checksumLine = Get-Content -LiteralPath (Join-Path $sandbox 'SHA256SUMS.txt') |
-    Where-Object { $_ -match '^[0-9a-fA-F]{64}\s+\*?Hebri-0\.17\.21-win-x64\.exe$' }
+    Where-Object { $_ -match $checksumPattern }
 if (@($checksumLine).Count -ne 1) { throw 'Missing or ambiguous previous-release checksum.' }
 $expectedHash = ($checksumLine -split '\s+')[0]
 if ((Get-FileHash -LiteralPath $previous -Algorithm SHA256).Hash -ne $expectedHash) {
@@ -53,7 +56,7 @@ function Assert-Version([string]$Version) {
 }
 
 Install-Package $previous
-Assert-Version '0.17.21'
+Assert-Version $PreviousVersion
 # Check both real application-data locations survive an in-place upgrade.
 $markers = @()
 foreach ($parent in @($env:APPDATA, $env:LOCALAPPDATA)) {
@@ -68,4 +71,4 @@ Assert-Version $ExpectedVersion
 foreach ($marker in $markers) {
     if ([IO.File]::ReadAllText($marker) -ne 'preserve-existing-profile') { throw 'Upgrade changed application data.' }
 }
-Write-Host "PASS: real NSIS upgrade 0.17.21 -> $ExpectedVersion; both application-data markers preserved."
+Write-Host "PASS: real NSIS upgrade $PreviousVersion -> $ExpectedVersion; both application-data markers preserved."
