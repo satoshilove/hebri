@@ -3380,6 +3380,7 @@ export interface Translations {
   updates: {
     releaseInstalled: string
     releaseReady: string
+    quitToInstall: string
     releaseReadyBody: string
     releaseVerifying: string
     releaseDownloadBody: string

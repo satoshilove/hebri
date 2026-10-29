@@ -31,6 +31,29 @@ test('release updates are packaged-only so source installs keep the branch updat
   assert.equal(releaseUpdaterEnabled(true), true)
 })
 
+test('the install action requests normal quit only after a verified download is ready', async () => {
+  const client = updater({ isUpdateAvailable: true, updateInfo: { version: '0.17.23' } })
+  const requestQuit = vi.fn()
+
+  const controller = createReleaseUpdater({
+    currentVersion: '0.17.22',
+    getWindow: () => null,
+    isPackaged: true,
+    requestQuit,
+    log: vi.fn(),
+    showMessageBox: vi.fn(),
+    updater: client as never
+  })!
+
+  assert.equal(controller.quitToInstall().ok, false)
+  assert.equal(requestQuit.mock.calls.length, 0)
+  await controller.apply()
+  assert.equal(controller.quitToInstall().ok, true)
+  assert.equal(requestQuit.mock.calls.length, 1)
+  // The normal quit guard may be cancelled: never start installation here.
+  assert.equal(client.quitAndInstall.mock.calls.length, 0)
+})
+
 test('packaged updates fail closed to stable, complete artifacts', () => {
   const client = updater()
 

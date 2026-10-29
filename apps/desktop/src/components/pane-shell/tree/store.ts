@@ -44,6 +44,7 @@ import {
   type SplitNode,
   type TabStripMode
 } from './model'
+import { dockAtRightEdge } from './outer-dock'
 import { FLOATING_PLACEMENT } from './renderer/floating-rect'
 import { tabStripVisibleForZone } from './renderer/strip-visibility'
 
@@ -1362,6 +1363,8 @@ export function declareDefaultTree(tree: LayoutNode, simpleTree: LayoutNode = tr
 interface PaneDockHint {
   pane: string
   pos: DropPosition
+  /** Keep standing chrome outside all workspace tiles. */
+  outerRight?: boolean
   /** Center docks: stack BEFORE this pane id (the strip divider's slot). */
   before?: null | string
   /** Enforced dock invariant: the pane is re-homed onto this hint's anchor
@@ -1429,6 +1432,12 @@ function enforceDockedPanes(
     }
 
     enforcedDocksThisBoot.add(pane.id)
+
+    if (dock.outerRight) {
+      next = dockAtRightEdge(next, pane.id)
+
+      continue
+    }
 
     const from = findGroupOfPane(next, pane.id)
     const anchor = findGroupOfPane(next, dock.pane)
@@ -1516,6 +1525,13 @@ export function adoptContributedPanes(): void {
 
   for (const pane of missing) {
     const dock = dataOf(pane.id)?.dock
+
+    if (dock?.outerRight) {
+      next = dockAtRightEdge(next, pane.id)
+
+      continue
+    }
+
     const placement = placementOf(pane.id) ?? 'right'
 
     const anchor =

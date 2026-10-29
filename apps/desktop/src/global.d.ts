@@ -612,6 +612,7 @@ declare global {
       relaunchApp?: () => Promise<void>
       getRemoteDisplayReason?: () => Promise<string | null>
       updates: {
+        quitToInstall?: () => Promise<{ ok: boolean }>
         check: (opts?: { force?: boolean }) => Promise<DesktopUpdateStatus>
         apply: (opts?: DesktopUpdateApplyOptions) => Promise<DesktopUpdateApplyResult>
         getBranch: () => Promise<{ branch: string }>

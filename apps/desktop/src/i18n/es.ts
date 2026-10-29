@@ -4512,6 +4512,7 @@ export const es = defineLocale({
   },
   updates: {
     releaseInstalled: 'Actualización instalada',
+    quitToInstall: 'Salir e instalar',
     releaseReady: 'Descarga completada',
     releaseReadyBody:
       'Guarda tu trabajo, cierra Hebri por completo para instalar la actualización y vuelve a abrirlo. La aplicación en ejecución aún no ha cambiado. En Windows, sigue el instalador visible y espera a que termine antes de volver a abrir.',

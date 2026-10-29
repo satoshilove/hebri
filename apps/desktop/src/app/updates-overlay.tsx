@@ -378,6 +378,11 @@ function ManualView({
           </DialogDescription>
         </div>
 
+        {releaseVersion && window.hermesDesktop?.updates?.quitToInstall && (
+          <Button onClick={() => void window.hermesDesktop?.updates?.quitToInstall?.()} size="lg">
+            {u.quitToInstall}
+          </Button>
+        )}
         <Button className="font-semibold" onClick={onDone} size="lg" variant="secondary">
           {u.done}
         </Button>

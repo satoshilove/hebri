@@ -697,12 +697,11 @@ export function TreeSplit({
   const flexTotal = growable.reduce((sum, i) => sum + (tracks[i].track === null ? node.weights[i] : 0), 0)
   const grow = (i: number) => node.weights[i] / (flexTotal || 1)
 
-  // The seam partner for a visible child: the nearest VISIBLE previous
-  // sibling. Collapsed zones (a hidden pane parked mid-row) are skipped, so
-  // their visible neighbors keep a shared, draggable boundary.
+  // Pair with the nearest resizable previous sibling. Skip both hidden zones
+  // and fixed-width minimized rails, so neither can block a browser/chat seam.
   const seamPartner = (i: number): number => {
     for (let j = i - 1; j >= 0; j--) {
-      if (!tracks[j].collapsed) {
+      if (!tracks[j].collapsed && !tracks[j].minimized) {
         return j
       }
     }
