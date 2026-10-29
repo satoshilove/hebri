@@ -1,11 +1,12 @@
 param(
     [Parameter(Mandatory = $true)][string]$Installer,
-    [Parameter(Mandatory = $true)][string]$ExpectedVersion
+    [Parameter(Mandatory = $true)][string]$ExpectedVersion,
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$PreviousVersion = '0.17.22'
 )
 
 # Installs real NSIS packages and therefore runs only on disposable hosted CI.
-# Installer UI selection is covered through the actual bundled NsisUpdater in
-# release-updater.test.ts. This unattended check exercises payload replacement.
+# The update uses the visible NSIS flow; capture progress and completion before
+# checking payload replacement. NsisUpdater argument selection is tested too.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if ($env:OS -ne 'Windows_NT' -or $env:GITHUB_ACTIONS -ne 'true' -or $env:RUNNER_ENVIRONMENT -ne 'github-hosted') {
@@ -16,11 +17,13 @@ $sandbox = Join-Path $env:RUNNER_TEMP ('hebri-upgrade-' + [Guid]::NewGuid().ToSt
 $installDir = Join-Path $sandbox 'installed'
 New-Item -ItemType Directory -Path $sandbox | Out-Null
 
-& gh release download v0.17.21 --repo satoshilove/hebri --pattern 'Hebri-0.17.21-win-x64.exe' --pattern 'SHA256SUMS.txt' --dir $sandbox
+$previousName = "Hebri-$PreviousVersion-win-x64.exe"
+& gh release download "v$PreviousVersion" --repo satoshilove/hebri --pattern $previousName --pattern 'SHA256SUMS.txt' --dir $sandbox
 if ($LASTEXITCODE -ne 0) { throw 'Could not download the previous release for upgrade testing.' }
-$previous = Join-Path $sandbox 'Hebri-0.17.21-win-x64.exe'
+$previous = Join-Path $sandbox $previousName
+$checksumPattern = '^[0-9a-fA-F]{64}\s+\*?' + [regex]::Escape($previousName) + '$'
 $checksumLine = Get-Content -LiteralPath (Join-Path $sandbox 'SHA256SUMS.txt') |
-    Where-Object { $_ -match '^[0-9a-fA-F]{64}\s+\*?Hebri-0\.17\.21-win-x64\.exe$' }
+    Where-Object { $_ -match $checksumPattern }
 if (@($checksumLine).Count -ne 1) { throw 'Missing or ambiguous previous-release checksum.' }
 $expectedHash = ($checksumLine -split '\s+')[0]
 if ((Get-FileHash -LiteralPath $previous -Algorithm SHA256).Hash -ne $expectedHash) {
@@ -34,10 +37,16 @@ if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notl
 function Install-Package([string]$File, [switch]$Update) {
     # /D must be last and deliberately unquoted inside the NSIS argument string.
     $arguments = '/S /currentuser /NODESKTOPSHORTCUT'
-    if ($Update) { $arguments += ' --updated' }
+    if ($Update) { $arguments = '--updated /currentuser /NODESKTOPSHORTCUT' }
     $arguments += " /D=$installDir"
-    $process = Start-Process -FilePath $File -ArgumentList $arguments -PassThru -WindowStyle Hidden
-    if (-not $process.WaitForExit(180000)) { throw 'Installer exceeded the three-minute deadline.' }
+    if ($Update) {
+        . (Join-Path $PSScriptRoot 'observe_windows_installer.ps1')
+        $process = Start-Process -FilePath $File -ArgumentList $arguments -PassThru -WindowStyle Normal
+        Wait-VisibleHebriInstaller -Process $process -EvidenceDir (Join-Path $env:RUNNER_TEMP 'hebri-installer-evidence')
+    } else {
+        $process = Start-Process -FilePath $File -ArgumentList $arguments -PassThru -WindowStyle Hidden
+        if (-not $process.WaitForExit(180000)) { throw 'Installer exceeded the three-minute deadline.' }
+    }
     $process.Refresh()
     if ($process.ExitCode -ne 0) { throw "Installer failed with exit code $($process.ExitCode)." }
 }
@@ -53,7 +62,7 @@ function Assert-Version([string]$Version) {
 }
 
 Install-Package $previous
-Assert-Version '0.17.21'
+Assert-Version $PreviousVersion
 # Check both real application-data locations survive an in-place upgrade.
 $markers = @()
 foreach ($parent in @($env:APPDATA, $env:LOCALAPPDATA)) {
@@ -68,4 +77,4 @@ Assert-Version $ExpectedVersion
 foreach ($marker in $markers) {
     if ([IO.File]::ReadAllText($marker) -ne 'preserve-existing-profile') { throw 'Upgrade changed application data.' }
 }
-Write-Host "PASS: real NSIS upgrade 0.17.21 -> $ExpectedVersion; both application-data markers preserved."
+Write-Host "PASS: real NSIS upgrade $PreviousVersion -> $ExpectedVersion; both application-data markers preserved."

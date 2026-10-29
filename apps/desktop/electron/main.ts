@@ -18818,6 +18818,10 @@ ipcMain.handle('hermes:deep-link-ready', () => {
 })
 
 function registerDeepLinkProtocol() {
+  // Disposable local previews must not take over the installed app's URLs.
+  if (USER_DATA_OVERRIDE && ISOLATED_BACKEND) {
+    return
+  }
   try {
     if (process.defaultApp && process.argv.length >= 2) {
       // Dev: register with the electron exec path + entry script so the OS can
