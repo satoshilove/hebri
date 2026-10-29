@@ -974,6 +974,7 @@ async function runBootstrap(opts) {
     logRoot,
     onEvent,
     abortSignal,
+    preserveExistingVenv = false,
     writeMarker, // callback to write the bootstrap-complete marker; main.ts provides
     gitBinary // probed git path from main.ts; bare 'git' when absent
   } = opts
@@ -1073,6 +1074,16 @@ async function runBootstrap(opts) {
         emit({ type: 'failed', error: 'bootstrap cancelled by user' })
 
         return { ok: false, cancelled: true }
+      }
+
+      // A bundle refresh synchronizes dependencies in the verified working venv.
+      // Recreating it would discard optional tools and force a full redownload.
+      // Fresh installs and explicit repairs still execute the venv stage.
+      if (preserveExistingVenv && stage.name === 'venv') {
+        emit({ type: 'stage', name: stage.name, state: 'skipped', durationMs: 0,
+          json: { ok: true, skipped: true, reason: 'Keeping the working Python environment' } })
+
+        continue
       }
 
       const ev = await runStage({

@@ -22,6 +22,43 @@ import {
 const SCRIPT_NAME = process.platform === 'win32' ? 'install.ps1' : 'install.sh'
 const ZERO_COMMIT = '0000000000000000000000000000000000000000'
 
+test.each([false, true])('real installer stages preserve a working venv only for refresh=%s', async preserveExistingVenv => {
+  const home = mkTmpHome()
+  const stages = JSON.stringify({ stages: [{ name: 'venv' }, { name: 'dependencies' }] })
+  fs.mkdirSync(path.join(home, 'scripts'))
+  fs.mkdirSync(path.join(home, 'venv'))
+  const sentinel = path.join(home, 'venv', 'keep.txt')
+  fs.writeFileSync(sentinel, 'working runtime')
+
+  const script = process.platform === 'win32'
+    ? `param([switch]$Manifest,[string]$Stage,[switch]$NonInteractive,[switch]$Json)
+if ($Manifest) { Write-Output '${stages}'; exit 0 }
+if ($Stage -eq 'venv') { Set-Content -LiteralPath "$PSScriptRoot/../venv/keep.txt" -Value rebuilt }
+if ($Stage -eq 'dependencies') { Set-Content -LiteralPath "$PSScriptRoot/../dependencies-done" -Value yes }
+Write-Output ('{"ok":true,"stage":"' + $Stage + '"}')
+`
+    : `#!/usr/bin/env bash
+if [ "$1" = "--manifest" ]; then printf '%s\\n' '${stages}'; exit 0; fi
+root="$(dirname "$0")/.."
+if [ "$2" = "venv" ]; then echo rebuilt > "$root/venv/keep.txt"; fi
+if [ "$2" = "dependencies" ]; then echo yes > "$root/dependencies-done"; fi
+printf '{"ok":true,"stage":"%s"}\\n' "$2"
+`
+
+  fs.writeFileSync(path.join(home, 'scripts', SCRIPT_NAME), script)
+
+  try {
+    const result = await runBootstrap({ installStamp: null, activeRoot: home, sourceRepoRoot: home,
+      hermesHome: home, logRoot: home, preserveExistingVenv, onEvent: () => {} })
+
+    assert.equal(result.ok, true)
+    assert.equal(fs.readFileSync(sentinel, 'utf8').trim(), preserveExistingVenv ? 'working runtime' : 'rebuilt')
+    assert.equal(fs.existsSync(path.join(home, 'dependencies-done')), true)
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true })
+  }
+}, 30000)
+
 function mkTmpHome() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-bootstrap-test-'))
 }
