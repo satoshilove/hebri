@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -22,9 +23,9 @@ import {
 const SCRIPT_NAME = process.platform === 'win32' ? 'install.ps1' : 'install.sh'
 const ZERO_COMMIT = '0000000000000000000000000000000000000000'
 
-test.each([false, true])('real installer stages preserve a working venv only for refresh=%s', async preserveExistingVenv => {
+test.each([false, true])('real installer stages preserve a working venv and setup only for refresh=%s', async refreshExisting => {
   const home = mkTmpHome()
-  const stages = JSON.stringify({ stages: [{ name: 'venv' }, { name: 'dependencies' }] })
+  const stages = JSON.stringify({ stages: [{ name: 'venv' }, { name: 'dependencies' }, { name: 'path' }] })
   fs.mkdirSync(path.join(home, 'scripts'))
   fs.mkdirSync(path.join(home, 'venv'))
   const sentinel = path.join(home, 'venv', 'keep.txt')
@@ -35,6 +36,7 @@ test.each([false, true])('real installer stages preserve a working venv only for
 if ($Manifest) { Write-Output '${stages}'; exit 0 }
 if ($Stage -eq 'venv') { Set-Content -LiteralPath "$PSScriptRoot/../venv/keep.txt" -Value rebuilt }
 if ($Stage -eq 'dependencies') { Set-Content -LiteralPath "$PSScriptRoot/../dependencies-done" -Value yes }
+if ($Stage -eq 'path') { Set-Content -LiteralPath "$PSScriptRoot/../path-changed" -Value yes }
 Write-Output ('{"ok":true,"stage":"' + $Stage + '"}')
 `
     : `#!/usr/bin/env bash
@@ -42,6 +44,7 @@ if [ "$1" = "--manifest" ]; then printf '%s\\n' '${stages}'; exit 0; fi
 root="$(dirname "$0")/.."
 if [ "$2" = "venv" ]; then echo rebuilt > "$root/venv/keep.txt"; fi
 if [ "$2" = "dependencies" ]; then echo yes > "$root/dependencies-done"; fi
+if [ "$2" = "path" ]; then echo yes > "$root/path-changed"; fi
 printf '{"ok":true,"stage":"%s"}\\n' "$2"
 `
 
@@ -49,11 +52,12 @@ printf '{"ok":true,"stage":"%s"}\\n' "$2"
 
   try {
     const result = await runBootstrap({ installStamp: null, activeRoot: home, sourceRepoRoot: home,
-      hermesHome: home, logRoot: home, preserveExistingVenv, onEvent: () => {} })
+      hermesHome: home, logRoot: home, refreshExisting, onEvent: () => {} })
 
     assert.equal(result.ok, true)
-    assert.equal(fs.readFileSync(sentinel, 'utf8').trim(), preserveExistingVenv ? 'working runtime' : 'rebuilt')
+    assert.equal(fs.readFileSync(sentinel, 'utf8').trim(), refreshExisting ? 'working runtime' : 'rebuilt')
     assert.equal(fs.existsSync(path.join(home, 'dependencies-done')), true)
+    assert.equal(fs.existsSync(path.join(home, 'path-changed')), !refreshExisting)
   } finally {
     fs.rmSync(home, { recursive: true, force: true })
   }
@@ -62,6 +66,41 @@ printf '{"ok":true,"stage":"%s"}\\n' "$2"
 function mkTmpHome() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-bootstrap-test-'))
 }
+
+test.skipIf(process.platform !== 'win32')('cancelling an installer stops its real descendant process', async () => {
+  const home = mkTmpHome()
+  fs.mkdirSync(path.join(home, 'scripts'))
+  fs.writeFileSync(path.join(home, 'worker.cjs'), 'setInterval(() => {}, 1000)')
+  fs.writeFileSync(path.join(home, 'scripts', 'install.ps1'), `param([switch]$Manifest,[string]$Stage,[switch]$NonInteractive,[switch]$Json)
+if ($Manifest) { Write-Output '{"stages":[{"name":"dependencies"}]}'; exit 0 }
+$worker=Start-Process -FilePath '${process.execPath.replace(/'/g, "''")}' -ArgumentList ('"' + "$PSScriptRoot/../worker.cjs" + '"') -WindowStyle Hidden -PassThru
+Set-Content -LiteralPath "$PSScriptRoot/../worker.pid" -Value $worker.Id
+Wait-Process -Id $worker.Id
+`)
+  const controller = new AbortController()
+  let pid: number | undefined
+
+  const timer = setInterval(() => {
+    const pidFile = path.join(home, 'worker.pid')
+
+    if (fs.existsSync(pidFile)) { pid = Number(fs.readFileSync(pidFile, 'utf8').trim()); controller.abort() }
+  }, 50)
+
+  try {
+    const result = await runBootstrap({ installStamp: null, activeRoot: home, sourceRepoRoot: home,
+      hermesHome: home, logRoot: home, abortSignal: controller.signal, onEvent: () => {} })
+
+    assert.equal(result.cancelled, true)
+    assert.ok(pid && Number.isInteger(pid))
+    assert.throws(() => process.kill(pid!, 0), { code: 'ESRCH' })
+  } finally {
+    clearInterval(timer)
+    controller.abort()
+
+    if (pid) { try { execFileSync('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' }) } catch { /* already exited */ } }
+    fs.rmSync(home, { recursive: true, force: true })
+  }
+}, 30000)
 
 test('runBootstrap bails immediately when the signal is already aborted', async () => {
   const controller = new AbortController()

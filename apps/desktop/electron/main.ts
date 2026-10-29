@@ -5635,7 +5635,7 @@ async function runEnsureRuntime(backend: any, assertStillOwned: () => void): Pro
       }
     }
 
-    const preserveExistingVenv = refreshingBundle && !bootstrapRepairRequested && (await isActiveRuntimeUsable())
+    const refreshExisting = refreshingBundle && !bootstrapRepairRequested && (await isActiveRuntimeUsable())
 
     // The repair request has been honoured by reaching the installer; clear it
     // so a later boot isn't forced through bootstrap again.
@@ -5643,7 +5643,7 @@ async function runEnsureRuntime(backend: any, assertStillOwned: () => void): Pro
     bootstrapRepairAttempt = 0
 
     const bootstrapResult = await runBootstrap({
-      preserveExistingVenv,
+      refreshExisting,
       installStamp: backend.installStamp,
       activeRoot: backend.activeRoot,
       sourceRepoRoot: SOURCE_REPO_ROOT,
