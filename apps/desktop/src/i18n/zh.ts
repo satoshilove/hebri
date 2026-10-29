@@ -2564,7 +2564,7 @@ export const zh = defineLocale({
     noSessions: '暂无会话。',
     gatewayRunning: '消息网关运行中',
     gatewayStopped: '消息网关已停止',
-    hermesActiveSessions: (version, count) => `Hebri ${version} · 活跃会话 ${count}`,
+    hermesActiveSessions: (version, count) => `Hebri 后端 ${version} · 活跃会话 ${count}`,
     restartGateway: '重启网关',
     openBrowser: '打开浏览器',
     gatewayRestartFailed: '网关重启失败。',

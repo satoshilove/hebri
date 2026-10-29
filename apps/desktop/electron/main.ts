@@ -95,7 +95,7 @@ import {
   resolveLinuxPasswordStore
 } from './bootstrap-platform'
 import { decideBootstrapRepair } from './bootstrap-repair-guard'
-import { runBootstrap } from './bootstrap-runner'
+import { bundledSourceRoot, runBootstrap } from './bootstrap-runner'
 import {
   BROWSER_WINDOW_HEIGHT,
   BROWSER_WINDOW_MIN_HEIGHT,
@@ -105,6 +105,14 @@ import {
 } from './browser-windows'
 import { detectBundleSkew } from './bundle-skew'
 import { detectBundleSwap } from './bundle-swap'
+import {
+  assertBundledRuntimeIdle,
+  backupBundledRuntime,
+  beginBundledRuntimeRefresh,
+  finishBundledRuntimeRefresh,
+  needsBundledRuntimeRefresh,
+  withBundledRuntimeLock
+} from './bundled-runtime-refresh'
 import { registerChatOnboardingWindow } from './chat-onboarding-window'
 import { discoverWithTeamFallback } from './cloud-discovery'
 import { installCommandScreenshot } from './command-screenshot'
@@ -5018,6 +5026,20 @@ async function activeRuntimeState() {
   return classifyActiveRuntime(readBootstrapMarker(), BOOTSTRAP_MARKER_SCHEMA_VERSION, await isActiveRuntimeUsable())
 }
 
+async function bundledRuntimeRefreshRequired() {
+  // Explicit developer runtimes are never managed by the packaged updater.
+  if (process.env.HERMES_DESKTOP_HERMES_ROOT || process.env.HERMES_DESKTOP_HERMES) {return false}
+
+  return needsBundledRuntimeRefresh({
+    packaged: IS_PACKAGED,
+    sourceRoot: bundledSourceRoot(),
+    activeRoot: ACTIVE_HERMES_ROOT,
+    desktopVersion: app.getVersion(),
+    marker: readBootstrapMarker(),
+    gitBinary: resolveGitBinary()
+  })
+}
+
 function writeBootstrapMarker(payload) {
   fs.mkdirSync(path.dirname(BOOTSTRAP_COMPLETE_MARKER), { recursive: true })
 
@@ -5358,6 +5380,17 @@ async function resolveHermesBackend(backendArgs) {
   //    bootstrap when the runtime itself is unusable.
   const activeRuntime = await activeRuntimeState()
 
+  if (await bundledRuntimeRefreshRequired()) {
+    return {
+      kind: 'bundle-refresh',
+      bootstrap: true,
+      args: backendArgs,
+      activeRoot: ACTIVE_HERMES_ROOT,
+      installStamp: INSTALL_STAMP,
+      label: 'Updating the Hebri backend to match this desktop release'
+    }
+  }
+
   if (activeRuntime.shouldUseActiveRuntime && !bootstrapRepairRequested) {
     if (!activeRuntime.hasValidMarker) {
       rememberLog(
@@ -5503,7 +5536,22 @@ async function resolveHermesBackend(backendArgs) {
   }
 }
 
+let bundledRuntimeRefresh: Promise<any> | null = null
+
 function ensureRuntime(backend: any, assertStillOwned: () => void): Promise<any> {
+  if (backend.kind === 'bundle-refresh') {
+    // Several profile requests may arrive during boot. Only one installer owns the tree.
+    bundledRuntimeRefresh ??= localBackendLifecycle.start(() =>
+      withBundledRuntimeLock(ACTIVE_HERMES_ROOT, getVenvPython(VENV_ROOT), () => runEnsureRuntime(backend, assertStillOwned))
+    )
+
+    return bundledRuntimeRefresh.then(() => {
+      assertStillOwned()
+
+      return resolveHermesBackend(backend.args).then(next => ensureRuntime(next, assertStillOwned))
+    })
+  }
+
   return localBackendLifecycle.start(() => runEnsureRuntime(backend, assertStillOwned))
 }
 
@@ -5526,10 +5574,15 @@ async function runEnsureRuntime(backend: any, assertStillOwned: () => void): Pro
   // (renderer window isn't created until later in startBackend). Phase 1E
   // will rewire startup to spawn the window first and route bootstrap events
   // to a renderer-side install overlay.
-  if (backend.kind === 'bootstrap-needed') {
-    rememberLog('[bootstrap] no Hebri install found; starting first-launch bootstrap')
+  if (backend.kind === 'bootstrap-needed' || backend.kind === 'bundle-refresh') {
+    const refreshingBundle = backend.kind === 'bundle-refresh'
+    rememberLog(
+      refreshingBundle
+        ? '[bootstrap] refreshing the backend bundled with this release'
+        : '[bootstrap] no Hebri install found; starting first-launch bootstrap'
+    )
 
-    if (await handOffWindowsBootstrapRecovery('bootstrap-needed')) {
+    if (!refreshingBundle && (await handOffWindowsBootstrapRecovery('bootstrap-needed'))) {
       const handoffError: Error & { isBootstrapFailure?: boolean; bootstrapHandedOff?: boolean } = new Error(
         'Hebri recovery was handed off to Hebri Setup. The desktop will restart when recovery completes.'
       )
@@ -5558,6 +5611,29 @@ async function runEnsureRuntime(backend: any, assertStillOwned: () => void): Pro
 
     localBackendLifecycle.assertCanStart()
     bootstrapAbortController = new AbortController()
+
+    if (refreshingBundle) {
+      try {
+        await advanceBootProgress('runtime.update', 'Updating the Hebri backend for this release…', 30)
+        await assertBundledRuntimeIdle(ACTIVE_HERMES_ROOT, getVenvPython(VENV_ROOT))
+        const holders = await scanVenvBlockers(ACTIVE_HERMES_ROOT)
+
+        if (holders.kind !== 'clear') {
+          throw new Error(
+            holders.kind === 'blocked' ? formatBlockerMessage(holders.result) : formatProbeFailedMessage(holders.error)
+          )
+        }
+
+        assertStillOwned()
+        const backup = await backupBundledRuntime(ACTIVE_HERMES_ROOT)
+        beginBundledRuntimeRefresh(ACTIVE_HERMES_ROOT, app.getVersion(), backup)
+        rememberLog(`[bootstrap] previous backend source preserved at ${backup}`)
+      } catch (error) {
+        bootstrapAbortController = null
+        broadcastBootstrapEvent({ type: 'failed', error: (error as Error).message })
+        throw error
+      }
+    }
 
     // The repair request has been honoured by reaching the installer; clear it
     // so a later boot isn't forced through bootstrap again.
@@ -5619,6 +5695,8 @@ async function runEnsureRuntime(backend: any, assertStillOwned: () => void): Pro
     }
 
     rememberLog('[bootstrap] bootstrap complete; marker written. Re-resolving backend.')
+
+    if (refreshingBundle) {await finishBundledRuntimeRefresh(ACTIVE_HERMES_ROOT)}
 
     // Re-resolve now that the install exists. The new resolution lands in
     // step 3 (bootstrap-complete marker) and we recurse to wire venvPython.
@@ -13484,7 +13562,7 @@ async function runHermesStart({ supervisorRecovery = false }: { supervisorRecove
     const setup = await runPrimaryBackendStartup({
       signal: localBackendLifecycle.signal,
       assertCurrentAttempt: () => backendConnectionState.assertCurrentAttempt(connectionAttempt),
-      attachHostBackend: attachToRunningHostBackend,
+      attachHostBackend: async () => ((await bundledRuntimeRefreshRequired()) ? null : attachToRunningHostBackend()),
       connectRemote,
       ensureLocalRuntime: backend =>
         ensureRuntime(backend, () => backendConnectionState.assertCurrentAttempt(connectionAttempt)),
@@ -15953,6 +16031,7 @@ ipcMain.handle('hermes:bootstrap:reset', async () => {
   rememberLog('[bootstrap] reset requested by renderer; clearing latched failure')
   await teardownPrimaryBackendAndWait()
   bootstrapFailure = null
+  bundledRuntimeRefresh = null
   backendStartFailure = null
   remoteReauthFailure = null
   getFirstRunSetupGate().resetForRetry()
@@ -16004,6 +16083,7 @@ ipcMain.handle('hermes:bootstrap:repair', async () => {
   // and respawns it against the same venv. See #74874 — this is what
   // breaks the infinite reinstall loop the user hit.
   bootstrapRepairRequested = repairDecision.hardReinstall
+  bundledRuntimeRefresh = null
   bootstrapFailure = null
   backendStartFailure = null
   remoteReauthFailure = null
@@ -18822,6 +18902,7 @@ function registerDeepLinkProtocol() {
   if (USER_DATA_OVERRIDE && ISOLATED_BACKEND) {
     return
   }
+
   try {
     if (process.defaultApp && process.argv.length >= 2) {
       // Dev: register with the electron exec path + entry script so the OS can

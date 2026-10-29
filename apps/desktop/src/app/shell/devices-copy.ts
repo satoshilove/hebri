@@ -71,6 +71,8 @@ const en = {
   result: 'Check result',
   disabled: 'Sharing is off',
   unavailable: 'Device operation failed. Check the connection and permissions.',
+  outdated:
+    'This backend does not support Hebri devices yet. Quit Hebri completely and reopen it to finish the backend update. If this persists, use Repair install.',
   locked: 'Secure OS credential storage is required. Unlock your keyring and restart Hebri.',
   tools: 'To let agents ask for help, enable the Devices toolset in Capabilities and start a new chat.',
   multicast: 'LAN discovery is unavailable. You can still pair using an invite.',
@@ -153,6 +155,8 @@ const it: typeof en = {
   result: 'Verifica risultato',
   disabled: 'Condivisione disattivata',
   unavailable: 'Operazione non riuscita. Controlla connessione e permessi.',
+  outdated:
+    'Questo backend non supporta ancora i dispositivi Hebri. Chiudi completamente Hebri e riaprilo per completare l’aggiornamento del backend. Se il problema persiste, usa Ripara installazione.',
   locked: 'È necessario l’archivio credenziali sicuro del sistema. Sblocca il portachiavi e riavvia Hebri.',
   tools:
     'Per consentire agli agenti di chiedere aiuto, abilita gli strumenti Dispositivi in Funzionalità e avvia una nuova chat.',

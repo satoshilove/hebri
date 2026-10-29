@@ -16,7 +16,7 @@ export function useDevicesView() {
   const profile = useStore($activeGatewayProfile) || 'default'
   const connection = useStore($activeConnectionId)
   const [state, setState] = useState<{ profile: string; value: DeviceSnapshot } | null>(null)
-  const [failed, setFailed] = useState(false)
+  const [failure, setFailure] = useState<'locked' | 'outdated' | 'unavailable' | null>(null)
   const [attempt, setAttempt] = useState(0)
   const snapshot = state?.profile === profile ? state.value : null
 
@@ -32,7 +32,7 @@ export function useDevicesView() {
     let timer: ReturnType<typeof setTimeout> | undefined
 
     setSnapshot(null)
-    setFailed(false)
+    setFailure(null)
 
     if (!local) {
       return
@@ -46,13 +46,20 @@ export function useDevicesView() {
 
         if (!stopped) {
           setSnapshot(next)
-          setFailed(false)
+          setFailure(null)
           enabled = next.enabled
         }
-      } catch {
+      } catch (error) {
         if (!stopped) {
           setSnapshot(null)
-          setFailed(true)
+          const message = error instanceof Error ? error.message : ''
+          setFailure(
+            ['secure_storage_required', 'device_identity_locked'].includes(message)
+              ? 'locked'
+              : /\b(404|405)\b/.test(message)
+                ? 'outdated'
+                : 'unavailable'
+          )
         }
       }
 
@@ -81,8 +88,8 @@ export function useDevicesView() {
       <DevicesPanel changed={setSnapshot} initial={snapshot} key={profile} profile={profile} />
     ) : (
       <div className="space-y-2 p-4" role="status">
-        <p>{failed ? copy.unavailable : copy.loading}</p>
-        {failed && (
+        <p>{failure ? copy[failure] : copy.loading}</p>
+        {failure && (
           <Button onClick={() => setAttempt(value => value + 1)} size="sm">
             {copy.refresh}
           </Button>
